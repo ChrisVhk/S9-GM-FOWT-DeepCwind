@@ -1,0 +1,34 @@
+# Ce .gitignore ne sert qu'aux fichiers PRODUITS par un calcul ou une compilation locale.
+# Il ne protege rien de sensible : aucun document prive ne doit entrer dans l'arbre, meme ignore.
+
+# Sorties OpenFAST generees en relancant un cas localement.
+# Exception : la solution de reference r-test (donnee d'entree pour la regression du cas de
+# reference, pas une sortie produite par un etudiant) reste suivie.
+*.outb
+!**/*_baseline-rtest.outb
+*.out
+*.sum
+*.ech
+*.dbg
+*.log
+
+# Controleurs compiles localement (scripts/build_discon.sh) : jamais suivis, a reconstruire
+# apres chaque clone.
+*.so
+
+# Champs de vent TurbSim generes localement (plusieurs dizaines de Mo) : a regenerer avec
+# `turbsim <cas>.inp`, jamais suivis.
+*.bts
+
+# Environnement Python / micromamba local
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Rendus des etudiants : jamais suivis par le depot du cours.
+rendus/*
+!rendus/.gitkeep
+
+# Resultats de calcul
+results/
+*.sum.yaml

@@ -1,0 +1,33 @@
+Ce dossier (tutorials/lheea/) reprend, avec modifications, le tutoriel OpenFAST Quickstart
+publié par le LHEEA (Nantes Université / Centrale Nantes / CNRS, ORACLE), sous licence
+Apache License 2.0 (voir le fichier LICENSE dans ce dossier).
+
+Dépôt d'origine : https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart
+Commit d'origine : 6040b6430bba78d3906877f2ea4d3effe3a4eb5e (21/10/2024)
+
+Modifications apportées (Apache License 2.0, section 4b) :
+- migration des fichiers d'entree OpenFAST (ElastoDyn, AeroDyn, ServoDyn, InflowWind, HydroDyn)
+  du format OpenFAST v3.2.1 vers le format OpenFAST v5.0.0 (nouveaux champs, module SeaState
+  introduit) ; chaque modification de ce type est signalee par un commentaire
+  "[migre : ...]" dans le fichier concerne ;
+  champs/sections ajoutes, entre autres : ModCoupling, RhoInf/ConvTol/MaxConvIter, NRotors,
+  CompSeaSt, CompSoil, MirrorRotor, SeaStFile (fichier .fst) ; PitchDOF, section YAW-FRICTION,
+  PBrIner/BlPIner, bloc de sortie par noeud de pale (ElastoDyn) ; renommage Wake_Mod/Skew_Mod,
+  scission de AFAeroMod en UA_Mod + IntegrationMethod (AeroDyn) ; PitNeut/PitSpr/PitDamp
+  (ServoDyn) ; VelInterpCubic et section LIDAR (InflowWind).
+- remplacement du controleur DISCON.dll (Windows, binaire tiers de version inconnue) par un
+  controleur recompile depuis la source OpenFAST du tag v5.0.0 (DISCON.F90 / DISCON_OC3Hywind.F90,
+  licence Apache-2.0) ; chaque etudiant compile sa propre version avec
+  scripts/build_discon.sh, aucun binaire compile n'est suivi dans ce depot.
+- cas 04 (MonopileWT) et 05 (FOWT) : les fichiers SeaState/HydroDyn/SubDyn/MoorDyn ont ete repris
+  du r-test OpenFAST (meme systeme physique, verifie champ a champ) plutot que migres a la main,
+  pour eviter une conversion a risque d'erreur depuis l'ancien format HydroDyn v2.03 monolithique.
+- vent turbulent (fichier .bts) absent de la distribution d'origine (exclu par le depot amont) :
+  substitue par un vent en rampe deja fourni (cas 04) ou regenere avec TurbSim a partir du fichier
+  .inp d'origine, conserve intact (cas 05).
+- choix opérationnel Wake_Mod=1 (BEMT) au lieu de Wake_Mod=2 (DBEMT, choix d'origine) : la valeur
+  DBEMT seule n'est pas acceptee par OpenFAST v5.0.0 pour la combinaison de projection utilisee
+  ici. Consequence pedagogique : la dynamique d'ecoulement n'est pas la meme qu'en v3.2.1 pour les
+  cas 04 et 05 (voir le README du tutoriel).
+
+Aucune mention de copyright ou d'attribution du depot d'origine n'a ete retiree.

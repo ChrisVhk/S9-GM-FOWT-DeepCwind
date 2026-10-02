@@ -1,0 +1,20 @@
+# Environnement epingle du cours : micromamba create -f environment.yml
+# (le nom de l'environnement, s9gm-fowt, est fixe par ce fichier -- pas besoin de -n)
+#
+# turbsim est installe par le meme paquet conda-forge que openfast (meme binaire de
+# distribution). fortran-compiler fournit le gfortran utilise par scripts/build_discon.sh --
+# PAS le gfortran du systeme (souvent absent, et de toute facon inaccessible sans droits
+# administrateur sur les machines de l'ecole).
+name: s9gm-fowt
+channels:
+  - conda-forge
+dependencies:
+  - openfast=5.0.0=hd1f9c02_2
+  - fortran-compiler
+  - python=3.11
+  - numpy
+  - pandas
+  - matplotlib
+  - pip
+  - pip:
+      - "openfast_toolbox @ git+https://github.com/OpenFAST/openfast_toolbox.git@54e6f3acb7b04254ccb6e8e4b9bdd06368f40168"
