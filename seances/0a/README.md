@@ -49,17 +49,20 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
    comment vérifier que sa description mécanique seule (masse, raideur) est correcte ?
 2. **Modèle** — la tour est lâchée depuis un déplacement initial (`TTDspFA`), sans aucune charge
    extérieure ni module aérodynamique actif (`CompAero=0`) : seule la raideur structurelle du
-   système la rappelle vers l'équilibre. **Domaine de validité** : regardez `config_elastodyn.dat`
-   avant de conclure — tous les modes structuraux sont activables ici (pales et plateforme ne sont
-   PAS bloqués par défaut dans ce fichier), mais sans charge aérodynamique (`CompAero=0`) ni mise en
-   rotation, c'est le déplacement initial de la tour qui pilote la réponse visible. Ce cas ne dit
-   rien du couplage aéro-élastique réel (vu aux cas suivants).
+   système la rappelle vers l'équilibre. **Domaine de validité** — lisez `config_elastodyn.dat`
+   avant de conclure, section DEGREES OF FREEDOM : les modes de flexion de pale (`FlapDOF1/2`,
+   `EdgeDOF`) et de tour (`TwFADOF1/2`, `TwSSDOF1/2`) sont actifs, ainsi que la rotation libre du
+   générateur (`GenDOF`) et le lacet (`YawDOF`) ; mais **la plateforme est totalement bloquée**
+   (les 6 `Ptfm*DOF` à `False`) et le calage de pale est fixe (`PitchDOF=False`). Sans charge
+   aérodynamique ni condition initiale sur les autres DOF, c'est le déplacement initial de la tour
+   qui domine la réponse observée.
 3. **Ordre de grandeur attendu** — la méthode : repérer la période d'oscillation sur la courbe du
    déplacement du sommet de tour, en déduire la fréquence propre ; la comparer à l'ordre de
    grandeur habituel pour une tour d'éolienne de cette taille (quelques dixièmes de Hz).
 4. **Ce que le modèle ne permet pas de conclure** — une oscillation propre correcte ne valide que
-   la raideur et la masse de la tour seule, pas le comportement couplé avec le rotor (bloqué ici)
-   ni l'effet d'un amortissement aérodynamique (absent, `CompAero=0`).
+   la raideur et la masse du système dans cette configuration précise, pas le couplage
+   aéro-élastique réel (aucune charge aérodynamique ici) ni le comportement d'un flotteur (la
+   plateforme est bloquée dans ce cas, pas libre comme au cas 05).
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §1 (voir NOTICE pour le détail des
    adaptations v3.2.1→v5.0.0, `ADAPTATION_LHEEA.md`).
 
@@ -174,5 +177,5 @@ séance 0b, pas sur celle-ci.
 
 ## Séance suivante
 
-`seances/0b/` : éolienne fixe en vent turbulent, classeur d'architecture du flotteur, premiers
-cas flottants (D0x). Squelette en place, contenu détaillé à publier avant la séance.
+[`seances/0b/`](../0b/README.md) : cas LHEEA pilotés, monopieu et flottant, puis construction de
+vos propres cas (F03-F05, D00-D05).

@@ -58,7 +58,10 @@ openfast main.fst
    de rampe, et le relier à la variation de poussée du rotor avec le vent.
 4. **Ce que le modèle ne permet pas de conclure** — une rampe déterministe ne représente pas la
    variabilité d'un vent réel : c'est le cas suivant (05) qui introduit un vent turbulent, généré
-   par TurbSim.
+   par TurbSim. Par ailleurs, ce cas (comme le 05) tourne en BEMT quasi-stationnaire
+   (`Wake_Mod=1`), pas en DBEMT dynamique — la dynamique du sillage observée n'est donc pas
+   exactement celle d'un calcul DBEMT, à garder en tête si vous comparez à une documentation qui le
+   suppose.
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §4 — **attention** : le texte du tutoriel y
    décrit un vent turbulent (TurbSim), mais ce dépôt utilise une rampe déterministe à la place, le
    fichier `.bts` d'origine n'ayant jamais été distribué par l'amont (voir `ADAPTATION_LHEEA.md`).
@@ -76,15 +79,18 @@ openfast main.fst
 ### Bloc Théorie
 
 1. **Question physique** — Qu'est-ce qui change structurellement dans le modèle quand la
-   fondation n'est plus rigide (monopieu) mais flottante et ancrée ?
+   fondation n'est plus ancrée au sol (monopieu encastré) mais libre de bouger (flotteur ancré par
+   des lignes caténaires) ?
 2. **Modèle** — HydroDyn combine théorie potentielle (grands éléments, coefficients WAMIT
    précalculés, fichier `marin_semi.*`) et théorie de Morison (éléments fins, entretoises) ;
    MoorDyn calcule l'ancrage caténaire dynamique. **Domaine de validité** : les coefficients WAMIT
    sont précalculés pour CETTE géométrie précise (DeepCwind) — ne se transposent pas tels quels à
    un autre flotteur.
 3. **Ordre de grandeur attendu** — la méthode : comparer les mouvements de plateforme
-   (`PtfmPitch`) et la puissance produite entre le cas fixe sur monopieu (04) et ce cas flottant, à
-   conditions de vent comparables.
+   (`PtfmPitch`, nul par construction au cas 04) et la puissance produite entre le cas fixe sur
+   monopieu (04, vent en rampe) et ce cas flottant (05, vent turbulent) — **sans oublier que les deux
+   cas ne partagent pas le même vent** : une partie de la différence observée vient de là, pas
+   seulement de la fondation.
 4. **Ce que le modèle ne permet pas de conclure** — rappel de l'énoncé (§3) : le flotteur est un
    seul corps rigide dans ce modèle — aucun effort intérieur (contrainte dans une entretoise) n'en
    est directement tiré ; ce point est traité en phase 5 par d'autres méthodes.
@@ -114,9 +120,7 @@ léger par cas) :
 | D02 | échelon de 5 à 20 m/s | régulière, H = 6 m, T = 10 s |
 | D03 à D05 | turbulent (mêmes champs que F03-F05) | irrégulière JONSWAP, Hs = 6 m, Tp = 10 s |
 
-**Point en attente de l'enseignant** : la durée simulée des cas turbulents (F03-F05, D03-D05) —
-300 s en séance avec 600 s en option, 600 s systématiques analysés en phase 1, ou un seul cas
-turbulent par binôme — n'est pas encore arbitrée.
+**Durée simulée des cas turbulents** (F03-F05, D03-D05) : communiquée en séance.
 
 Classeur d'architecture du flotteur (`DeepCwind_ARCHITECTURE.xlsx`) et raideurs hydrostatiques
 K33/K55 à la main : voir `ENONCE.md`, phase 0, séance 0b, points 7-8.

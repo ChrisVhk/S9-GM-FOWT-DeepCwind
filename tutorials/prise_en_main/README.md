@@ -14,21 +14,20 @@ D00/, D01/, ...    idem, pour le flottant
 run_cas.sh         lance un cas (ou plusieurs, ou "all")
 ```
 
-**Règle de résolution des chemins, VÉRIFIÉE** (et non plus supposée — une version antérieure de ce
-README affirmait l'inverse, voir note en fin de section) : un chemin relatif écrit DANS un fichier
-secondaire (ElastoDyn, AeroDyn, ServoDyn…) se résout par rapport au dossier DE CE FICHIER
-SECONDAIRE lui-même, pas par rapport au dossier du `.fst` primaire. `main.fst` peut donc pointer
-vers `../modele_fixe/config_aerodyn.dat`, et ce dernier garde ses propres références internes
+**Règle de résolution des chemins** : un chemin relatif écrit DANS un fichier secondaire
+(ElastoDyn, AeroDyn, ServoDyn…) se résout par rapport au dossier DE CE FICHIER SECONDAIRE
+lui-même, pas par rapport au dossier du `.fst` primaire. `main.fst` peut donc pointer vers
+`../modele_fixe/config_aerodyn.dat`, et ce dernier garde ses propres références internes
 (`Airfoils/DU21_A17.dat`) inchangées : elles visent toujours `modele_fixe/Airfoils/`, jamais le
 dossier du cas qui l'appelle.
 
-**Commande qui le démontre** (rejouée pour ce tutoriel le 02/10, cas F01 et F02) : un `main.fst`
-contenant uniquement `config_inflow.dat` en local et les 7 autres champs de fichiers réécrits en
-`"../modele_fixe/config_xxx.dat"`, exécuté par `cd F01 && openfast main.fst`, charge correctement
-les `Airfoils/` de `modele_fixe/` (AeroDyn) et le contrôleur compilé dans
-`models/oc4_rtest/5MW_Baseline/ServoData/` (ServoDyn) — chemin lui-même écrit à l'intérieur de
-`modele_fixe/config_servodyn.dat`, à TROIS niveaux (`../../../models/...`, relatif à
-`modele_fixe/`), jamais réécrit lors du partage. `OpenFAST terminated normally.` dans les deux cas.
+**Commande qui le démontre** : un `main.fst` contenant uniquement `config_inflow.dat` en local et
+les 7 autres champs de fichiers réécrits en `"../modele_fixe/config_xxx.dat"`, exécuté par
+`cd F01 && openfast main.fst`, charge correctement les `Airfoils/` de `modele_fixe/` (AeroDyn) et
+le contrôleur compilé dans `models/oc4_rtest/5MW_Baseline/ServoData/` (ServoDyn) — chemin lui-même
+écrit à l'intérieur de `modele_fixe/config_servodyn.dat`, à TROIS niveaux (`../../../models/...`,
+relatif à `modele_fixe/`), jamais réécrit lors du partage. `OpenFAST terminated normally.` dans les
+deux cas.
 
 **Conséquence pour le dépôt** : `F01/` et `F02/` ne contiennent plus que `main.fst` et ce qui leur
 est propre (`config_inflow.dat`, et `Wind/ramp_wind.dat` pour F02) — `Airfoils/`, `tower.dat`,
