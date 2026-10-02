@@ -34,9 +34,9 @@ Détail phase par phase, compétences visées, méthode de travail et règles d'
 | `scripts/build_discon.sh` | Compile le contrôleur (jamais suivi compilé) | phase 0, toute séance |
 | `scripts/generer_vent_turbulent_05.sh` | Génère le vent turbulent du cas LHEEA 05 (fichier trop gros pour git) | phase 0b, phase 2 |
 | `models/oc4_rtest/` | Modèle de référence OC4-DeepCwind (cas r-test OpenFAST, Apache-2.0) : géométrie, contrôleur et données hydro partagés par les tutoriels ci-dessous | toutes phases (référence partagée) |
-| `tutorials/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre | phase 0a |
-| `tutorials/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) : progression pédagogique, non affectée à un rendu noté | — |
-| `tutorials/lheea/05` | Cas flottant complet du même tutoriel : cas de **référence commune** | phase 2 |
+| `tutorials/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre — récit dans `seances/0a/` | phase 0a |
+| `tutorials/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
+| `tutorials/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
 | `tutorials/prise_en_main/` | Tutoriel du cours : éolienne fixe (F0x) puis flottante (D0x) | phase 0 |
 | `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) — une seule à ce jour (F1) | toutes phases |
 | `papers/` | Fiches de lecture sourcées sur les systèmes OC4/OC5/OC6 (documents publics) | phases 1-2 |

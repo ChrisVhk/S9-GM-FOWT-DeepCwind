@@ -1,1 +1,0 @@
-Please see the PDF file for informations about the content of this folder 

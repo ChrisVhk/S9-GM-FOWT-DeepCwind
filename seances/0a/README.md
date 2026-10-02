@@ -16,26 +16,89 @@ Suivez [`../../INSTALLATION.md`](../../INSTALLATION.md), sections 1 et 2 :
 continuez avec un camarade en binôme pour la suite, et terminez l'installation après la séance
 (avant la séance 0b, au plus tard en salle C09).
 
-## 2. Premiers calculs — cas LHEEA 01 et 02 (environ 15 min)
+## 2. Anatomie d'un cas OpenFAST (environ 20 min, en binôme)
 
-```bash
-cd tutorials/lheea/01_TowerStructure/1_Configuration
-openfast main.fst
-cd ../../02_FreeRotatingWT/1_Configuration
-openfast main.fst
-```
+*D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), adapté — voir
+[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
 
-Les deux doivent se terminer par `OpenFAST terminated normally.`. Ce sont les cas les plus
-simples du dépôt — s'ils échouent, l'installation n'est pas correcte, reprenez l'étape 1.
-
-## 3. Lire un `.fst` (environ 20 min, en binôme)
+OpenFAST est un code « glue » : il couple des modules indépendants (ElastoDyn pour la structure,
+AeroDyn pour l'aérodynamique, HydroDyn pour l'hydrodynamique, ServoDyn pour le contrôle, MoorDyn
+pour l'ancrage…), chacun avec son propre fichier de configuration. Un seul fichier pilote tout :
+`main.fst`.
 
 Ouvrez `tutorials/lheea/01_TowerStructure/1_Configuration/main.fst` dans un éditeur de texte.
+Trois sections à repérer :
+- **SIMULATION CONTROL** : `TMax` (durée), `DT` (pas de temps), `InterpOrder`.
+- **FEATURE SWITCHES AND FLAGS** : quels modules sont actifs (`CompElast`, `CompInflow`,
+  `CompAero`, `CompHydro`, `CompServo`, `CompMooring`…). Pour ce premier cas, seul `CompElast=1`
+  est actif — tout le reste est éteint.
+- **INPUT FILES** : le fichier de configuration de chaque module actif, en chemin relatif.
+
 Pour chaque section, notez ce que vous changeriez pour une nouvelle étude (`TMax`, le pas de
 temps, les degrés de liberté actifs, les fichiers d'entrée, la liste de sorties `OutList`) et ce
 qui reste identique d'un cas à l'autre dans ce tutoriel.
 
-## 4. Régulation de la NREL 5 MW, à la main (environ 30 min)
+## 3. Cas LHEEA 01 — dynamique structurelle de la tour seule (environ 20 min)
+
+*D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §1, adapté — voir
+[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+
+### Bloc Théorie
+
+1. **Question physique** — Avant d'ajouter des charges complexes (vent, houle) à un modèle,
+   comment vérifier que sa description mécanique seule (masse, raideur) est correcte ?
+2. **Modèle** — la tour est lâchée depuis un déplacement initial (`TTDspFA`), sans aucune charge
+   extérieure ni module aérodynamique actif (`CompAero=0`) : seule sa propre raideur de flexion la
+   rappelle vers l'équilibre. **Domaine de validité** : seuls les modes de flexion de la tour sont
+   actifs (`TwFADOF1/2`, `TwSSDOF1/2`) ; pales et plateforme sont bloquées, rigides — ce cas ne dit
+   rien du couplage aéro-élastique ni de la dynamique du rotor.
+3. **Ordre de grandeur attendu** — la méthode : repérer la période d'oscillation sur la courbe du
+   déplacement du sommet de tour, en déduire la fréquence propre ; la comparer à l'ordre de
+   grandeur habituel pour une tour d'éolienne de cette taille (quelques dixièmes de Hz).
+4. **Ce que le modèle ne permet pas de conclure** — une oscillation propre correcte ne valide que
+   la raideur et la masse de la tour seule, pas le comportement couplé avec le rotor (bloqué ici)
+   ni l'effet d'un amortissement aérodynamique (absent, `CompAero=0`).
+5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §1 (voir NOTICE pour le détail des
+   adaptations v3.2.1→v5.0.0, `ADAPTATION_LHEEA.md`).
+
+```bash
+cd tutorials/lheea/01_TowerStructure/1_Configuration
+openfast main.fst
+```
+
+Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simple du dépôt — s'il
+échoue, l'installation n'est pas correcte, reprenez l'étape 1.
+
+## 4. Cas LHEEA 02 — éolienne libre en vent constant (environ 15 min)
+
+*D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §2, adapté — voir
+[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+
+### Bloc Théorie
+
+1. **Question physique** — Que se passe-t-il si un rotor tourne librement sous l'effet du vent,
+   sans aucun frein ni contrôle de couple ?
+2. **Modèle** — le rotor accélère jusqu'à ce que le couple aérodynamique s'annule (portance et
+   traînée se compensent dans le plan de rotation) : un équilibre libre, pas une régulation.
+   **Domaine de validité** : vent constant avec profil de cisaillement (loi de puissance), BEMT
+   quasi-stationnaire (`Wake_Mod=1`).
+3. **Ordre de grandeur attendu** — la méthode : observer le plateau de `RotSpeed` en régime
+   établi, et le comparer au régime nominal de la machine (fiche F1) pour juger si cette vitesse
+   libre est réaliste ou extrême.
+4. **Ce que le modèle ne permet pas de conclure** — ce régime libre n'est pas physiquement tenable
+   pour une vraie éolienne (vitesse de bout de pale et nombre de Mach excessifs, signalé par le
+   tutoriel LHEEA lui-même) : ce cas sert à introduire le *besoin* de régulation, pas à représenter
+   un fonctionnement réel — c'est l'objet du bloc suivant.
+5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §2 ; fiche F1 (régulation, bloc suivant).
+
+```bash
+cd tutorials/lheea/02_FreeRotatingWT/1_Configuration
+openfast main.fst
+```
+
+Doit se terminer par `OpenFAST terminated normally.`.
+
+## 5. Régulation de la NREL 5 MW, à la main (environ 30 min)
 
 ### Bloc Théorie
 
@@ -63,7 +126,7 @@ puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau
 vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 2, 2½, 3).
 C'est la question Q0.1 du rendu R0.
 
-## 5. Cas F01 et F02 — éolienne fixe (environ 45 min)
+## 6. Cas F01 et F02 — éolienne fixe (environ 45 min)
 
 ### Bloc Théorie
 
@@ -99,7 +162,7 @@ bash run_cas.sh F02
 Voir `tutorials/prise_en_main/README.md` pour la méthode de vérification à la main (fréquence 1P,
 poussée, `TwrBsMyt`).
 
-## 6. Rendu R0 (à finir hors séance si besoin)
+## 7. Rendu R0 (à finir hors séance si besoin)
 
 Questions Q0.1 et Q0.2 de l'énoncé (section « Phase 0 », rendu R0) : tableau de régulation à la
 main comparé à F02, et vérifications à la main de F01. Les questions Q0.3 à Q0.5 portent sur la
