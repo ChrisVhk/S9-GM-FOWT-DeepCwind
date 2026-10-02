@@ -57,8 +57,43 @@ n'est donc pas une adaptation liée à la version d'OpenFAST, mais à l'OS. L'é
 ici est **la provenance du `.so`** : compilé depuis la source Apache-2.0 d'OpenFAST, pas un binaire
 tiers.
 
-## Non testé dans cette passe
+## Practicals SWRT (`practicals/`) — exécutés et migrés
 
-Les notebooks `practicals/practical1.ipynb` et `practical2.ipynb` (Small Wind Research Turbine,
-`SWRT`) n'ont pas été exécutés avec l'environnement Python actuel (`openfast_toolbox` v3.5.1) —
-copiés tels quels, gabarits à trous (`[TO COMPLETE]`), aucune réponse numérique dedans (vérifié).
+Les notebooks `practical1.ipynb` et `practical2.ipynb` (Small Wind Research Turbine, `SWRT`) ont
+été exécutés avec l'environnement actuel (`openfast_toolbox` v3.5.1 + `jupyter nbconvert
+--execute`). Les cas `.fst`/ElastoDyn qu'ils utilisent dataient d'une version antérieure à
+v3.2.1 et n'avaient jamais été migrés.
+
+| Fichier | Avant | Après | Raison | Test qui le valide |
+|---|---|---|---|---|
+| `SWRT_01/SWRT_01.fst`, `SWRT_02/SWRT_02{1,2,3}.fst` | Section SIMULATION CONTROL sans `ModCoupling`/`RhoInf`/`ConvTol`/`MaxConvIter` ; FEATURE SWITCHES sans `NRotors`/`CompSeaSt`/`CompSoil`/`MirrorRotor` ; INPUT FILES sans `SeaStFile`/`SoilFile` | Champs ajoutés (mêmes valeurs par défaut que les cas 01-05) | Même refonte de format `.fst` v5.0.0 que les cas principaux (lecture positionnelle Fortran) | `openfast <cas>.fst` → `EXIT=0` pour `SWRT_01` et `SWRT_021` |
+| `SWRT_01/Elastodyn/SWRT_ED.dat`, `SWRT_02/Elastodyn/SWRT_ED{,_rigid}.dat` | Sans `PitchDOF`, `PtfmRefxt/yt`, `PBrIner`×3, `BlPIner`×3, `HubIner_Teeter`, `PtfmXYIner/YZIner/XZIner`, section YAW-FRICTION, bloc de sortie par station de pale | Champs/section ajoutés | Même refonte ElastoDyn v5.0.0 que les cas principaux | idem |
+| `SWRT_021.fst`, champ `InflowFile` | `"unused"` alors que `CompInflow=1` | `"InflowWind/SWRT_IW.dat"` (cohérent avec `SWRT_022`/`SWRT_023`, qui référencent déjà ce fichier) | **Défaut préexistant du fichier d'origine, indépendant de la migration v5.0.0** — `SWRT_021` ne pouvait pas fonctionner même sous v3.5.2 avec ce réglage | `openfast SWRT_021.fst` → `EXIT=0` après correction |
+| `SWRT_022.fst`, `SWRT_023.fst`, chemins `AeroDyn/...` | `"AeroDyn/SWRT_AD(15).dat"` | `"Aerodyn/SWRT_AD(15).dat"` | **Sensibilité à la casse Windows→Linux** : le dossier réel s'appelle `Aerodyn` (minuscule), le chemin écrit dans le `.fst` utilisait `AeroDyn` — invisible sous Windows (NTFS insensible à la casse), bloquant sous Linux (ext4 sensible à la casse) | Le fichier est trouvé (l'erreur suivante change de nature, voir ci-dessous) |
+
+### Non résolu dans cette passe — `SWRT_022.fst`, mésappariement AeroDyn v14/v15
+
+`SWRT_022.fst` déclare `CompAero=2` (AeroDyn, sens v5.0.0 générique) mais son `AeroFile` pointe
+vers `Aerodyn/SWRT_AD.dat`, dont l'en-tête dit explicitement **« AeroDyn v14.04.* INPUT FILE »**
+— un format de fichier complètement différent (pas de champ `Echo` en tête, schéma différent),
+que le parseur v5.0.0 ne sait pas lire (`ParseLoVar: The variable "Echo" was not found on line
+#4`). `SWRT_023.fst`, lui, pointe correctement vers `Aerodyn/SWRT_AD15.dat` (format v15) et n'a
+pas cette incohérence.
+
+**Ce n'est pas un défaut de migration** : même sous OpenFAST v3.5.2 (version d'origine de ces
+fichiers), le module « AeroDyn v14 » est un driver distinct de l'« AeroDyn v15 » utilisé partout
+ailleurs dans ce dépôt — réparer `SWRT_022` demanderait soit de reconstruire un fichier AeroDyn
+v15 complet pour cette turbine (portage de la géométrie de pale), soit de clarifier l'intention
+pédagogique originale (le fichier v14 était peut-être volontaire, avec un `CompAero` mal réglé).
+**Hors budget de cette passe** — engagement ouvert (voir `ENGAGEMENTS.md`).
+
+Conséquence pour les notebooks : `practical1.ipynb` s'exécute intégralement sans erreur
+(`jupyter nbconvert --execute`, 0 erreur). `practical2.ipynb` s'exécute jusqu'à la cellule qui lit
+`SWRT_022.out` (le calcul ne produit pas ce fichier, `SWRT_022.fst` ne tourne pas) — aucune
+cellule réponse n'a été ajoutée ou modifiée pour contourner ce point.
+
+`SWRT_023.fst` a reçu les mêmes corrections `.fst`/ElastoDyn mais n'a pas été testé plus loin : il
+n'est référencé par aucune cellule de code des deux notebooks.
+
+**Nouvelle dépendance** : `notebook` et `ipykernel` ajoutés à `env/environment.yml` — sans eux,
+rien dans l'environnement pinné ne permettait d'ouvrir ou d'exécuter ces notebooks.
