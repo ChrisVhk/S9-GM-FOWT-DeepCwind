@@ -18,48 +18,50 @@ Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du tutoriel 
 
 ### Bloc Théorie
 
-1. **Question physique** — Pourquoi un contrôle par couple seul ne suffit-il pas dès que le vent
-   dépasse le régime nominal ?
-2. **Modèle** — contrôleur ServoDyn élémentaire : couple nul en Region 1, proportionnel à `Ω²` en
-   Region 2 (pitch fixe à 0°), constant en Region 3. **Domaine de validité** : cette forme ne pilote
-   PAS le pitch — elle ne peut donc pas limiter la puissance une fois le régime nominal dépassé,
-   ce que ce cas illustre directement (voir aussi la fiche F1, « Pièges »).
-3. **Ordre de grandeur attendu** — la méthode : lire la rampe de vent fournie dans
-   `tutorials/lheea/03_ControlledWT/1_Configuration/ramp_wind.dat`, repérer sur le résultat
-   l'instant où la puissance dépasse sa valeur nominale, et le comparer, via la fiche F1, à la
-   vitesse de vent théorique de transition Region 2/3.
-4. **Ce que le modèle ne permet pas de conclure** — ce contrôleur élémentaire n'est pas réaliste :
-   il sert à motiver le besoin du contrôleur complet (pitch + couple), utilisé dans les cas
-   suivants (compilé depuis `DISCON.F90`, voir `scripts/build_discon.sh`).
-5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §3 ; fiche F1 (régulation).
+1. **Question physique** — Comment un contrôleur complet (couple ET pitch) répond-il quand le
+   vent passe du régime normal au régime nominal ?
+2. **Modèle** — contrôleur Bladed-DLL complet (`DISCON.so`, compilé depuis `DISCON.F90` —
+   `scripts/build_discon.sh`) : couple piloté par la loi de Region 2 en dessous du régime nominal,
+   pitch actif au-delà pour plafonner la puissance. **Domaine de validité** : la rampe de vent de
+   ce cas est lente (600 s) — elle teste la réponse en quasi-statique, pas la réactivité face à une
+   rafale rapide ou à un vent turbulent.
+3. **Ordre de grandeur attendu** — la méthode : repérer sur le résultat l'instant où le calage
+   des pales (`BldPitch1`) commence à s'écarter de zéro, et vérifier que la puissance se stabilise
+   près de sa valeur nominale au-delà plutôt que de continuer à croître avec le vent.
+4. **Ce que le modèle ne permet pas de conclure** — une rampe lente ne teste pas la réactivité du
+   contrôleur face à une rafale rapide, et ce cas isolé ne dit rien de la variabilité d'un vent réel
+   (turbulence, vue au cas 05).
+5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §3 — **attention** : le texte du tutoriel y
+   décrit un contrôleur élémentaire sans pitch, mais le fichier de ce dépôt utilise déjà le
+   contrôleur complet (voir `ADAPTATION_LHEEA.md`) ; fiche F1 (régulation).
 
 ```bash
 cd tutorials/lheea/03_ControlledWT/1_Configuration
 openfast main.fst
 ```
 
-## 2. Cas LHEEA 04 — éolienne sur monopieu, vent turbulent (environ 30 min)
+## 2. Cas LHEEA 04 — éolienne sur monopieu (environ 30 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §4, adapté — voir
 [`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
 
 ### Bloc Théorie
 
-1. **Question physique** — Comment un vent turbulent (plutôt que stationnaire) change-t-il la
-   charge sur une structure offshore, et comment modélise-t-on une fondation flexible plutôt qu'un
-   encastrement rigide ?
-2. **Modèle** — SubDyn représente le monopieu par des membres-poutres cylindriques articulés à
-   des nœuds ; le vent turbulent est un champ 3D discrétisé dans le temps et l'espace, généré par
-   TurbSim. **Domaine de validité** : SubDyn suppose des membres élancés et droits — pas adapté à
-   une géométrie complexe comme le flotteur DeepCwind (voir phase 5 du projet, autre méthode).
-3. **Ordre de grandeur attendu** — la méthode : comparer les statistiques (moyenne, écart-type)
-   du moment en pied de structure entre un vent stationnaire (cas 02, séance 0a) et ce vent
-   turbulent, à vitesse moyenne comparable.
-4. **Ce que le modèle ne permet pas de conclure** — une seule réalisation de vent turbulent (une
-   seule « seed ») ne donne pas une statistique représentative : il en faudrait plusieurs pour
-   conclure sur un écart-type fiable — point repris en phase 1 (Load Case Table) et phase 2.
-5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §4 ; `scripts/generer_vent_turbulent_05.sh`
-   (méthode de génération TurbSim transposable à un autre cas).
+1. **Question physique** — Comment modélise-t-on une fondation flexible (pas un simple
+   encastrement rigide ponctuel) pour une structure offshore ?
+2. **Modèle** — SubDyn représente le monopieu par des membres-poutres cylindriques droits reliés
+   à des nœuds, **tous encastrés au fond marin** (pas articulés). **Domaine de validité** : SubDyn
+   suppose des membres élancés et droits — pas adapté à une géométrie complexe comme le flotteur
+   DeepCwind (voir phase 5 du projet, autre méthode).
+3. **Ordre de grandeur attendu** — la méthode : sur la rampe de vent fournie par ce cas
+   (déterministe, pas de turbulence ici), comparer le moment en pied de structure en début et fin
+   de rampe, et le relier à la variation de poussée du rotor avec le vent.
+4. **Ce que le modèle ne permet pas de conclure** — une rampe déterministe ne représente pas la
+   variabilité d'un vent réel : c'est le cas suivant (05) qui introduit un vent turbulent, généré
+   par TurbSim.
+5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §4 — **attention** : le texte du tutoriel y
+   décrit un vent turbulent (TurbSim), mais ce dépôt utilise une rampe déterministe à la place, le
+   fichier `.bts` d'origine n'ayant jamais été distribué par l'amont (voir `ADAPTATION_LHEEA.md`).
 
 ```bash
 cd tutorials/lheea/04_MonopileWT/1_Configuration

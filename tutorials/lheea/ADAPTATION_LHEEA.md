@@ -24,6 +24,22 @@ Conformément à la licence Apache-2.0 (§4b), chaque modification est signalée
 | `config_aerodyn.dat` | `WakeMod`, `SkewMod`, `AFAeroMod` unique | Renommés `Wake_Mod`, `Skew_Mod` ; `AFAeroMod` scindé en `UA_Mod` + `IntegrationMethod` | Renommage/refonte de champs AeroDyn v5.0.0 | `openfast main.fst` → `EXIT=0`, 200 s simulées |
 | `config_inflow.dat` | Sans `VelInterpCubic`, sans section LIDAR | `VelInterpCubic` ajouté en tête ; section LIDAR complète ajoutée (12 champs, à leurs valeurs par défaut — non utilisée avec `WindType=1/2/3`, mais doit être présente) | Lecture positionnelle Fortran : absence de la section cause un décalage de lecture, pas une erreur explicite | Erreur initiale détectée (décalage), corrigée ; `EXIT=0` après correction |
 
+### ⚠️ Anomalie non intentionnelle trouvée a posteriori (relecture du 02/10) — aérodynamique de profil devenue instationnaire
+
+Tous les fichiers d'origine (cas 02 à 05) ont `AFAeroMod=1` (modèle **stationnaire** actif) ; le
+bloc Beddoes-Leishman qui suit (`UAMod=3`) est présent dans le fichier mais **inactif**, puisqu'il
+n'est utilisé que si `AFAeroMod=2`. En v5.0.0, `AFAeroMod` est remplacé par `UA_Mod`, qui pilote
+**directement** le modèle (`UA_Mod=0` = stationnaire, `UA_Mod=3` = Beddoes-Leishman actif). La
+migration a repris la valeur numérique du champ dormant (`3`) au lieu de la mettre à `0` pour
+reproduire le comportement stationnaire d'origine. **Conséquence vérifiée** : les 4 cas aérodynamiques
+de ce dépôt (02 à 05) tournent avec une aérodynamique de profil instationnaire (Beddoes-Leishman
+Minnema/Pierce), alors que le tutoriel d'origine utilisait un modèle stationnaire à cet endroit.
+Les cas continuent de tourner normalement (`EXIT=0`) — ce n'est pas un défaut de fonctionnement,
+mais un écart de physique enseignée non documenté jusqu'ici. **Reste à trancher par l'enseignant** :
+corriger (`UA_Mod=0` dans les 4 cas, retour au comportement d'origine) ou conserver (le modèle
+instationnaire est plus réaliste, au prix de s'écarter du texte du tutoriel) — voir le registre
+des engagements.
+
 ## Cas 03 — Éolienne contrôlée (`03_ControlledWT/`)
 
 | Champ / fichier | Avant (v3.2.1) | Après (v5.0.0) | Raison | Test qui le valide |

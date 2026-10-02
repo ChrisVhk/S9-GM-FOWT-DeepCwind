@@ -48,10 +48,12 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
 1. **Question physique** — Avant d'ajouter des charges complexes (vent, houle) à un modèle,
    comment vérifier que sa description mécanique seule (masse, raideur) est correcte ?
 2. **Modèle** — la tour est lâchée depuis un déplacement initial (`TTDspFA`), sans aucune charge
-   extérieure ni module aérodynamique actif (`CompAero=0`) : seule sa propre raideur de flexion la
-   rappelle vers l'équilibre. **Domaine de validité** : seuls les modes de flexion de la tour sont
-   actifs (`TwFADOF1/2`, `TwSSDOF1/2`) ; pales et plateforme sont bloquées, rigides — ce cas ne dit
-   rien du couplage aéro-élastique ni de la dynamique du rotor.
+   extérieure ni module aérodynamique actif (`CompAero=0`) : seule la raideur structurelle du
+   système la rappelle vers l'équilibre. **Domaine de validité** : regardez `config_elastodyn.dat`
+   avant de conclure — tous les modes structuraux sont activables ici (pales et plateforme ne sont
+   PAS bloqués par défaut dans ce fichier), mais sans charge aérodynamique (`CompAero=0`) ni mise en
+   rotation, c'est le déplacement initial de la tour qui pilote la réponse visible. Ce cas ne dit
+   rien du couplage aéro-élastique réel (vu aux cas suivants).
 3. **Ordre de grandeur attendu** — la méthode : repérer la période d'oscillation sur la courbe du
    déplacement du sommet de tour, en déduire la fréquence propre ; la comparer à l'ordre de
    grandeur habituel pour une tour d'éolienne de cette taille (quelques dixièmes de Hz).
@@ -80,8 +82,10 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
    sans aucun frein ni contrôle de couple ?
 2. **Modèle** — le rotor accélère jusqu'à ce que le couple aérodynamique s'annule (portance et
    traînée se compensent dans le plan de rotation) : un équilibre libre, pas une régulation.
-   **Domaine de validité** : vent constant avec profil de cisaillement (loi de puissance), BEMT
-   quasi-stationnaire (`Wake_Mod=1`).
+   **Domaine de validité** : vent constant avec profil de cisaillement (loi de puissance) ; le
+   sillage est traité en BEMT quasi-stationnaire (`Wake_Mod=1`), mais l'aérodynamique de profil,
+   elle, est **instationnaire** (`UA_Mod=3`, modèle de décrochage dynamique de Beddoes-Leishman) —
+   ne confondez pas les deux sous-modèles en répondant à une question sur ce cas.
 3. **Ordre de grandeur attendu** — la méthode : observer le plateau de `RotSpeed` en régime
    établi, et le comparer au régime nominal de la machine (fiche F1) pour juger si cette vitesse
    libre est réaliste ou extrême.
