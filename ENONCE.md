@@ -168,6 +168,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 - Q0.3 — Classeur d'architecture complété, et correspondance avec le fichier HydroDyn ; K33 et K55 à la main contre HydroDyn ; périodes propres qui en découlent.
 - Q0.4 — Tableau fixe / flottant (max, écart-type) et trois constats argumentés : ce qui change, pourquoi, et ce que ce tableau ne permet pas encore de conclure sur la fatigue.
 - Q0.5 — Citez les paramètres qui définissent une ligne de Load Case Table (au moins huit) et dites lesquels vous avez déjà fait varier dans ce tutoriel.
+- Q0.6 (si vous avez relancé un cas turbulent à 600 s en plus des 300 s de la séance) — Comparez les statistiques d'un même canal entre les deux durées : l'écart est-il dans le bruit, ou significatif ? Qu'est-ce que cela vous dit sur la durée à retenir pour un rendu qui compte ?
 
 **Si l'installation échoue en séance** : elle doit être terminée **avant la séance 0b**, à la maison ou en salle C09. Noter l'erreur exacte dans R0. Les cas turbulents prennent du temps de calcul : lancez-les dès la fin de la séance 0b si vous n'avez pas fini.
 

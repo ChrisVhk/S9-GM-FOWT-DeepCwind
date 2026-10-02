@@ -120,7 +120,35 @@ léger par cas) :
 | D02 | échelon de 5 à 20 m/s | régulière, H = 6 m, T = 10 s |
 | D03 à D05 | turbulent (mêmes champs que F03-F05) | irrégulière JONSWAP, Hs = 6 m, Tp = 10 s |
 
-**Durée simulée des cas turbulents** (F03-F05, D03-D05) : communiquée en séance.
+### Bloc Théorie
+
+1. **Question physique** — Un dommage de fatigue ou une statistique de charge calculés sur un
+   vent turbulent dépendent-ils de la durée simulée, et si oui comment ?
+2. **Modèle** — un champ de vent turbulent est une réalisation aléatoire (une « seed ») ; ses
+   statistiques (moyenne, écart-type, valeurs extrêmes) ne convergent vers celles du processus
+   qu'avec la durée. **Domaine de validité** : la norme IEC 61400-1 recommande 10 minutes (600 s)
+   comme durée de référence pour les statistiques de charge — 300 s est une durée réduite, acceptée
+   ici pour tenir dans la séance, pas la durée de référence professionnelle.
+3. **Ordre de grandeur attendu** — la méthode : comparer, sur un même cas relancé à 300 s puis à
+   600 s (en option, à la maison), les statistiques d'un canal (moyenne, écart-type, max) — pas
+   leur valeur elle-même, l'écart entre les deux durées.
+4. **Ce que le modèle ne permet pas de conclure** — une seule seed, quelle que soit sa durée, ne
+   dit rien de la variabilité entre seeds (point revu en phase 1-2, Load Case Table).
+5. **Renvois** — IEC 61400-1 (durée de référence) ; phase 1 de l'énoncé (occurrences, Load Case
+   Table).
+
+**En séance : `TMax = 300 s`** pour les cas turbulents (F03-F05, D03-D05) — tient dans les 3 h.
+**En option, à la maison : `TMax = 600 s`**, à relancer et comparer au cas de 300 s (Q0.6, si
+vous le faites).
+
+Temps de calcul mesuré pour un cas turbulent fixe de ce type (génération TurbSim + simulation
+OpenFAST, machine de développement du cours) :
+
+| Durée simulée | Génération TurbSim | Simulation OpenFAST | Total |
+|---|---|---|---|
+| 300 s | 1 min 07 s | 2 min 01 s | ≈ 3 min 10 s |
+
+*À compléter pour 600 s et pour les cas flottants (D0x) une fois construits.*
 
 Classeur d'architecture du flotteur (`DeepCwind_ARCHITECTURE.xlsx`) et raideurs hydrostatiques
 K33/K55 à la main : voir `ENONCE.md`, phase 0, séance 0b, points 7-8.
@@ -128,4 +156,5 @@ K33/K55 à la main : voir `ENONCE.md`, phase 0, séance 0b, points 7-8.
 ## Rendu R0 (suite)
 
 Questions Q0.3 à Q0.5 de l'énoncé (section « Phase 0 », rendu R0) : classeur d'architecture,
-tableau fixe/flottant, paramètres d'une Load Case Table.
+tableau fixe/flottant, paramètres d'une Load Case Table. Q0.6, optionnelle : comparaison 300 s /
+600 s si vous avez relancé un cas aux deux durées.

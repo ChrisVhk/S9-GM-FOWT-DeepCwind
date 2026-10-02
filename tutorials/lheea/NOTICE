@@ -35,8 +35,8 @@ Modifications apportées (Apache License 2.0, section 4b) :
   ici. Consequence pedagogique : la dynamique d'ecoulement n'est pas la meme qu'en v3.2.1 pour les
   cas 04 et 05 (voir ADAPTATION_LHEEA.md dans ce meme dossier).
 - UA_Mod=3 (Beddoes-Leishman Minnema/Pierce, instationnaire) au lieu de 0 (stationnaire, valeur
-  equivalente au AFAeroMod=1 d'origine) dans les cas 02 a 05 : la scission de AFAeroMod en UA_Mod
-  a repris la valeur numerique d'un champ dormant du fichier d'origine plutot que de reproduire le
-  comportement stationnaire effectivement utilise (voir ADAPTATION_LHEEA.md).
+  equivalente au AFAeroMod=1 d'origine) dans les cas 02 a 05 : alignement delibere sur le modele
+  de reference du projet (models/oc4_rtest, meme valeur UA_Mod=3), pas une reproduction du
+  comportement stationnaire d'origine (voir ADAPTATION_LHEEA.md).
 
 Aucune mention de copyright ou d'attribution du depot d'origine n'a ete retiree.

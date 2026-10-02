@@ -88,7 +88,8 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
    **Domaine de validité** : vent constant avec profil de cisaillement (loi de puissance) ; le
    sillage est traité en BEMT quasi-stationnaire (`Wake_Mod=1`), mais l'aérodynamique de profil,
    elle, est **instationnaire** (`UA_Mod=3`, modèle de décrochage dynamique de Beddoes-Leishman) —
-   ne confondez pas les deux sous-modèles en répondant à une question sur ce cas.
+   ne confondez pas les deux sous-modèles en répondant à une question sur ce cas. `UA_Mod=3` est la
+   valeur du modèle de référence de ce projet (`models/oc4_rtest`), pas un choix propre à ce cas.
 3. **Ordre de grandeur attendu** — la méthode : observer le plateau de `RotSpeed` en régime
    établi, et le comparer au régime nominal de la machine (fiche F1) pour juger si cette vitesse
    libre est réaliste ou extrême.
