@@ -5,6 +5,11 @@ Apache License 2.0 (voir le fichier LICENSE dans ce dossier).
 Dépôt d'origine : https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart
 Commit d'origine : 6040b6430bba78d3906877f2ea4d3effe3a4eb5e (21/10/2024)
 
+Reprise faite avec l'accord de l'enseignant du cours DMO-S9, membre du LHEEA (cluster Cargo,
+ED SPIN/ENSTA Bretagne), qui proposera cette adaptation au laboratoire. Détail des modifications,
+cas par cas (champ, avant, après, raison, test de validation) : voir ADAPTATION_LHEEA.md dans ce
+même dossier.
+
 Modifications apportées (Apache License 2.0, section 4b) :
 - migration des fichiers d'entree OpenFAST (ElastoDyn, AeroDyn, ServoDyn, InflowWind, HydroDyn)
   du format OpenFAST v3.2.1 vers le format OpenFAST v5.0.0 (nouveaux champs, module SeaState

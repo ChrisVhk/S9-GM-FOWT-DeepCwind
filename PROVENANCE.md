@@ -14,9 +14,13 @@ turbulent pour ce cas précis).
 ## `tutorials/lheea/`
 Origine : [openfast_quickstart](https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart)
 (LHEEA, Nantes Université — ORACLE), commit `6040b6430bba78d3906877f2ea4d3effe3a4eb5e`.
-**Licence Apache 2.0** — voir `tutorials/lheea/LICENSE` et `tutorials/lheea/NOTICE` pour le détail
-des modifications apportées (migration des fichiers d'entrée vers OpenFAST v5.0.0 ; voir les
-commentaires `[migré : ...]` dans les fichiers concernés).
+**Licence Apache 2.0** — voir `tutorials/lheea/LICENSE` et `tutorials/lheea/NOTICE` pour le résumé
+des modifications, et `tutorials/lheea/ADAPTATION_LHEEA.md` pour le détail cas par cas (migration
+v3.2.1→v5.0.0, Windows→Linux), prêt à être transmis au LHEEA. Reprise faite avec l'accord de
+l'enseignant du cours, membre du LHEEA (cluster Cargo, ED SPIN/ENSTA Bretagne), qui proposera
+ensuite cette adaptation au laboratoire. Le récit pédagogique des 5 cas est intégré directement
+dans `seances/0a/` et `seances/0b/` du cours (pas un document séparé) ; chaque section reprise y
+porte son attribution et un renvoi vers `tutorials/lheea/NOTICE`.
 
 ## `tutorials/prise_en_main/`
 Construit pour ce cours, à partir des modèles ci-dessus (licence Apache 2.0 des sources) et d'une
