@@ -71,8 +71,17 @@ moyenne, pas une erreur de configuration.
 
 Pour `TwrBsMyt` (moment fléchissant en pied de tour) : estimez la poussée
 `T = 1/2 · ρ · A · V² · Ct` (air `ρ ≈ 1,225 kg/m³`, `Ct ≈ 0,8` en Region 2 à défaut de valeur
-précise tirée du modèle) puis `TwrBsMyt ≈ T × hauteur_moyeu`. Comparez à ±20 % : le modèle complet
+précise tirée du modèle) puis `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)` : `TwrBsMyt` est le moment **au pied de la tour**,
+dont la hauteur `TowerBsHt` (à lire dans `config_elastodyn.dat`) est le point de référence du bras de
+levier — pas le niveau de la mer. Comparez à ±20 % : le modèle complet
 inclut en plus le poids propre de la nacelle/tour en flexion et la variation de `Ct` avec `λ`.
+
+**Fréquence 1P** : une pale fait un tour en `1/f` ; la fréquence de rotation est
+`f₁ₚ = RotSpeed / 60` (Hz, `RotSpeed` en tr/min). Chaque pale traverse à chaque tour le même
+cisaillement de vent, le même sillage de tour et subit la même gravité : son moment d'emplanture
+(`RootMyb1`) oscille à 1P. La tour, elle, ne voit que la somme des trois pales, déphasées de 120° :
+les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc Théorie du §6 de
+`seances/0a/README.md`).
 
 ## Limites
 
@@ -109,7 +118,7 @@ inclut en plus le poids propre de la nacelle/tour en flexion et la variation de 
    couple générateur (en kN·m) cela représente-t-il ? (`P = T_gen · Ω`, `Ω` en rad/s)
 3. Avec `ρ = 1,225 kg/m³`, `R = 63 m`, `Ct = 0,8`, estimez la poussée du rotor `T` (en kN) à
    `V = 10 m/s`, puis l'ordre de grandeur du moment `TwrBsMyt` attendu avec une hauteur de moyeu
-   de 90 m.
+   de 90 m et un pied de tour à `TowerBsHt` = 10 m au-dessus du niveau de la mer.
 
 ## Sources
 

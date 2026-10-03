@@ -142,13 +142,14 @@ C'est la question Q0.1 du rendu R0.
    si elles sont physiquement plausibles avant de les utiliser dans un rendu, sans attendre qu'un
    enseignant les valide ?
 2. **Modèle** — poussée du rotor par la théorie du disque actuateur,
-   `T = 1/2 · ρ · A · V² · Ct`, puis `TwrBsMyt ≈ T × hauteur_moyeu`. **Domaine de validité** :
+   `T = 1/2 · ρ · A · V² · Ct`, puis `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)` — le moment est pris au
+   pied de la tour, dont la hauteur `TowerBsHt` se lit dans `config_elastodyn.dat`. **Domaine de validité** :
    Region 2 (loin du régime nominal, `Ct` à peu près constant), vent stationnaire pour F01 (le
    modèle stationnaire ne s'applique pas directement à l'échelon de F02), régime établi atteint
    (transitoire de démarrage écarté de la moyenne).
 3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` attendu (bloc précédent) et le
    comparer à `RotSpeed` observé (écart tolérable ~15-20 %, fiche F1) ; estimer `T` et
-   `TwrBsMyt ≈ T × hauteur_moyeu`, à comparer à `TwrBsMyt` observé (±20 %, énoncé §3 bis). Les
+   `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)`, à comparer à `TwrBsMyt` observé (±20 %, énoncé §3 bis). Les
    valeurs numériques pour F01 répondent à Q0.2 : à calculer, pas à relever.
 4. **Ce que le modèle ne permet pas de conclure** — un écart dans la tolérance ne prouve pas
    que la configuration est correcte (un transitoire mal filtré peut produire le même symptôme
@@ -156,6 +157,32 @@ C'est la question Q0.1 du rendu R0.
    F02 (échelon), qui demande une lecture différente (temps de réaction du calage).
 5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `outils/lire_outb.py` (option
    `t_min`, pour écarter le transitoire).
+
+### Bloc Théorie — fréquence 1P
+
+1. **Question physique** — Q0.2 demande de repérer la fréquence de rotation 1P sur le moment
+   d'emplanture d'une pale : pourquoi cette fréquence apparaît-elle, et pourquoi la tour ne
+   « voit »-elle pas la même chose que la pale ?
+2. **Modèle** — `f₁ₚ = RotSpeed / 60` (Hz, `RotSpeed` en tr/min). Dans le repère tournant, une
+   pale rencontre à chaque tour les mêmes conditions non uniformes : cisaillement du vent (le haut
+   du disque voit plus de vent que le bas), sillage de la tour, poids propre de la pale (moment
+   dans le plan). Sa charge est donc périodique de période un tour : harmonique 1P, visible sur
+   `RootMyb1`. Dans le repère fixe (tour), les trois pales identiques, déphasées de 120°, se
+   somment : les harmoniques qui ne sont pas multiples du nombre de pales se compensent, il reste
+   3P, 6P… **Domaine de validité** : rotor à trois pales identiques, vitesse de rotation quasi
+   constante (régime établi de F01) ; un rotor déséquilibré ou un vent turbulent ajoute du 1P et
+   des harmoniques sur la tour.
+3. **Ordre de grandeur attendu** — la méthode : convertir le `RotSpeed` établi en Hz, puis
+   chercher ce pic sur le spectre de `RootMyb1` (FFT, après avoir écarté le transitoire) ; le
+   pic 3P de la tour se déduit en multipliant par trois. Les valeurs répondent à Q0.2 : à
+   calculer, pas à relever ici.
+4. **Ce que le modèle ne permet pas de conclure** — retrouver 1P sur `RootMyb1` ne dit pas
+   laquelle des causes (cisaillement, tour, gravité) domine, ni ce que vaut l'amplitude ; et la
+   position de 1P/3P ne dit rien d'une résonance tant qu'on ne la compare pas aux fréquences
+   propres de la tour (phase 5).
+5. **Renvois** — fiche F1 (ligne « Fréquence 1P ») ; Jonkman 2009, p.15 (fréquences propres de la
+   tour placées entre 1P et 3P sur le diagramme de Campbell) ; `RootMyb1` : liste des sorties
+   d'OpenFAST (`OutListParameters.xlsx`).
 
 ```bash
 cd tutorials/prise_en_main

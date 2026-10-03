@@ -92,5 +92,8 @@ cohérente avec la zone de régulation (en dessous du régime nominal 12,1 tr/mi
 calcul à la fréquence 1P visible sur `RootMyb1` (fréquence = RotSpeed / 60).
 
 Pour le moment en pied de tour (`TwrBsMyt`) : estimez la poussée du rotor à partir de la théorie du
-disque actuateur (voir fiche F1) et comparez `TwrBsMyt` ≈ poussée × hauteur de moyeu, à ±20 % (le
+disque actuateur (voir fiche F1) et comparez `TwrBsMyt` ≈ poussée × (hauteur du moyeu − `TowerBsHt`), à ±20 %.
+`TwrBsMyt` est le moment **au pied de la tour** : le bras de levier se compte depuis ce pied,
+dont la hauteur `TowerBsHt` se lit dans `modele_fixe/config_elastodyn.dat`, et non depuis le
+niveau de la mer ni depuis le sol (le
 modèle complet inclut aussi le poids de la nacelle/tour en flexion, d'où l'écart toléré).

@@ -64,7 +64,7 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 
 | Phase | Point de contrôle | Piège classique |
 |---|---|---|
-| 0 | `openfast -v` = v5.0.0 ; moment en pied de tour de F01 ≈ poussée × hauteur de moyeu, à ±20 % | Analyser le début de simulation, avant le régime établi |
+| 0 | `openfast -v` = v5.0.0 ; moment en pied de tour de F01 ≈ poussée × (hauteur du moyeu − hauteur du pied de tour `TowerBsHt`), à ±20 % | Analyser le début de simulation, avant le régime établi |
 | 1 | **LCT validée par l'enseignant avant tout lancement** ; somme des occurrences = 100 % | Oublier les états de mer peu probables mais proches des périodes propres |
 | 2 | Équilibre et périodes de lâcher cohérents avec les valeurs publiées ; une seule famille de paramètres varie à la fois | Conclure sur une seule seed |
 | 3 | DEL programmé = DEL de l'outil sur un signal test sinusoïdal (résultat connu à l'avance) | Mélanger étendue et amplitude ; oublier le DFF ; mauvaise courbe S-N (air / eau) |
@@ -135,7 +135,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 | F01 | constant 7,5 m/s | régime établi, poussée, moment en pied de tour |
 | F02 | échelon de 5 à 20 m/s | passage d'une zone de régulation à l'autre, temps de réaction du calage des pales |
 
-**Vérifications à la main** (à confronter aux sorties) : fréquence de rotation 1P à partir de `RotSpeed` et sa trace sur le moment en pied de pale ; poussée du rotor (ordre de grandeur) ; moment en pied de tour ≈ poussée × hauteur du moyeu.
+**Vérifications à la main** (à confronter aux sorties) : fréquence de rotation 1P à partir de `RotSpeed` et sa trace sur le moment en pied de pale ; poussée du rotor (ordre de grandeur) ; moment en pied de tour ≈ poussée × (hauteur du moyeu − hauteur du pied de tour `TowerBsHt`) — `TowerBsHt` se lit dans `config_elastodyn.dat` : le moment est pris au pied de la tour, pas au niveau de la mer.
 
 ##### Séance 0b — séance suivante (3 h)
 
