@@ -165,9 +165,9 @@ C'est la question Q0.1 du rendu R0.
    « voit »-elle pas la même chose que la pale ?
 2. **Modèle** — `f₁ₚ = RotSpeed / 60` (Hz, `RotSpeed` en tr/min). Dans le repère tournant, une
    pale rencontre à chaque tour les mêmes conditions non uniformes : cisaillement du vent (le haut
-   du disque voit plus de vent que le bas), sillage de la tour, poids propre de la pale (moment
-   dans le plan). Sa charge est donc périodique de période un tour : harmonique 1P, visible sur
-   `RootMyb1`. Dans le repère fixe (tour), les trois pales identiques, déphasées de 120°, se
+   du disque voit plus de vent que le bas), sillage de la tour (effets hors plan du rotor), poids propre de
+   la pale (moment dans le plan, `RootMxb1`). Sa charge est donc périodique de période un tour :
+   harmonique 1P, visible sur `RootMyb1` pour les deux premiers effets. Dans le repère fixe (tour), les trois pales identiques, déphasées de 120°, se
    somment : les harmoniques qui ne sont pas multiples du nombre de pales se compensent, il reste
    3P, 6P… **Domaine de validité** : rotor à trois pales identiques, vitesse de rotation quasi
    constante (régime établi de F01) ; un rotor déséquilibré ou un vent turbulent ajoute du 1P et

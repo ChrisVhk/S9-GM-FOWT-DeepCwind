@@ -78,8 +78,8 @@ inclut en plus le poids propre de la nacelle/tour en flexion et la variation de 
 
 **Fréquence 1P** : une pale fait un tour en `1/f` ; la fréquence de rotation est
 `f₁ₚ = RotSpeed / 60` (Hz, `RotSpeed` en tr/min). Chaque pale traverse à chaque tour le même
-cisaillement de vent, le même sillage de tour et subit la même gravité : son moment d'emplanture
-(`RootMyb1`) oscille à 1P. La tour, elle, ne voit que la somme des trois pales, déphasées de 120° :
+cisaillement de vent, le même sillage de tour et subit la même gravité : ses moments d'emplanture
+(`RootMyb1`, hors plan ; `RootMxb1`, dans le plan, surtout par la gravité) oscillent à 1P. La tour, elle, ne voit que la somme des trois pales, déphasées de 120° :
 les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc Théorie du §6 de
 `seances/0a/README.md`).
 
