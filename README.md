@@ -38,6 +38,7 @@ Détail phase par phase, compétences visées, méthode de travail et règles d'
 | `tutorials/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
 | `tutorials/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
 | `tutorials/prise_en_main/` | Tutoriel du cours : éolienne fixe (F0x) puis flottante (D0x) | phase 0 |
+| `seances/atelier_tour/` | Tutoriel d'accompagnement d'un atelier distribué sur Vega (dimensionnement FLS/ULS d'une tour tubulaire) — répétition générale de la méthode de la phase 5 | phase 5 |
 | `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) — une seule à ce jour (F1) | toutes phases |
 | `papers/` | Fiches de lecture sourcées sur les systèmes OC4/OC5/OC6 (documents publics) | phases 1-2 |
 | `data/` | Données du projet (dimensions, propriétés, références) — *en construction* | phases 0b-2 |
