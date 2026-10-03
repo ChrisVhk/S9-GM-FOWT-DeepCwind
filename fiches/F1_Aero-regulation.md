@@ -35,7 +35,7 @@ plate autour : un écart modéré de `λ` coûte peu de puissance.*
 NREL 5 MW de ce projet) ; Jonkman 2009 en distingue cinq (1, 1½, 2, 2½, 3), et le contrôleur
 du modèle les met toutes en œuvre. Elles se repèrent à la **vitesse de rotation côté génératrice**
 (`Ω_gen = 97 · Ω_rotor`, multiplicateur 97:1) :
-- **Region 1** (sous `VS_CtInSp`) : couple générateur nul, le rotor accélère librement.
+- **Region 1** (sous `VS_CtInSp`) : couple générateur nul : aucune puissance électrique (`P = 0`), le rotor accélère sous l'effet du vent (Jonkman 2009, §7.2 p.19 : la Region 1 précède le cut-in).
 - **Region 1½** (entre `VS_CtInSp` et `VS_Rgn2Sp`) : transition de démarrage — le couple suit une
   **rampe linéaire** qui part de zéro à `VS_CtInSp` et rejoint la loi de Region 2 à `VS_Rgn2Sp`.
   La rampe est raide : la vitesse reste confinée dans cette bande étroite, et la machine produit
@@ -88,6 +88,50 @@ plus bas, la rampe tient la vitesse dans sa bande et la loi `λ*·V/R` sous-esti
 régime nominal — **à vous de calculer à quelle vitesse de vent ce régime est atteint**, et de comparer ce résultat au vent
 nominal (11,4 m/s) : si les deux diffèrent, c'est que la Region 2½ s'intercale entre les deux,
 avant la Region 3.
+
+## Region 1½ : la loi de la rampe, la courbe `Cp(λ)` et l'équilibre des couples
+
+En Region 2 la loi `λ*·V/R` donne `Ω` directement. **En Region 1½ elle ne suffit pas** : la rampe de couple
+impose une bande de vitesse et `Ω` se *calcule* par un équilibre. Trois ingrédients, tous donnés ici.
+
+**1. La loi de couple du contrôleur** (donnée d'entrée, `DISCON.F90` : `VS_Slope15` ligne 175, couples
+lignes 383-391), côté génératrice, avec `ω_g = N·Ω` (rad/s, `N = 97`) :
+
+| Région | Couple générateur `Q_gen(ω_g)` (N·m, côté génératrice) |
+|---|---|
+| 1 : `ω_g ≤ VS_CtInSp` | `0` |
+| 1½ : `VS_CtInSp < ω_g < VS_Rgn2Sp` | `VS_Slope15 · (ω_g − VS_CtInSp)`, avec `VS_Slope15 = VS_Rgn2K · VS_Rgn2Sp² / (VS_Rgn2Sp − VS_CtInSp)` |
+| 2 : au-dessus, jusqu'à la Region 2½ | `VS_Rgn2K · ω_g²` |
+
+avec `VS_CtInSp = 70,16224 rad/s`, `VS_Rgn2Sp = 91,21091 rad/s`, `VS_Rgn2K = 2,332287 N·m/(rad/s)²`.
+Côté rotor, le couple équivalent est `N · Q_gen(N·Ω)`.
+
+**2. La courbe `Cp(λ)` de la NREL 5 MW à calage nul.** Jonkman 2009 ne donne que le point maximal (`Cp = 0,482`
+à `λ = 7,55`, §7.2 p.19). La courbe ci-dessous est **calculée sur le modèle du dépôt** (OpenFAST v5.0.0, AeroDyn v15,
+rotor à vitesse imposée, calage 0°, `V` = 8 m/s au moyeu, cisaillement 0,11 comme F01 ; script
+`outils/courbe_cp_nrel5mw.py`, données `data/cp_lambda_nrel5mw_pitch0.csv`). Son maximum (≈ 0,47 vers `λ = 7`) diffère
+de quelques pour cent du point de Jonkman : on utilise la courbe du dépôt pour rester cohérent avec les cas F01 et F02.
+
+| λ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 7,55 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Cp | 0,0058 | 0,0243 | 0,1054 | 0,2229 | 0,3645 | 0,4468 | 0,4660 | 0,4644 | 0,4610 | 0,4431 | 0,4144 | 0,3779 | 0,3334 | 0,2850 | 0,2306 | 0,1651 | 0,0880 |
+
+![Cp(λ) de la NREL 5 MW à calage nul, calculée sur le modèle du dépôt](figures/FIG-DMO-S9-008.png)
+
+*Figure 6 — `Cp(λ)` du modèle du dépôt à calage nul. Contrairement aux figures 1 à 5, celle-ci est chiffrée :
+c'est une courbe de la machine, pas une réponse de rendu.*
+
+**3. La méthode d'équilibre.** À vent `V` fixé, la vitesse d'équilibre `Ω` vérifie l'égalité des couples,
+ramenés côté rotor :
+
+`Q_aéro(Ω) = ½ ρ π R² V³ · Cp(ΩR/V) / Ω  =  N · Q_gen(N·Ω)`.
+
+Deux façons de la résoudre : **graphiquement** (tracer les deux membres en fonction de `Ω`, l'intersection est le
+point de fonctionnement) ou **par itération** (partir d'un `Ω` plausible, évaluer l'écart des deux couples, corriger
+`Ω` dans le sens qui le réduit — bissection ou Newton). Lire `Cp` par interpolation dans le tableau. Pour la
+**puissance** : `P_élec = η · N · Q_gen(N·Ω) · Ω` (rendement électrique `η = 0,944`, Jonkman 2009). En Region 2, la même
+méthode s'applique, avec le couple en `ω_g²`. *Q0.1 exige `Ω` dans chaque région : loi `λ*·V/R` en Region 2, équilibre des
+couples en Region 1½.*
 
 ## Confrontation OpenFAST
 
@@ -170,21 +214,12 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
    de combien en pour cent, et pourquoi la tolérance habituelle de ±20 % l'aurait-elle laissée passer
    ou non ?
 
-## Pour aller plus loin — matière du cours DTU (emplacements réservés)
-
-*Un cours construit avec le DTU arrive : sa matière d'aéro-régulation deviendra la source du master
-DMO-S9 (la fiche F1 sert de source provisoire). Les emplacements ci-dessous se remplissent sans
-réécrire les sections précédentes.*
-
-<!-- DTU:BEGIN D1 -->
-**D1. Aérodynamique du rotor (BEM, `Cp(λ, β)` détaillée)** — *(à venir)*
-<!-- DTU:END D1 -->
-<!-- DTU:BEGIN D2 -->
-**D2. Contrôle et régulation (lois de couple, calage, régions, ROSCO / DISCON)** — *(à venir)*
-<!-- DTU:END D2 -->
-<!-- DTU:BEGIN D3 -->
-**D3. Charges et fréquences (1P/3P, diagramme de Campbell, résonances)** — *(à venir)*
-<!-- DTU:END D3 -->
+<!-- DTU : emplacements réservés, invisibles des étudiants — matière du cours construit avec le DTU, future source du master DMO-S9
+     (aéro-régulation). Crédit à inscrire quand la matière entrera : « Technical University of Denmark (DTU) — https://www.dtu.dk/english ».
+[DTU:BEGIN D1] D1. Aérodynamique du rotor (BEM, Cp(λ, β) détaillée) [DTU:END D1]
+[DTU:BEGIN D2] D2. Contrôle et régulation (lois de couple, calage, régions, ROSCO / DISCON) [DTU:END D2]
+[DTU:BEGIN D3] D3. Charges et fréquences (1P/3P, diagramme de Campbell, résonances) [DTU:END D3]
+-->
 
 ## Limites
 

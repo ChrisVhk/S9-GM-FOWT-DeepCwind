@@ -115,13 +115,15 @@ Doit se terminer par `OpenFAST terminated normally.`.
    fixe quel que soit le vent, et pourquoi faut-il la piloter (couple générateur, puis pitch)
    plutôt que la laisser suivre librement l'aérodynamique ?
 2. **Modèle** — TSR `λ = Ω·R/V` ; coefficient de puissance `Cp(λ,β)`, maximal pour un `λ*`
-   donné ; loi de Region 2 `Ω(V) = λ*·V/R` (couple piloté, pitch fixe). **Domaine de validité** :
+   donné ; loi de Region 2 `Ω(V) = λ*·V/R` (couple piloté, pitch fixe) ; en Region 1½, `Ω` est solution de l'équilibre
+   `Q_aéro(Ω) = N·Q_gen(NΩ)` (couple aérodynamique `½ρπR²V³·Cp(λ)/Ω` contre couple de la rampe du
+   contrôleur, fiche F1). **Domaine de validité** :
    machine à vitesse variable et pitch variable (c'est le cas ici), et seulement entre le seuil de
    Region 2 et le régime nominal : en dessous, la rampe de couple de Region 1½ gouverne ; au-delà,
    Region 2½ puis 3. Repérez la région avant d'appliquer une loi.
-3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` pour chaque vitesse de vent du
-   tableau demandé via `λ*·V/R`, repérer la vitesse de vent où `Ω` atteint le régime nominal donné
-   par la fiche F1. Les valeurs numériques du cas particulier F01/F02 répondent à une question
+3. **Ordre de grandeur attendu** — la méthode : pour chaque vitesse de vent du tableau, repérer la région
+   (seuils de la fiche F1), puis calculer `Ω` par la loi `λ*·V/R` (Region 2) ou par l'équilibre des couples
+   (Region 1½) ; repérer la vitesse de vent où `Ω` atteint le régime nominal donné par la fiche F1. Les valeurs numériques du cas particulier F01/F02 répondent à une question
    notée (Q0.1/Q0.2) : ne les cherchez pas dans ce dépôt, calculez-les.
 4. **Ce que le modèle ne permet pas de conclure** — la loi `λ* = constante` est une
    approximation : la loi de couple réelle du contrôleur peut s'en écarter légèrement à certaines
@@ -140,8 +142,9 @@ Doit se terminer par `OpenFAST terminated normally.`.
 
 Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
 puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
-vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1½, 2, 2½, 3).
-C'est la question Q0.1 du rendu R0.
+vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1½, 2, 2½, 3), **avec l'`Ω` attendu dans chaque région** :
+loi `λ*·V/R` en Region 2, **équilibre des couples** en Region 1½ (la fiche F1 donne la loi de la rampe du
+contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). C'est la question Q0.1 du rendu R0.
 
 ## 6. Cas F01 et F02 — éolienne fixe (environ 45 min)
 

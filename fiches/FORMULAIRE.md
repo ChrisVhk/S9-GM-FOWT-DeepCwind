@@ -75,11 +75,9 @@ Test de bon sens : une sinusoïde d'étendue et de fréquence connues doit redon
 | Von Mises (σ axial + τ) : `σ_VM = √(σ² + 3 τ²)` | Pa | comparer à la limite élastique avec coefficient |
 | Nœud tubulaire : `β = d / D` (d : diamètre de l'entretoise, D : du membre principal) | – | les formules paramétriques (Efthymiou) ont un **domaine de validité** ; hors domaine, refuser le calcul, ne pas extrapoler |
 
-## Emplacements réservés (matière du cours DTU)
-
-<!-- DTU:BEGIN FORM-AERO -->
-*Aéro-régulation et charges — relations supplémentaires du cours DTU : à venir.*
-<!-- DTU:END FORM-AERO -->
+<!-- DTU : emplacement réservé, invisible des étudiants — relations supplémentaires d'aéro-régulation et de charges du cours construit
+     avec le DTU. Crédit à inscrire quand la matière entrera : « Technical University of Denmark (DTU) — https://www.dtu.dk/english ».
+     [DTU:BEGIN FORM-AERO] [DTU:END FORM-AERO] -->
 
 ## Sources
 
