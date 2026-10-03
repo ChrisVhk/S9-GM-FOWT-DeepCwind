@@ -220,7 +220,7 @@ entre 40 et 60 mm si votre balayage initial est plus grossier).
 Vérification ULS à cette épaisseur, avec des efforts extrêmes concomitants **également
 inventés** — et volontairement choisis plus grands que les DEL ci-dessus, comme il se doit pour
 des efforts extrêmes (`Fz = −800 kN` axial, `Mx = 1200 kN·m`, `My = 3000 kN·m`, `Mz = 300 kN·m` de
-torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)/(D/2)/Q ≈ 91,8 MPa` en
+torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)·(D/2)/Q ≈ 91,8 MPa` en
 valeur absolue, de part et d'autre de l'axe neutre. **Le point le plus défavorable est celui où
 flexion et effort axial sont de même signe** (ici, la face comprimée : `σ = σ_axial − |σ_flex| ≈
 −5,1 − 91,8 ≈ −96,9 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi au §5
