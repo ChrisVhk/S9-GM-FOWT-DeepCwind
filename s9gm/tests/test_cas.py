@@ -61,3 +61,17 @@ def test_separateur_point_virgule(tmp_path):
 def test_remplacer_valeur_exige_une_seule_occurrence():
     with pytest.raises(KeyError):
         cas.remplacer_valeur(["1  A", "2  A"], "A", "3")
+
+
+def test_champ_texte_garde_ses_guillemets():
+    lignes = ['"unused"      FileName_BTS   - Name of the Full field wind file (.bts)']
+    cas.remplacer_valeur(lignes, "FileName_BTS", "Wind/F03.bts")
+    assert lignes[0].startswith('"Wind/F03.bts"      FileName_BTS')
+
+
+def test_regenerer_un_cas_supprime_ses_anciennes_sorties(pref):
+    d = cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "5"}, MODELE, PRISE_EN_MAIN)
+    (d / "main.outb").write_bytes(b"x")
+    (d / "run.log").write_text("OpenFAST terminated normally", encoding="utf-8")
+    cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "6"}, MODELE, PRISE_EN_MAIN)
+    assert not (d / "main.outb").exists() and not (d / "run.log").exists()

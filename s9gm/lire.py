@@ -9,7 +9,8 @@
 2. **Modèle** — pour un canal échantillonné `y(tᵢ)`, avec `t₀` la durée de transitoire écartée :
    moyenne `ȳ = (1/N) Σ yᵢ`, écart-type `σ = √((1/N) Σ (yᵢ − ȳ)²)` (population, dénominateur N),
    minimum et maximum, calculés sur les `N` points tels que `tᵢ ≥ t₀`. Garder le transitoire
-   biaise la moyenne vers les conditions initiales et gonfle `σ` et les extrêmes. **Domaine de
+   biaise la moyenne vers les conditions initiales et peut gonfler `σ` et élargir la plage
+   min–max (le rotor part de l'arrêt : le minimum en est le premier témoin). **Domaine de
    validité** : signal quasi stationnaire après `t₀` ; `t₀` se *choisit en regardant la courbe*,
    c'est pourquoi `lire` n'en propose aucun par défaut et refuse `None`.
 3. **Ordre de grandeur attendu** — la méthode : tracer le canal, repérer l'instant où il cesse
@@ -19,8 +20,8 @@
    la moyenne du processus : une seule réalisation de vent turbulent ne dit rien de la variabilité
    entre réalisations (phases 1-2). Et un maximum est un maximum *de cette réalisation*, pas un
    extrême de dimensionnement.
-5. **Renvois** — fiche F1 (écarter le transitoire, `RotSpeed`) ; `outils/lire_outb.py` (version
-   pas à pas du même calcul) ; `ENONCE.md`, phase 0 (piège « analyser le début de simulation ») et
+5. **Renvois** — fiche F1 (écarter le transitoire, `RotSpeed`) ; `outils/lire_outb.py` (même calcul pas à
+   pas, sans l'obligation de choisir `t_transitoire`) ; `ENONCE.md`, phase 0 (piège « analyser le début de simulation ») et
    phase 3 (DEL, qui exige la même discipline).
 """
 import re

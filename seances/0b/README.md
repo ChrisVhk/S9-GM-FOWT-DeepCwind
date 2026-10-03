@@ -143,6 +143,53 @@ léger par cas) :
 5. **Renvois** — IEC 61400-1 (durée de référence) ; phase 1 de l'énoncé (occurrences, Load Case
    Table).
 
+### Fabriquer, lancer, lire : le paquet `s9gm`
+
+Pour six cas, éditer des fichiers à la main est possible ; pour soixante (phase 2), c'est une
+source d'erreurs. Le paquet `s9gm` (dossier `s9gm/`, trois modules courts à lire — chacun
+commence par son bloc Théorie) automatise exactement ce que vous venez de faire :
+
+1. **`cas`** — une Load Case Table (CSV : une ligne par cas, une colonne `fichier.Clé` par
+   paramètre) → un dossier léger par cas à côté de `modele_fixe/`, plus un `journal_cas.json` des
+   valeurs avant/après. Une clé inconnue est une erreur, jamais un cas silencieusement inchangé.
+2. **`lancer`** — exécute les cas, plusieurs à la fois (`coeurs=`), saute ceux qui sont déjà
+   terminés et relance ceux qui ont été interrompus ou ont échoué ; note temps réel et temps simulé de chaque cas.
+3. **`lire`** — lit un `.outb`, calcule moyenne, écart-type, min, max d'un canal. Vous *devez*
+   donner `t_transitoire` : il n'y a pas de valeur par défaut, parce que le bon choix se lit sur la
+   courbe.
+
+Exemple pour F03-F05 (le champ de vent `.bts` est celui que vous avez généré avec TurbSim, à
+placer dans le sous-dossier `Wind/` du dossier du cas, après l'étape `cas` qui le crée ; `WindType = 3` désigne un champ TurbSim) — fichier `lct_0b.csv` :
+
+```
+cas,fst.TMax,inflow.WindType,inflow.FileName_BTS
+F03,300,3,"Wind/F03.bts"
+F04,300,3,"Wind/F04.bts"
+F05,300,3,"Wind/F05.bts"
+```
+
+À lancer depuis la racine du dépôt, environnement `s9gm-fowt` activé (c'est lui qui met
+`openfast` dans le PATH) :
+
+```python
+from s9gm import cas, lancer, lire
+
+dossiers = cas.generer_serie("lct_0b.csv", "tutorials/prise_en_main/modele_fixe",
+                             "tutorials/prise_en_main")
+# ... ici : déposer chaque Wind/F0x.bts dans le dossier du cas, puis :
+lancer.lancer_serie(dossiers, coeurs=2, journal="journal_lancer.csv")
+df, unites = lire.lire("tutorials/prise_en_main/F03/main.outb")
+print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<durée à écarter, en s>))
+# à vous de la choisir en regardant la courbe : sans elle, lire refuse de calculer
+```
+
+À retenir : le modèle partagé a pour vent par défaut une rampe lue dans `Wind/ramp_wind.dat`, chemin
+relatif au dossier du cas (que `cas` ne copie pas) ; un cas qui ne précise pas `inflow.WindType`
+cherchera ce fichier et s'arrêtera. Pour les cas flottants (D00-D05),
+même démarche avec votre `modele_flottant/` ; en revanche `cas` ne sait éditer que `main.fst` et
+`config_inflow.dat` : la houle (`SeaState.dat`) est un fichier de plus à ajouter à `FICHIERS` dans
+`s9gm/cas.py` — c'est un exercice de lecture du code, avec ses tests dans `s9gm/tests/`.
+
 **En séance : `TMax = 300 s`** pour les cas turbulents (F03-F05, D03-D05) — tient dans les 3 h.
 **En option, à la maison : `TMax = 600 s`**, à relancer et comparer au cas de 300 s (Q0.6, si
 vous le faites).

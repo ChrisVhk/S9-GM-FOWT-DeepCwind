@@ -13,8 +13,8 @@
    fichier OpenFAST à droite de la valeur. **Domaine de validité** : paramètres scalaires d'une
    seule ligne (nombre, texte) dans `main.fst` et `config_inflow.dat` ; pas de listes
    (`LinTimes`…), pas d'autre module (ElastoDyn, HydroDyn : à ajouter par la même méthode). Une
-   clé absente ou présente deux fois dans le fichier est une erreur, jamais un cas silencieusement
-   inchangé.
+   clé absente ou présente deux fois dans le fichier est une erreur. Une *cellule vide* de la LCT
+   est lue comme « garder la valeur du modèle » : c'est voulu, mais c'est un choix à connaître.
 3. **Ordre de grandeur attendu** — la méthode : un cas que vous fabriquez à la main (F01 du
    tutoriel) doit être reproduit *à l'identique* (comparaison `diff`) par une ligne de LCT. Si la
    machine et les sorties ne diffèrent d'aucune ligne, le générateur ne fait que ce que vous lui
@@ -27,7 +27,8 @@
 
 Méthode d'édition : `openfast_toolbox` relit chaque fichier produit et confirme que la valeur est
 bien celle demandée (contrôle indépendant). L'écriture, elle, remplace *uniquement* le champ valeur
-de la ligne portant la clé : `FASTInputFile.write` de l'outil reformate les titres et les
+de la ligne portant la clé (en remettant les guillemets d'un champ texte et en retirant une
+annotation `[migre …]` devenue fausse) : `FASTInputFile.write` de l'outil reformate les titres et les
 espaces, ce qui rendrait la comparaison `diff` avec un cas fait à la main impossible.
 """
 import csv
@@ -85,6 +86,8 @@ def remplacer_valeur(lignes, cle, valeur):
     i = trouves[0]
     m = motif.match(lignes[i])
     ancien = m["val"]
+    if ancien.startswith('"') and not valeur.startswith('"'):
+        valeur = f'"{valeur}"'  # champ texte : OpenFAST attend des guillemets, la LCT n'en porte pas
     reste = _COMMENTAIRE_MIGRE.sub("", m["reste"]) if ancien != valeur else m["reste"]
     lignes[i] = m["pre"] + valeur + m["mid"] + m["cle"] + reste
     return ancien
@@ -141,6 +144,10 @@ def generer_cas(ligne_lct, modele, sortie):
     modele, sortie = Path(modele), Path(sortie)
     dossier = sortie / ligne_lct["cas"]
     dossier.mkdir(parents=True, exist_ok=True)
+    # Les entrées vont changer : d'anciennes sorties ne correspondraient plus au cas. Sans cette
+    # purge, `lancer` croirait le cas terminé et rendrait un résultat périmé.
+    for ancien in [dossier / "run.log", *dossier.glob("*.outb"), *dossier.glob("*.out")]:
+        ancien.unlink(missing_ok=True)
     rel = Path(os.path.relpath(modele.resolve(), dossier.resolve())).as_posix()
 
     modifs = {fich: {} for fich in FICHIERS}

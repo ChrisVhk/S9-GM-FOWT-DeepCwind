@@ -6,16 +6,19 @@
    chacun. Combien de temps faut-il réserver, que faire quand la machine s'arrête au milieu, et
    comment sait-on qu'un cas est *terminé* et pas seulement *arrêté* ?
 2. **Modèle** — le temps de calcul d'un cas est proportionnel à la durée simulée :
-   `t_réel ≈ r · t_simulé`, où le rapport `r` (réel/simulé) est mesuré, pas supposé : il dépend du
+   `t_réel ≈ t_simulé / r`, où le rapport `r` (simulé/réel, colonne « Ratio sim/CPU » du tutoriel) est
+   mesuré, pas supposé : il dépend du
    modèle (BEM, SubDyn, hydro…) et de la machine. Les cas sont indépendants : on peut en lancer
    autant que de cœurs en parallèle, `t_total ≈ Σ t_réel / n_cœurs` tant que la mémoire suffit.
    Un cas est *terminé* si et seulement si son journal contient la phrase finale d'OpenFAST
    (`OpenFAST terminated normally.`) **et** que son fichier de sortie existe. **Domaine de
    validité** : un cas = un processus mono-cœur (OpenFAST compilé sans OpenMP) ; la reprise relance
-   le cas depuis t = 0 (les points de reprise `ChkptTime` d'OpenFAST ne sont pas utilisés).
+   depuis t = 0 tout cas interrompu ou en échec (les points de reprise `ChkptTime` d'OpenFAST ne
+   sont pas utilisés). La reprise juge sur la présence des fichiers de sortie, non sur les entrées :
+   `cas` supprime donc les sorties d'un cas qu'il régénère.
 3. **Ordre de grandeur attendu** — la méthode : lancer un cas court, relever `r` dans le journal
    de `lancer`, puis estimer la durée d'une série entière avant de la lancer (durée simulée totale
-   × `r` ÷ nombre de cœurs). Le tutoriel donne un `r` mesuré pour un cas fixe.
+   ÷ `r` ÷ nombre de cœurs). Le tutoriel donne un `r` mesuré pour un cas fixe.
 4. **Ce que le modèle ne permet pas de conclure** — `r` d'un cas ne se transpose pas à un autre
    modèle (flottant, houle irrégulière) ; et « terminé normalement » ne dit pas que le résultat est
    *bon* (un calcul peut finir avec une mauvaise configuration) : c'est le rôle de `lire`.
@@ -26,12 +29,13 @@ import csv
 import os
 import re
 import subprocess
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 MARQUEUR_FIN = "OpenFAST terminated normally"
-COLONNES_JOURNAL = ["cas", "statut", "temps_reel_s", "temps_simule_s", "rapport_reel_sur_simule"]
+COLONNES_JOURNAL = ["cas", "statut", "temps_reel_s", "temps_simule_s", "rapport_simule_sur_reel"]
 
 
 def duree_simulee(dossier, fst="main.fst"):
@@ -71,7 +75,7 @@ def lancer_cas(dossier, executable="openfast", fst="main.fst", delai_max=None):
     simule = duree_simulee(d, fst)
     return {"cas": d.name, "statut": statut, "temps_reel_s": round(reel, 1),
             "temps_simule_s": simule,
-            "rapport_reel_sur_simule": round(reel / simule, 3) if simule else None}
+            "rapport_simule_sur_reel": round(simule / reel, 3) if reel else None}
 
 
 def lancer_serie(dossiers, coeurs=1, executable="openfast", reprise=True, delai_max=None,
@@ -79,7 +83,8 @@ def lancer_serie(dossiers, coeurs=1, executable="openfast", reprise=True, delai_
     """Lance les cas de `dossiers`, `coeurs` à la fois. Avec `reprise=True`, un cas déjà terminé
     (voir `est_termine`) est sauté, un cas interrompu ou en échec est relancé depuis t = 0.
 
-    `journal` : chemin d'un CSV (ajout) — temps réel et temps simulé de chaque cas lancé.
+    `journal` : chemin d'un CSV (ajout, une ligne dès qu'un cas finit) — temps réel et temps simulé
+    de chaque cas lancé.
     Renvoie la liste des résultats, dans l'ordre de `dossiers`."""
     if coeurs < 1:
         raise ValueError("coeurs doit être >= 1")
@@ -88,7 +93,7 @@ def lancer_serie(dossiers, coeurs=1, executable="openfast", reprise=True, delai_
         d = Path(dossier)
         if reprise and est_termine(d):
             res = {"cas": d.name, "statut": "deja_termine", "temps_reel_s": 0.0,
-                   "temps_simule_s": duree_simulee(d), "rapport_reel_sur_simule": None}
+                   "temps_simule_s": duree_simulee(d), "rapport_simule_sur_reel": None}
         else:
             res = lancer_cas(d, executable=executable, delai_max=delai_max)
         if afficher:
@@ -96,13 +101,25 @@ def lancer_serie(dossiers, coeurs=1, executable="openfast", reprise=True, delai_
                      f" / simulé {res['temps_simule_s']:g} s")
         return res
 
+    verrou = threading.Lock()
+
+    def consigner(res):
+        # écrit au fil de l'eau : un arrêt de la machine ne fait pas perdre les cas déjà finis
+        if not journal or res["statut"] == "deja_termine":
+            return
+        with verrou:
+            neuf = not os.path.exists(journal)
+            with open(journal, "a", encoding="utf-8", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=COLONNES_JOURNAL)
+                if neuf:
+                    w.writeheader()
+                w.writerow(res)
+
+    def un_et_consigner(dossier):
+        res = un(dossier)
+        consigner(res)
+        return res
+
     with ThreadPoolExecutor(max_workers=coeurs) as pool:
-        resultats = list(pool.map(un, dossiers))
-    if journal:
-        neuf = not os.path.exists(journal)
-        with open(journal, "a", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=COLONNES_JOURNAL)
-            if neuf:
-                w.writeheader()
-            w.writerows(r for r in resultats if r["statut"] != "deja_termine")
+        resultats = list(pool.map(un_et_consigner, dossiers))
     return resultats
