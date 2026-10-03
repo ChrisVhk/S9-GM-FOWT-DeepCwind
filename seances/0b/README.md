@@ -21,7 +21,7 @@ Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du tutoriel 
 1. **Question physique** — Comment un contrôleur complet (couple ET pitch) répond-il quand le
    vent passe du régime normal au régime nominal ?
 2. **Modèle** — contrôleur Bladed-DLL complet (`DISCON.so`, compilé depuis `DISCON.F90` —
-   `scripts/build_discon.sh`) : couple piloté par la loi de Region 2 en dessous du régime nominal,
+   `scripts/build_discon.sh`) : couple piloté (rampe de Region 1½, puis loi de Region 2) en dessous du régime nominal,
    pitch actif au-delà pour plafonner la puissance. **Domaine de validité** : la rampe de vent de
    ce cas est lente (600 s) — elle teste la réponse en quasi-statique, pas la réactivité face à une
    rafale rapide ou à un vent turbulent.

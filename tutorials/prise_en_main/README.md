@@ -88,7 +88,8 @@ les 3 h de séance, réduire la durée simulée et le signaler ici.*
 
 Avec R = 63 m, TSR optimal = 7,55, vent = 7,5 m/s : calculez la vitesse de rotation attendue
 Ω = TSR·V/R (voir fiche F1) et comparez-la au `RotSpeed` observé en régime établi — doit être
-cohérente avec la zone de régulation (en dessous du régime nominal 12,1 tr/min). Comparez aussi ce
+cohérente avec la zone de régulation : **identifiez d'abord la région** de F01 avec les seuils de
+la fiche F1 (être sous le régime nominal de 12,1 tr/min ne suffit pas à choisir la loi à appliquer). Comparez aussi ce
 calcul à la fréquence 1P visible sur `RootMyb1` (fréquence = RotSpeed / 60).
 
 Pour le moment en pied de tour (`TwrBsMyt`) : estimez la poussée du rotor à partir de la théorie du

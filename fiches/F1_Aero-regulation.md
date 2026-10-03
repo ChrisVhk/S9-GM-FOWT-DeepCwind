@@ -27,10 +27,17 @@ La poussée axiale (ce qui charge la tour en flexion) suit la même logique :
 `Ct ≈ 0,7-0,9` en-dessous du régime nominal).
 
 **Les zones de régulation** d'une machine à vitesse variable, pitch variable (c'est le cas de la
-NREL 5 MW de ce projet) ; Jonkman 2009 en distingue cinq (1, 1½, 2, 2½, 3), dont les deux
-premières ne concernent que le tout petit vent (démarrage) et ne sont pas mobilisées dans ce
-tutoriel. Les trois qui comptent ici :
-- **Region 2** (entre cut-in et le vent nominal) : pitch fixe (souvent proche de 0°), le couple
+NREL 5 MW de ce projet) ; Jonkman 2009 en distingue cinq (1, 1½, 2, 2½, 3), et le contrôleur
+du modèle les met toutes en œuvre. Elles se repèrent à la **vitesse de rotation côté génératrice**
+(`Ω_gen = 97 · Ω_rotor`, multiplicateur 97:1) :
+- **Region 1** (sous `VS_CtInSp`) : couple générateur nul, le rotor accélère librement.
+- **Region 1½** (entre `VS_CtInSp` et `VS_Rgn2Sp`) : transition de démarrage — le couple suit une
+  **rampe linéaire** qui part de zéro à `VS_CtInSp` et rejoint la loi de Region 2 à `VS_Rgn2Sp`.
+  La rampe est raide : la vitesse reste confinée dans cette bande étroite, et la machine produit
+  déjà de la puissance. Ce n'est pas une zone « de tout petit vent » : elle s'étend jusqu'à un vent
+  que **vous calculerez** (voir « Méthode »).
+Les trois suivantes :
+- **Region 2** (de `VS_Rgn2Sp` jusqu'au régime nominal) : pitch fixe (souvent proche de 0°), le couple
   générateur est piloté pour maintenir `λ` à sa valeur optimale `λ*` (celle qui maximise `Cp`) —
   la vitesse de rotation suit donc le vent : `Ω(V) = λ*·V/R`.
 - **Region 3** (au-dessus du vent nominal) : la puissance est plafonnée à la puissance nominale,
@@ -51,26 +58,31 @@ tutoriel. Les trois qui comptent ici :
 | Vitesse de rotation nominale | 12,1 tr/min (≈ 1,267 rad/s) | idem |
 | Vitesse de vent nominale | 11,4 m/s | idem |
 | Cut-in / cut-out | 3 m/s / 25 m/s | idem |
+| Multiplicateur (rapport rotor → génératrice) | 97:1 | Jonkman 2009, p.14 |
+| Vitesses génératrice des seuils : début de Region 1½ `VS_CtInSp` / début de Region 2 `VS_Rgn2Sp` | 70,16 rad/s / 91,21 rad/s (côté génératrice) | `DISCON.F90` du dépôt ; Jonkman 2009, p.19 (670 et 871 tr/min) |
 | λ* (TSR optimal, Region 2) | 7,55 | Jonkman 2009, §7.2 p.26 et Tab. 7-2 p.27 |
 | Cp maximal (à λ*, pas à 0°) | 0,482 | idem |
 
 **Méthode** : en Region 2, `Ω attendu = λ*·V/R` (rad/s), à convertir en tr/min (`× 60/(2π)`).
-Cette loi ne s'applique que tant que `Ω` calculé reste en dessous du régime nominal — **à vous de
-calculer à quelle vitesse de vent ce régime est atteint**, et de comparer ce résultat au vent
+**Avant d'appliquer cette loi, vérifiez la région** : convertissez les deux seuils de la table
+(côté génératrice) en vitesse de rotor, puis comparez à votre `Ω` calculé. Sous le seuil de
+Region 2, c'est la rampe de Region 1½ qui gouverne, et la loi `λ*·V/R` n'en est qu'une approximation
+(voir la rubrique « Modèle » du §6 de `seances/0a/README.md`). La loi ne s'applique plus au-dessus du
+régime nominal — **à vous de calculer à quelle vitesse de vent ce régime est atteint**, et de comparer ce résultat au vent
 nominal (11,4 m/s) : si les deux diffèrent, c'est que la Region 2½ s'intercale entre les deux,
 avant la Region 3.
 
 ## Confrontation OpenFAST
 
-Pour le cas F01 du tutoriel (vent constant, Region 2) : calculez `Ω` attendu avec la méthode
-ci-dessus, et comparez-le au `RotSpeed` observé en régime établi. Un écart tolérable est attendu
+Pour le cas F01 du tutoriel (vent constant) : **identifiez d'abord sa région** (méthode ci-dessus),
+puis calculez `Ω` attendu et comparez-le au `RotSpeed` observé en régime établi. Un écart tolérable est attendu
 (la loi de couple réelle du contrôleur ne colle pas parfaitement à `λ*` à toutes les vitesses), et
 il y a un régime transitoire au démarrage à écarter de la moyenne (cf `outils/lire_outb.py`,
 option `t_min`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
 moyenne, pas une erreur de configuration.
 
 Pour `TwrBsMyt` (moment fléchissant en pied de tour) : estimez la poussée
-`T = 1/2 · ρ · A · V² · Ct` (air `ρ ≈ 1,225 kg/m³`, `Ct ≈ 0,8` en Region 2 à défaut de valeur
+`T = 1/2 · ρ · A · V² · Ct` (air `ρ ≈ 1,225 kg/m³`, `Ct ≈ 0,8` sous le régime nominal à défaut de valeur
 précise tirée du modèle) puis `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)` : `TwrBsMyt` est le moment **au pied de la tour**,
 dont la hauteur `TowerBsHt` (à lire dans `config_elastodyn.dat`) est le point de référence du bras de
 levier — pas le niveau de la mer. Comparez à ±20 % : le modèle complet
@@ -101,6 +113,9 @@ les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc 
 ## Pièges
 
 - Confondre `Ω` en rad/s et en tr/min dans le calcul de `λ` (facteur `60/(2π) ≈ 9,55`).
+- Appliquer la loi de Region 2 sans avoir **vérifié la région** : sous le seuil de Region 2 (rampe
+  de Region 1½), le contrôleur ne suit pas cette loi ; la machine y produit déjà, ne la déclarez pas
+  « à l'arrêt » ni « en Region 2 » par réflexe parce que le vent est inférieur au vent nominal.
 - Appliquer la loi Region 2 (`Ω = λ*·V/R`) au-delà du vent où elle fait atteindre le régime
   nominal : `Ω` ne continue pas à croître avec `V` au-delà de ce point, elle est plafonnée dès la
   Region 2½ — qui commence **avant** le vent nominal (11,4 m/s, début de la Region 3), pas à
@@ -129,7 +144,7 @@ les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc 
   BEM (relation de référence, formule, pas de reproduction de texte).
 - J. F. Manwell, J. G. McGowan, A. L. Rogers, *Wind Energy Explained*, Wiley — définitions
   TSR/Cp/Ct et zones de régulation (relation de référence).
-- `models/oc4_rtest/5MW_Baseline/ServoData/DISCON/DISCON.F90` (`VS_Rgn2K`) — loi de couple de
-  Region 2 effectivement utilisée dans ce dépôt ; `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
+- `models/oc4_rtest/5MW_Baseline/ServoData/DISCON/DISCON.F90` (`VS_CtInSp`, `VS_Rgn2Sp`,
+  `VS_Rgn2K`) — seuils des régions 1½ et 2 et loi de couple de Region 2 effectivement utilisés dans ce dépôt ; `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
   NRELOffshrBsline5MW_OC4DeepCwindSemi_ServoDyn.dat` pour les paramètres ServoDyn du cas flottant
   de référence.

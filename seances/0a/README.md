@@ -115,9 +115,9 @@ Doit se terminer par `OpenFAST terminated normally.`.
    plutôt que la laisser suivre librement l'aérodynamique ?
 2. **Modèle** — TSR `λ = Ω·R/V` ; coefficient de puissance `Cp(λ,β)`, maximal pour un `λ*`
    donné ; loi de Region 2 `Ω(V) = λ*·V/R` (couple piloté, pitch fixe). **Domaine de validité** :
-   machine à vitesse variable et pitch variable (c'est le cas ici), et seulement tant que `Ω`
-   calculé reste en dessous du régime nominal — au-delà, ce n'est plus cette loi qui gouverne
-   (Region 2½ puis 3).
+   machine à vitesse variable et pitch variable (c'est le cas ici), et seulement entre le seuil de
+   Region 2 et le régime nominal : en dessous, la rampe de couple de Region 1½ gouverne ; au-delà,
+   Region 2½ puis 3. Repérez la région avant d'appliquer une loi.
 3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` pour chaque vitesse de vent du
    tableau demandé via `λ*·V/R`, repérer la vitesse de vent où `Ω` atteint le régime nominal donné
    par la fiche F1. Les valeurs numériques du cas particulier F01/F02 répondent à une question
@@ -125,13 +125,19 @@ Doit se terminer par `OpenFAST terminated normally.`.
 4. **Ce que le modèle ne permet pas de conclure** — la loi `λ* = constante` est une
    approximation : la loi de couple réelle du contrôleur peut s'en écarter légèrement à certaines
    vitesses, et ce modèle stationnaire ne dit rien du régime transitoire ni du comportement en
-   Region 2½/3.
+   Region 2½/3. **Point de cours — Region 1½** : en Region 1½ le couple suit une rampe linéaire,
+   non la parabole de Region 2. Pourtant `λ*·V/R` y reste une bonne approximation de `Ω`, pour deux
+   raisons qu'il faut savoir énoncer : (a) la rampe est *raide* (pente bien supérieure à celle de la
+   parabole), donc une petite variation de vitesse suffit à rééquilibrer le couple aérodynamique :
+   `Ω` reste confinée près de la valeur qu'aurait la loi de Region 2 ; (b) `Cp(λ)` est plat autour
+   de son maximum (dérivée nulle en `λ*`) : un `λ` légèrement différent de `λ*` coûte très peu de
+   puissance. À vérifier sur vos propres résultats (écart relatif de `RotSpeed` à `λ*·V/R`).
 5. **Renvois** — fiche F1, section « Minimum vital » et « Ordre de grandeur » ; Jonkman 2009,
    §7.2 p.26 et Tab. 7-2 p.27 (paramètres numériques).
 
 Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
 puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
-vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 2, 2½, 3).
+vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1½, 2, 2½, 3).
 C'est la question Q0.1 du rendu R0.
 
 ## 6. Cas F01 et F02 — éolienne fixe (environ 45 min)
@@ -144,9 +150,10 @@ C'est la question Q0.1 du rendu R0.
 2. **Modèle** — poussée du rotor par la théorie du disque actuateur,
    `T = 1/2 · ρ · A · V² · Ct`, puis `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)` — le moment est pris au
    pied de la tour, dont la hauteur `TowerBsHt` se lit dans `config_elastodyn.dat`. **Domaine de validité** :
-   Region 2 (loin du régime nominal, `Ct` à peu près constant), vent stationnaire pour F01 (le
-   modèle stationnaire ne s'applique pas directement à l'échelon de F02), régime établi atteint
-   (transitoire de démarrage écarté de la moyenne).
+   vent stationnaire pour F01 (le modèle stationnaire ne s'applique pas directement à l'échelon de
+   F02), `Ct` supposé à peu près constant sous le régime nominal (F01 est en Region 1½ : voir la
+   fiche F1, qui donne les seuils du contrôleur, à vous de repérer la région), régime établi
+   atteint (transitoire de démarrage écarté de la moyenne).
 3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` attendu (bloc précédent) et le
    comparer à `RotSpeed` observé (écart tolérable ~15-20 %, fiche F1) ; estimer `T` et
    `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)`, à comparer à `TwrBsMyt` observé (±20 %, énoncé §3 bis). Les
