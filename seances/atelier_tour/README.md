@@ -114,23 +114,26 @@ il retient, et si elle correspond à ce que donne la norme pour la classe de dé
 ## 4. Pourquoi une somme de DEL est une hypothèse
 
 ### Bloc Théorie
-**Question physique** : le classeur combine un DEL de moment de flexion et un DEL d'effort axial
-en les additionnant directement en contrainte — sous quelle condition cela a-t-il un sens ?
+**Question physique** : le classeur transporte un DEL d'effort tranchant (par un bras de levier)
+jusqu'à chaque section et l'ajoute à un DEL de moment de flexion — sous quelle condition cela a-t-il
+un sens ? **À vérifier vous-même dans le classeur** (onglet `Long term DEL`) avant de continuer :
+quels sont exactement les deux canaux combinés, et à quelle hauteur chacun est-il défini ?
 
 **Modèle** : sommer deux DEL (calculés séparément sur deux canaux différents, chacun son propre
 comptage rainflow) revient à supposer que leurs cycles maximaux sont **concomitants** — c'est-à-
 dire qu'ils surviennent en même temps, dans le même sens. Deux signaux réels sont rarement
 exactement en phase : une somme de DEL est donc une **majoration**, pas un calcul exact du dommage
-combiné (qui demanderait de construire la contrainte combinée `σ(t) = Fz(t)/A + M(t)·c/I`
-directement, point par point, puis de faire un seul comptage rainflow sur ce signal combiné).
+combiné (qui demanderait de construire la grandeur combinée directement, point par point dans le
+temps — effort tranchant × bras de levier + moment —, puis de faire un seul comptage rainflow sur
+ce signal combiné).
 
 **Ordre de grandeur attendu** : l'écart entre la somme de DEL et un rainflow direct sur la
-contrainte combinée croît avec le déphasage entre les fluctuations de `Fz(t)` et de `My(t)` à
-l'intérieur du signal ; il serait nul si les deux variaient en permanence de façon strictement
-proportionnelle, de même signe (par exemple sur un échelon de vent comme le cas F02 : `Fz` et `My`
-sautent **au même instant**, dans le même sens, en réponse au même changement brutal — un cas
-limite de corrélation parfaite, à l'opposé d'un vent turbulent où chaque canal a sa propre
-dynamique).
+grandeur combinée croît avec le déphasage entre les deux signaux ; il serait nul si les deux
+variaient en permanence de façon strictement proportionnelle, de même signe. Si les deux canaux
+combinés par le classeur ont la même origine physique (par exemple, tous deux pilotés par la
+poussée aérodynamique en flexion longitudinale), on peut s'attendre à une corrélation plus forte
+qu'entre deux canaux d'origine indépendante — ce qui n'est pas une dispense de vérifier, seulement
+une indication d'ordre de grandeur sur le risque réel de l'hypothèse.
 
 **Ce que le modèle ne permet pas de conclure** : cette hypothèse ne dit rien sur le signe de
 l'erreur commise pour **votre** cas particulier — seulement qu'elle va dans le sens
@@ -192,7 +195,7 @@ Elle ne vaut d'ailleurs pas pour les **deux** critères à la fois dans ce class
 ULS, l'effort axial cumule le poids propre des tronçons situés au-dessus, donc chaque section y
 dépend de celles qui la surplombent (mais pas de celles qui sont en-dessous) — une recherche de
 racine menée **du sommet vers le pied** reste exacte malgré ce couplage à sens unique ; c'est la
-FLS (colonne `O`, sans ce couplage) qui rend la méthode section-par-section triviale dans les deux
+FLS (ratio en colonne `X`, sans ce couplage) qui rend la méthode section-par-section triviale dans les deux
 sens. Elle ne dit non plus rien sur le couplage **dynamique** (la fréquence propre de la tour
 dépend, elle, de la distribution d'épaisseur dans son ensemble, pas section par section).
 
@@ -212,8 +215,9 @@ l'atelier), DEL long terme de flexion `My = 2000 kN·m`, DEL long terme axial `F
 (convention OpenFAST : `z` = axe de la tour, effort axial ; `x`/`y` = cisaillement), contrainte
 admissible au coude à 10⁷ cycles `σ_coude = 100 MPa`, épaisseur de référence `t_réf = 25 mm` (c'est
 la seule valeur ci-dessus qui n'est pas inventée : c'est la constante DNV elle-même, la même pour
-tous, voir §3), exposant d'épaisseur `k = 0,15` (ni l'une ni l'autre des deux valeurs en débat au
-§3 — ce choix n'a donc aucune chance de trancher cette question-là à votre place). On suppose ici
+tous, voir §3), exposant d'épaisseur `k = 0,15` (une valeur courante chez DNV selon la classe de
+détail, choisie ici sans lien avec celle que retient le classeur — vous devez la retrouver
+vous-même, voir §3, pas la déduire de cet exemple). On suppose ici
 que le DEL long terme est déjà rapporté à ce même nombre de cycles de référence `nₑ = 10⁷` (sinon
 il faudrait d'abord ramener l'un ou l'autre au même `nₑ`, par `Sₑₜ(nₑ) ∝ nₑ^(−1/m)` — le DFF,
 le facteur de sécurité en fatigue imposé en Phase 3 que cet exemple ignore par simplicité,
@@ -266,12 +270,14 @@ comme contraintes les 30×2 ratios ≤ 1) — plus lourd à régler, mais pas in
 le §6 montre que les 30 recherches à une variable, faites dans l'ordre (sommet vers pied), donnent
 déjà le même résultat.
 
-**Point de vigilance** : ces deux manipulations n'ont **pas pu être vérifiées en exécution dans
+**Point de vigilance** : aucune de ces manipulations n'a **pu être vérifiée en exécution dans
 l'environnement de rédaction de ce tutoriel** (LibreOffice en mode sans affichage y échoue sur
 tout fichier, indépendamment de ce classeur — défaut d'environnement documenté en coulisses, pas
-du classeur) — y compris les **noms exacts des menus** en français (LibreOffice Calc 24.x), que ce
-tutoriel ne donne donc pas pour ne pas risquer de vous envoyer sur un intitulé inexistant. Cherchez
-« Analyse de scénarios » ou « Outils » dans votre version, testez, et signalez l'écart en séance.
+du classeur). Le chemin « Données → Opérations multiples » ci-dessus est donné de mémoire, sans
+vérification dans cette version de LibreOffice ; les noms exacts des menus de « Recherche de
+valeur cible » et du « Solveur » ne le sont **pas du tout**, pour ne pas vous envoyer sur un
+intitulé probablement faux. Cherchez dans le menu « Outils » de votre version, testez les trois
+manipulations, et signalez tout écart en séance.
 
 ## 9. Pont DeepCwind
 
@@ -288,12 +294,15 @@ non, qu'est-ce que ça change pour comparer les deux séries de valeurs terme à
 **(b) Tester l'hypothèse « somme des DEL » (§4) avec les jauges de tour OpenFAST.** Le modèle de
 référence du projet a **9 jauges de tour réparties du pied au sommet** (`NTwGages = 9`,
 nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20), avec les canaux `TwHt1-9ML{x,y,z}t` dans l'`OutList`
-(moment de flexion
-dans les deux plans et torsion, à chaque jauge). Sur un cas turbulent, comparez deux calculs de
-dommage en **pied de tour** : (1) somme des DEL calculés séparément sur `TwrBsFzt` (effort axial)
-et `TwrBsMyt` (moment) ; (2) rainflow direct sur la contrainte combinée reconstruite point par
-point, `σ(t) = TwrBsFzt(t)/A + TwrBsMyt(t)·(D/2)/I` — l'écart entre les deux mesure concrètement ce
-que coûte l'hypothèse de concomitance du §4. Avec les 9 jauges, vous pouvez refaire cette
+(moment de flexion dans les deux plans et torsion, à chaque jauge), plus `TwrBsFxt`/`TwrBsMyt` en
+pied et `YawBrFxp`/`YawBrMyp` en tête de tour (déjà présents). Commencez par identifier, dans
+l'onglet `Long term DEL` du classeur, les deux canaux exacts que le §4 vous a demandé de retrouver
+(effort tranchant et moment — en tête ou en pied ?), puis choisissez leurs équivalents OpenFAST
+dans cette liste. Sur un cas turbulent, comparez deux calculs de dommage avec ces canaux : (1)
+somme des DEL calculés séparément sur chacun des deux ; (2) rainflow direct sur la grandeur
+combinée reconstruite point par point (effort tranchant × bras de levier + moment, convertis en
+contrainte de flexion) — l'écart entre les deux mesure concrètement ce que coûte l'hypothèse de
+concomitance du §4. Avec les 9 jauges, vous pouvez refaire cette
 comparaison **à plusieurs hauteurs** (pas seulement en pied) et regarder si l'écart varie le long
 de la tour, et comparer les DEL obtenus aux jauges à ceux du classeur de l'atelier (qui raisonne,
 lui, par tronçons entre deux hauteurs — à vous de voir comment faire correspondre les deux
