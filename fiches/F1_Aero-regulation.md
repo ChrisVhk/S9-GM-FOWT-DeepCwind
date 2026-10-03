@@ -68,14 +68,14 @@ ici les régions.*
 
 | Grandeur | Valeur | Source |
 |---|---|---|
-| Rayon rotor R | 63 m | Jonkman 2009, Tab. 1-1 (diamètre 126 m ; valeur précise 62,94 m précône inclus) |
+| Rayon rotor R | 63 m | Jonkman 2009, Tab. 1-1 (diamètre 126 m) ; la valeur précise de 62,94 m, précône inclus, se déduit du texte p.3 |
 | Puissance nominale | 5 MW | idem |
 | Vitesse de rotation nominale | 12,1 tr/min (≈ 1,267 rad/s) | idem |
 | Vitesse de vent nominale | 11,4 m/s | idem |
 | Cut-in / cut-out | 3 m/s / 25 m/s | idem |
 | Multiplicateur (rapport rotor → génératrice) | 97:1 | Jonkman 2009, p.14 |
 | Vitesses génératrice des seuils : début de Region 1½ `VS_CtInSp` / début de Region 2 `VS_Rgn2Sp` | 70,16 rad/s / 91,21 rad/s (côté génératrice) | `DISCON.F90` du dépôt ; Jonkman 2009, p.19 (670 et 871 tr/min) |
-| λ* (TSR optimal, Region 2) | 7,55 | Jonkman 2009, §7.2 p.26 et Tab. 7-2 p.27 |
+| λ* (TSR optimal, Region 2) | 7,55 | Jonkman 2009, §7.2 p.19 et Tab. 7-2 p.27 |
 | Cp maximal (à λ*, pas à 0°) | 0,482 | idem |
 
 **Méthode** : en Region 2, `Ω attendu = λ*·V/R` (rad/s), à convertir en tr/min (`× 60/(2π)`).
@@ -151,7 +151,7 @@ conception.
 **Le même exemple, mais `V = 5 m/s`.** `λ*·V/R = 9 × 5/120 = 0,375 rad/s ≈ 3,58 rpm`, **sous** le
 minimum de 5 rpm : la machine ne suit pas la loi `λ*` mais tient la vitesse minimale. Son `λ`
 réel est `5 × (2π/60) × 120 / 5 ≈ 12,6`, très au-dessus de `λ*` : c'est la région de vitesse minimale
-du rapport, dite « Region 1.5 » (§3.2 p.18, « suboptimal tip-speed ratios »). Même leçon que pour la
+du rapport, appelée Region 1.5 (§3.2 p.18 : tip-speed ratios nettement plus élevés que l'optimal). Même leçon que pour la
 NREL 5 MW : **on vérifie la région avant d'appliquer la loi de Region 2.**
 
 ## Exercices gradués (non notés, corrigé publié)

@@ -133,7 +133,7 @@ Doit se terminer par `OpenFAST terminated normally.`.
    de son maximum (dérivée nulle en `λ*`) : un `λ` légèrement différent de `λ*` coûte très peu de
    puissance. À vérifier sur vos propres résultats (écart relatif de `RotSpeed` à `λ*·V/R`).
 5. **Renvois** — fiche F1, section « Minimum vital » et « Ordre de grandeur » ; Jonkman 2009,
-   §7.2 p.26 et Tab. 7-2 p.27 (paramètres numériques).
+   §7.2 p.19 et Tab. 7-2 p.27 (paramètres numériques).
 
 Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
 puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
