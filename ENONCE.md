@@ -253,7 +253,7 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
    - **géométrie de départ** = tour OC4 du modèle de référence — longueur et base lues dans le
      fichier ElastoDyn principal (`TowerHt`, `TowerBsHt`), diamètres extérieurs lus dans le fichier
      AeroDyn de la tour (`TwrDiam`/`TwrElev`), épaisseurs retrouvées comme au point 2 de la Phase 3
-     (à partir de `TMassDen` et d'une masse volumique d'acier) — rien n'est présumé ;
+     (à partir de `TMassDen` et d'une masse volumique justifiée) — rien n'est présumé ;
    - **DEL court terme** par cas de votre LCT (sur les canaux de pied ou de tête de tour que vous
      aurez identifiés au §4/§9b du tutoriel atelier tour, exposant `m = 4` pour la branche
      principale et `m = 3`/`5` pour la sensibilité) — un outil dédié sera annoncé en séance, sinon
