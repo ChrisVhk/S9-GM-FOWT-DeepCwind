@@ -296,7 +296,8 @@ l'onglet `Long term DEL` du classeur, les deux canaux exacts que le §4 vous a d
 (effort tranchant et moment — en tête ou en pied ?), puis choisissez leurs équivalents OpenFAST
 dans cette liste.
 
-Faites le test à **trois hauteurs**, pas une seule, pour voir si l'écart varie le long de la tour :
+Faites le test à **trois hauteurs**, pas une seule, pour voir si les écarts varient le long de la
+tour :
 - **pied** : jauge 1 (nœud 1, 11,94 m MSL) ;
 - **milieu** : jauge 5 (nœud 11, 50,74 m MSL) ;
 - **sommet** : jauge 9 (nœud 20, 85,66 m MSL, la plus proche du sommet réel à 87,6 m sans y être
@@ -320,9 +321,9 @@ l'atelier mélangerait deux choses différentes, à séparer :
 Commentez le signe de chaque écart et comment il varie avec la hauteur : est-ce que l'hypothèse de
 concomitance (1 contre 2) coûte la même chose partout ? Et la part « modèle de transport incomplet »
 (2 contre 3), plutôt plus grande en pied ou en tête de tour ? Avec les 9 jauges disponibles, vous
-pouvez aussi affiner en
-testant des hauteurs intermédiaires, et comparer les DEL obtenus aux jauges à ceux du classeur de
-l'atelier (qui raisonne, lui, par tronçons entre deux hauteurs — à vous de voir comment faire
+pouvez aussi affiner en testant des hauteurs intermédiaires, et comparer les DEL obtenus aux
+jauges à ceux du classeur de l'atelier (qui raisonne, lui, par tronçons entre deux hauteurs — à
+vous de voir comment faire
 correspondre les deux découpages).
 
 ## 10. Ce que l'atelier ne vérifie pas
