@@ -179,8 +179,13 @@ vers la même épaisseur à chaque section, à la tolérance du solveur numériq
 **Ce que le modèle ne permet pas de conclure** : cette indépendance section par section, si elle
 est vérifiée, est une conséquence du modèle choisi (section circulaire simple, pas de raidisseur
 ni de bride qui coupleraient des tronçons voisins) — elle ne se généralise pas à toute structure.
-Elle ne dit non plus rien sur le couplage **dynamique** (la fréquence propre de la tour dépend,
-elle, de la distribution d'épaisseur dans son ensemble, pas section par section).
+Elle ne vaut d'ailleurs pas pour les **deux** critères à la fois dans ce classeur précis : côté
+ULS, l'effort axial cumule le poids propre des tronçons situés au-dessus, donc chaque section y
+dépend de celles qui la surplombent (mais pas de celles qui sont en-dessous) — une recherche de
+racine menée **du sommet vers le pied** reste exacte malgré ce couplage à sens unique ; c'est la
+FLS (colonne `O`, sans ce couplage) qui rend la méthode section-par-section triviale dans les deux
+sens. Elle ne dit non plus rien sur le couplage **dynamique** (la fréquence propre de la tour
+dépend, elle, de la distribution d'épaisseur dans son ensemble, pas section par section).
 
 **Renvois** : colonne `O` du classeur.
 
