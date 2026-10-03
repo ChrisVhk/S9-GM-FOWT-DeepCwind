@@ -43,8 +43,8 @@ l'épaisseur** de la paroi (flexion locale de la coque, ovalisation) — le mod�
 que la section globale.
 
 **Renvois** : colonnes `R`, `S`, `T` du classeur (masse linéique et raideurs ElastoDyn) ; voir
-aussi `models/oc4_rtest/.../ElastoDyn_Tower.dat` pour la même table sur la tour de référence du
-projet (§9a).
+aussi le fichier tour d'ElastoDyn de `models/oc4_rtest/` pour la même table sur la tour de
+référence du projet (chemin complet au §9a).
 
 ## 2. DEL court terme, DEL long terme
 
@@ -53,12 +53,15 @@ projet (§9a).
 (un cas par classe de vent) en une poignée de chiffres utilisables pour un calcul de fatigue ?
 
 **Modèle** : le comptage rainflow transforme un signal en cycles (étendue de contrainte, moyenne,
-nombre d'occurrences). Le **DEL court terme** `Sₑ` est l'étendue de cycle constante qui
-produirait, sur le même nombre total de cycles, le même dommage Miner que le spectre réel compté
-— pour un exposant `m` de courbe S-N donné (la pondération en `étendue^m` vient directement de
+nombre d'occurrences). Le **DEL court terme** `Sₑ` est l'étendue de cycle constante qui,
+répétée un nombre de cycles de **référence** `nₑ` (pas le nombre de cycles réellement compté —
+voir le lexique de l'`ENONCE.md`), produirait le même dommage Miner que le spectre réel compté —
+pour un exposant `m` de courbe S-N donné (la pondération en `étendue^m` vient directement de
 Miner, pas d'un choix arbitraire). Le **DEL long terme** `Sₑₜ` combine les DEL court terme de
-chaque classe de vent, pondérés par leur probabilité d'occurrence `Oⱼ` (loi de Weibull du site),
-de la même façon : `Sₑₜ = (Σⱼ Oⱼ·Sₑ,ⱼᵐ)^(1/m)`.
+chaque classe de vent (toutes rapportées au même `nₑ`), pondérés par leur probabilité d'occurrence
+`Oⱼ` (loi de Weibull du site **pour ce classeur** — votre propre projet utilisera la table
+conjointe vent/houle/courant de votre LCT, voir §0 et Phase 1), de la même façon :
+`Sₑₜ = (Σⱼ Oⱼ·Sₑ,ⱼᵐ)^(1/m)`.
 
 **Ordre de grandeur attendu** : une moyenne d'ordre `m` est toujours comprise entre la moyenne
 arithmétique pondérée des `Sₑ,ⱼ` et leur maximum — et d'autant plus proche de ce maximum que `m`
@@ -68,9 +71,12 @@ court : une classe de vent fort, rare, peut dominer si son DEL court terme est t
 autres).
 
 **Ce que le modèle ne permet pas de conclure** : le DEL ne dit rien sur l'ordre réel des cycles ni
-sur d'éventuels effets de séquence (Miner suppose le dommage indépendant de l'ordre). Il ne dit
-pas non plus si la distribution de vent utilisée est représentative d'une vie de 20-25 ans — voir
-l'`ENONCE.md`, Phase 3, point 7 (confrontation à une référence de 50 ans).
+sur d'éventuels effets de séquence (Miner suppose le dommage indépendant de l'ordre). Le calcul
+ci-dessus suppose aussi un exposant `m` unique, alors que la courbe S-N réelle est bilinéaire (un
+coude, voir §3) : c'est l'hypothèse « monopente » que cite l'`ENONCE.md` (Phase 3, point 6) parmi
+les limites du DEL. Il ne dit pas non plus si la distribution de vent utilisée est représentative
+d'une vie de 20-25 ans — voir l'`ENONCE.md`, Phase 3, point 7 (confrontation à une référence de
+50 ans).
 
 **Renvois** : lexique de la chaîne de charges dans l'`ENONCE.md` (définitions DEL court/long
 terme) ; onglet `Long term DEL` du classeur ; Phase 3 de l'`ENONCE.md` où vous programmerez ce
@@ -98,12 +104,12 @@ est plafonné à 1).
 **Ce que le modèle ne permet pas de conclure** : la courbe S-N ne dit rien sur la soudure
 **réellement réalisée** sur le chantier (géométrie du cordon, défauts) — c'est pour cela qu'on
 choisit une classe de détail pessimiste par convention, pas en mesurant la soudure a posteriori.
-Le classeur de l'atelier retient une valeur de l'exposant `k` à confronter à la valeur DNV : à vous
-de la retrouver et de juger si l'écart compte, sans publier ici lequel des deux est utilisé.
 
 **Renvois** : DNV-RP-C203 (édition en vigueur), tableau des courbes S-N et correction
 d'épaisseur — citez l'édition exacte et le numéro de section dans votre rendu, ce tutoriel ne les
-donne pas ; colonnes `W` (contrainte admissible) et onglet `SN-Curve DATABASE` du classeur.
+donne pas ; colonnes `W` (contrainte admissible) et onglet `SN-Curve DATABASE` du classeur. **À
+retrouver vous-même dans le classeur** (ce n'est pas publié ici) : quelle valeur de l'exposant `k`
+il retient, et si elle correspond à ce que donne la norme pour la classe de détail concernée.
 
 ## 4. Pourquoi une somme de DEL est une hypothèse
 
@@ -119,10 +125,12 @@ combiné (qui demanderait de construire la contrainte combinée `σ(t) = Fz(t)/A
 directement, point par point, puis de faire un seul comptage rainflow sur ce signal combiné).
 
 **Ordre de grandeur attendu** : l'écart entre la somme de DEL et un rainflow direct sur la
-contrainte combinée croît avec le déphasage entre les deux signaux d'effort ; il est nul si les
-deux signaux sont parfaitement corrélés (même origine physique — par exemple, la poussée moyenne
-du rotor et le moment de flexion moyen qu'elle induit en pied de tour varient tous les deux avec
-la même vitesse de vent, et sont donc fortement corrélés).
+contrainte combinée croît avec le déphasage entre les fluctuations de `Fz(t)` et de `My(t)` à
+l'intérieur du signal ; il serait nul si les deux variaient en permanence de façon strictement
+proportionnelle, de même signe (par exemple sur un échelon de vent comme le cas F02 : `Fz` et `My`
+sautent **au même instant**, dans le même sens, en réponse au même changement brutal — un cas
+limite de corrélation parfaite, à l'opposé d'un vent turbulent où chaque canal a sa propre
+dynamique).
 
 **Ce que le modèle ne permet pas de conclure** : cette hypothèse ne dit rien sur le signe de
 l'erreur commise pour **votre** cas particulier — seulement qu'elle va dans le sens
@@ -139,8 +147,10 @@ retrouverez cette même question sur vos propres canaux.
 torsion en un seul critère de dimensionnement ULS ?
 
 **Modèle** : en un point de la paroi, on calcule la contrainte normale (axiale + flexion
-résultante dans le plan le plus défavorable) et la contrainte de cisaillement (effort tranchant +
-torsion), puis on les combine par le critère de Von Mises,
+résultante dans le plan le plus défavorable) et la contrainte de cisaillement (torsion ; le
+cisaillement d'effort tranchant est en réalité nul au point de flexion maximale et maximal sur
+l'axe neutre — les additionner comme si les deux pouvaient être maximaux ensemble est une
+simplification conservative), puis on les combine par le critère de Von Mises,
 `σ_vM = √(σ² + 3τ²)`, comparé à la limite élastique du matériau. Pour un tube soumis à un moment
 fléchissant **biaxial** (Mx, My), le point le plus sollicité n'est pas forcément aligné avec l'un
 des deux axes : il faut balayer plusieurs angles autour de la circonférence pour trouver le
@@ -186,23 +196,29 @@ FLS (colonne `O`, sans ce couplage) qui rend la méthode section-par-section tri
 sens. Elle ne dit non plus rien sur le couplage **dynamique** (la fréquence propre de la tour
 dépend, elle, de la distribution d'épaisseur dans son ensemble, pas section par section).
 
-**Renvois** : colonne `O` du classeur.
+**Renvois** : colonne `O` du classeur ; `ENONCE.md`, Phase 5, point 1 (« ajuster l'épaisseur pour
+satisfaire les deux critères à masse minimale »), l'objet même de ce bloc.
 
 ## 7. Une section faite entièrement à la main
 
-Les valeurs ci-dessous sont **inventées pour cet exemple** — aucun rapport avec le classeur de
-l'atelier. L'objectif est de vérifier que vous savez refaire la chaîne complète sans tableur.
+Les valeurs ci-dessous sont **inventées pour cet exemple**, choisies pour ne coïncider ni avec le
+classeur de l'atelier ni avec la question ouverte du §3 (`k`). L'objectif est de vérifier que vous
+savez refaire la chaîne complète sans tableur.
 
 Tronçon tubulaire : diamètre extérieur `D = 1,0 m`. On cherche l'épaisseur `t` qui vérifie le
 critère FLS avec `SCF = 1,5` (délibérément différent du `SCF = 2` imposé par le projet en Phase 3
 — pour qu'aucun chiffre de cet exemple ne puisse se confondre avec un chiffre du projet ou de
 l'atelier), DEL long terme de flexion `My = 2000 kN·m`, DEL long terme axial `Fz = 100 kN`
 (convention OpenFAST : `z` = axe de la tour, effort axial ; `x`/`y` = cisaillement), contrainte
-admissible au coude à 10⁷ cycles `σ_coude = 100 MPa`, épaisseur de référence `t_réf = 25 mm`,
-exposant d'épaisseur `k = 0,2`. On suppose ici que le DEL long terme a été construit pour ce même
-nombre de cycles de référence `nₑ = 10⁷` (sinon il faudrait d'abord ramener l'un ou l'autre au
-même `nₑ`, par `Sₑₜ(nₑ)` ∝ `nₑ^(−1/m)` — c'est aussi ce que fait le DFF, le facteur de sécurité en
-fatigue imposé en Phase 3, que cet exemple ignore par simplicité).
+admissible au coude à 10⁷ cycles `σ_coude = 100 MPa`, épaisseur de référence `t_réf = 25 mm` (c'est
+la seule valeur ci-dessus qui n'est pas inventée : c'est la constante DNV elle-même, la même pour
+tous, voir §3), exposant d'épaisseur `k = 0,15` (ni l'une ni l'autre des deux valeurs en débat au
+§3 — ce choix n'a donc aucune chance de trancher cette question-là à votre place). On suppose ici
+que le DEL long terme est déjà rapporté à ce même nombre de cycles de référence `nₑ = 10⁷` (sinon
+il faudrait d'abord ramener l'un ou l'autre au même `nₑ`, par `Sₑₜ(nₑ) ∝ nₑ^(−1/m)` — le DFF,
+le facteur de sécurité en fatigue imposé en Phase 3 que cet exemple ignore par simplicité,
+agit différemment : il multiplie le nombre de cycles exigé, pas directement `nₑ`, mais revient
+mathématiquement à un facteur `DFF^(1/m)` sur la contrainte admissible).
 
 Aire et inertie d'un tube creux : `P(t) = (π/4)·[D² − (D−2t)²]`, `Q(t) = (π/64)·[D⁴ − (D−2t)⁴]`.
 Contrainte DEL : `σ = SCF·(My·(D/2)/Q + Fz/P)`. Contrainte admissible :
@@ -214,22 +230,22 @@ autocorriger :
 | t (mm) | σ (MPa) | σ_adm (MPa) | X_FLS |
 |---|---|---|---|
 | 20 | 205,3 | 100,0 | 2,05 |
-| 40 | 109,0 | 91,0 | 1,20 |
-| 52,5 | 86,2 | 86,2 | 1,00 |
-| 60 | 77,2 | 83,9 | 0,92 |
+| 40 | 109,0 | 93,2 | 1,17 |
+| 49,8 | 90,2 | 90,2 | 1,00 |
+| 60 | 77,2 | 87,7 | 0,88 |
 
-→ épaisseur retenue en FLS : **t ≈ 52,5 mm** (racine de `X_FLS = 1`, à affiner par dichotomie
+→ épaisseur retenue en FLS : **t ≈ 49,8 mm** (racine de `X_FLS = 1`, à affiner par dichotomie
 entre 40 et 60 mm si votre balayage initial est plus grossier).
 
 Vérification ULS à cette épaisseur, avec des efforts extrêmes concomitants **également
 inventés** — et volontairement choisis plus grands que les DEL ci-dessus, comme il se doit pour
 des efforts extrêmes (`Fz = −800 kN` axial, `Mx = 1200 kN·m`, `My = 3000 kN·m`, `Mz = 300 kN·m` de
-torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)·(D/2)/Q ≈ 91,8 MPa` en
+torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)·(D/2)/Q ≈ 96,0 MPa` en
 valeur absolue, de part et d'autre de l'axe neutre. **Le point le plus défavorable est celui où
 flexion et effort axial sont de même signe** (ici, la face comprimée : `σ = σ_axial − |σ_flex| ≈
-−5,1 − 91,8 ≈ −96,9 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi au §5
-quand vous balayez les angles. Torsion pour le cisaillement (`τ = Mz·(D/2)/(2Q) ≈ 4,3 MPa`), puis
-Von Mises : vous devriez trouver `σ_vM ≈ 97 MPa`, soit un ratio ULS `X_ULS ≈ 0,27` — très inférieur
+−5,4 − 96,0 ≈ −101,4 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi au §5
+quand vous balayez les angles. Torsion pour le cisaillement (`τ = Mz·(D/2)/(2Q) ≈ 4,5 MPa`), puis
+Von Mises : vous devriez trouver `σ_vM ≈ 102 MPa`, soit un ratio ULS `X_ULS ≈ 0,29` — très inférieur
 à 1. Un tronçon dimensionné pile à sa limite de fatigue peut donc rester très en-deçà de sa limite
 ULS : c'est une conséquence de ce jeu de charges et de ce `Re`, pas une généralité absolue (voyez
 à quel ordre de grandeur de `Re` ou d'efforts extrêmes l'ULS redeviendrait dimensionnant).
@@ -241,16 +257,21 @@ multiples` permet de faire varier une cellule d'entrée (par exemple l'épaisseu
 de lire l'effet sur une cellule de résultat (le ratio FLS ou ULS), sans modifier la feuille — utile
 pour tracer à la main l'allure de `X(t)` avant de chercher la racine.
 
-**Solveur (LibreOffice Calc)** : `Outils → Solveur`, cellule cible = ratio FLS ou ULS, valeur
-`1`, cellule variable = l'épaisseur. Le §6 ci-dessus explique pourquoi, dans ce classeur précis,
-une recherche de racine section par section (`Outils → Valeur cible`) suffit et donne le même
-résultat qu'un Solveur réglé sur toutes les épaisseurs à la fois.
+**Recherche de valeur cible et Solveur (LibreOffice Calc, menus à vérifier vous-même — voir
+l'avertissement ci-dessous)** : pour **une** section, fixer le ratio (FLS ou ULS) à `1` en faisant
+varier sa propre épaisseur est une recherche de valeur cible à une seule variable — c'est ce que
+fait le §6 ci-dessus, section par section. Un **Solveur**, lui, résout un problème à plusieurs
+variables à la fois (ici : les 30 épaisseurs ensemble, avec comme objectif la masse totale et
+comme contraintes les 30×2 ratios ≤ 1) — plus lourd à régler, mais pas indispensable ici puisque
+le §6 montre que les 30 recherches à une variable, faites dans l'ordre (sommet vers pied), donnent
+déjà le même résultat.
 
 **Point de vigilance** : ces deux manipulations n'ont **pas pu être vérifiées en exécution dans
 l'environnement de rédaction de ce tutoriel** (LibreOffice en mode sans affichage y échoue sur
 tout fichier, indépendamment de ce classeur — défaut d'environnement documenté en coulisses, pas
-du classeur). Les noms de menu ci-dessus sont ceux de LibreOffice Calc 24.x ; si un menu a bougé
-dans votre version, testez et signalez l'écart en séance.
+du classeur) — y compris les **noms exacts des menus** en français (LibreOffice Calc 24.x), que ce
+tutoriel ne donne donc pas pour ne pas risquer de vous envoyer sur un intitulé inexistant. Cherchez
+« Analyse de scénarios » ou « Outils » dans votre version, testez, et signalez l'écart en séance.
 
 ## 9. Pont DeepCwind
 
@@ -265,9 +286,9 @@ convention de hauteur que celle utilisée par le classeur de l'atelier (`C3`, lo
 non, qu'est-ce que ça change pour comparer les deux séries de valeurs terme à terme ?
 
 **(b) Tester l'hypothèse « somme des DEL » (§4) avec les jauges de tour OpenFAST.** Le modèle de
-référence du projet a désormais **9 jauges de tour réparties du pied au sommet** (`NTwGages = 9`,
-nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20 — décision de l'enseignant, ajoutées depuis la première
-version de ce tutoriel), avec les canaux `TwHt1-9ML{x,y,z}t` dans l'`OutList` (moment de flexion
+référence du projet a **9 jauges de tour réparties du pied au sommet** (`NTwGages = 9`,
+nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20), avec les canaux `TwHt1-9ML{x,y,z}t` dans l'`OutList`
+(moment de flexion
 dans les deux plans et torsion, à chaque jauge). Sur un cas turbulent, comparez deux calculs de
 dommage en **pied de tour** : (1) somme des DEL calculés séparément sur `TwrBsFzt` (effort axial)
 et `TwrBsMyt` (moment) ; (2) rainflow direct sur la contrainte combinée reconstruite point par
@@ -283,8 +304,8 @@ découpages).
 | Point non couvert | Où il revient dans le projet |
 |---|---|
 | Voilement local (flambement de coque mince) | Non traité par ce projet — hors périmètre des niveaux A à D de la Phase 5 |
-| Résonance 1P/3P (fréquence rotor/pales vs fréquence propre de tour) | Non traité par ce projet — la Phase 0a introduit la fréquence 1P (`RotSpeed`), mais seulement pour la lire sur le moment en pied de **pale**, pas pour vérifier un écartement avec la fréquence propre de la tour |
-| Inertie et mouvements du flotteur (couplage avec la tour) | Phase 2 (simulations de référence et sensibilité) |
+| Résonance 1P/3P (fréquence rotor/pales vs fréquence propre de tour) | Pas vérifié comme tel — la Phase 0a introduit la fréquence 1P (`RotSpeed`), mais seulement pour la lire sur le moment en pied de **pale** ; la Phase 3 cite la « dépendance à la fréquence propre » comme une limite du DEL, sans en faire une vérification 1P/3P à part entière |
+| Inertie et mouvements du flotteur (couplage avec la tour) | Phase 0b (comparaison fixe/flottant sur `TwrBsMyt`) et Phase 2 (lâchers, périodes propres) |
 | Brides boulonnées (concentration de contrainte à l'assemblage) | Non traité par ce projet — le niveau D de la Phase 5 porte sur un assemblage colonne-entretoise du flotteur, pas sur les brides de tour |
 
 ---
