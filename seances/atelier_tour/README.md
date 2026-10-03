@@ -7,18 +7,14 @@ colonne.
 
 ## 0. Où ça se branche dans le projet
 
-Cet atelier **répète en avance** ce que vous referez vous-même en [Phase 5](../../ENONCE.md),
-niveau A (tour) :
-
-> *« Tour (niveau A) : à partir des DEL long terme et des efforts extrêmes, vérifier une section
-> en pied de tour en FLS (contrainte de flexion × SCF = 2 vs contrainte admissible en fatigue) et
-> en ULS (Von Mises vs limite élastique). Ajuster l'épaisseur pour satisfaire les deux critères à
-> masse minimale. »*
-
-La seule différence : en Phase 5 vous partirez des sorties de **vos propres** simulations
-OpenFAST (DEL et extrêmes du pied de tour, `TwrBsMyt`, `TwrBsFzt`...), pas d'un jeu de charges
-déjà fourni. L'atelier sert donc de répétition générale de la méthode, sur un jeu de données prêt
-à l'emploi, avant de la refaire sur vos propres résultats.
+Cet atelier **répète en avance** une méthode que vous reprendrez deux fois dans le projet
+([`ENONCE.md`](../../ENONCE.md)) : en Phase 3 (étape 0, « premier passage », puis point 2 sur la
+tour de référence) et en Phase 5 (point 1, « second passage, avec vos données » — géométrie lue
+dans `models/oc4_rtest`, DEL et extrêmes de vos propres simulations). La différence, à chaque
+reprise, est l'origine des données — la méthode (tronc de cône creux, DEL, S-N, Von Mises,
+dimensionnement pleinement contraint) reste la même ; cet atelier sert à la pratiquer une première
+fois sur un jeu de données prêt à l'emploi, avant de la refaire sur des données de plus en plus
+proches des vôtres.
 
 ## 1. Tronc de cône creux et propriétés de section
 
@@ -313,8 +309,8 @@ découpages).
 | Point non couvert | Où il revient dans le projet |
 |---|---|
 | Voilement local (flambement de coque mince) | Non traité par ce projet — hors périmètre des niveaux A à D de la Phase 5 |
-| Résonance 1P/3P (fréquence rotor/pales vs fréquence propre de tour) | Pas vérifié comme tel — la Phase 0a introduit la fréquence 1P (`RotSpeed`), mais seulement pour la lire sur le moment en pied de **pale** ; la Phase 3 cite la « dépendance à la fréquence propre » comme une limite du DEL, sans en faire une vérification 1P/3P à part entière |
-| Inertie et mouvements du flotteur (couplage avec la tour) | Phase 0b (comparaison fixe/flottant sur `TwrBsMyt`) et Phase 2 (lâchers, périodes propres) |
+| Résonance 1P/3P (fréquence rotor/pales vs fréquence propre de tour) | Pas ici — la Phase 0a introduit seulement la fréquence 1P (`RotSpeed`) sur le moment en pied de **pale** ; la comparaison aux fréquences propres de la tour est faite en Phase 5 (point 2, boucle de dimensionnement) |
+| Inertie et mouvements du flotteur (couplage avec la tour) | Pas ici (tour sur base fixe dans ce classeur) — Phase 0b (comparaison fixe/flottant sur `TwrBsMyt`), Phase 2 (lâchers, périodes propres) et Phase 5 (point 1, part du dommage due aux mouvements du flotteur) |
 | Brides boulonnées (concentration de contrainte à l'assemblage) | Non traité par ce projet — le niveau D de la Phase 5 porte sur un assemblage colonne-entretoise du flotteur, pas sur les brides de tour |
 
 ---

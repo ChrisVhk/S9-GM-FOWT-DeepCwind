@@ -200,15 +200,28 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 **À lire avant la séance : F8 (Ancrage dynamique et fatigue)** — dès qu'elle est publiée.
 
+0. **Atelier tour, premier passage** : prise en main de la chaîne DEL court terme → long terme →
+   courbe S-N → épaisseur, sur le classeur de l'atelier tel quel (sa propre géométrie de tour et
+   ses propres données d'entrée, pas celles du projet) — d'abord avec `SCF = 1`, puis `SCF = 2`, en
+   comparant épaisseurs et masse. Voir [`seances/atelier_tour/`](seances/atelier_tour/README.md)
+   pour la théorie derrière chaque étape. C'est la **méthode** (pas la géométrie ni les résultats)
+   que vous reprendrez au point 2 ci-dessous, sur la tour du projet, puis en Phase 5 avec vos
+   propres charges.
 1. **Rainflow** sur `TwrBsMyt` et `FAIRTEN1-3`, pour chaque cas.
-2. **Contrainte en pied de tour** : passer du moment à la contrainte de flexion (caractéristiques de section fournies), appliquer un **SCF = 2** (hypothèse d'avant-projet).
+2. **Contrainte en pied de tour** : passer du moment à la contrainte de flexion, avec les
+   caractéristiques de section de la tour de **référence** (aire, inertie) — pas une donnée
+   fournie, à calculer vous-mêmes comme à l'étape 0, mais pour cette géométrie-ci : diamètre
+   extérieur lu dans le fichier AeroDyn de la tour (`TwrDiam`/`TwrElev`), épaisseur à retrouver à
+   partir de la masse linéique (`TMassDen` du fichier tour ElastoDyn) et d'une masse volumique
+   d'acier usuelle — ce n'est pas une lecture directe, un petit calcul par section. Appliquer un
+   **SCF = 2** (hypothèse d'avant-projet).
 3. **Courbe S-N** : choisir la courbe DNV-RP-C203 adaptée (type de soudure, milieu air ou eau, épaisseur) et justifier ce choix.
 4. **Dommage** : Miner sur chaque cas, puis cumul pondéré par les occurrences Oⱼ ; durée de vie avec le DFF imposé.
 5. **DEL** : programmer vous-mêmes le DEL court terme Sₑ et long terme Sₑₜ (formules au lexique), puis comparer avec l'outil d'`openfast_toolbox`. Un écart entre les deux doit être expliqué.
 6. **Limites** : montrer sur un de vos cas pourquoi le DEL ne suffit pas pour conclure (perte de concomitance, hypothèse monopente, dépendance à la fréquence propre).
 7. **Confrontation à une référence de 50 ans** : le projet FLOATECH a simulé la même éolienne OC4 sur le même site pendant 50 ans d'états de mer réels (environ 450 000 simulations d'une heure). Comparez le DEL long terme obtenu avec votre LCT de 10 à 15 cas au DEL de référence fourni. L'écart mesure la qualité de votre binning et de votre lumping : expliquez-le, et dites ce qu'il faudrait changer dans votre LCT pour le réduire.
 
-**Rendu R3** : note de calcul fatigue (hypothèses, courbe S-N retenue, dommages par cas, durée de vie), comparaison DEL maison vs outil.
+**Rendu R3** : comparatif SCF = 1 / SCF = 2 de l'atelier tour (étape 0) ; note de calcul fatigue (hypothèses, courbe S-N retenue, dommages par cas, durée de vie), comparaison DEL maison vs outil.
 
 #### Phase 4 — Extrêmes et ancrage
 
@@ -232,15 +245,73 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
 | **C** | Flotteur flexible modélisé en poutres (SubDyn couplé au flotteur) | Séries temporelles d'efforts intérieurs par membre, donc rainflow sur une entretoise | Groupe centre |
 | **D** | Éléments finis locaux de l'assemblage | Contrainte au point chaud, SCF « vrai » | Lecture d'une étude publiée |
 
-1. **Tour (niveau A)** : à partir des DEL long terme et des efforts extrêmes, vérifier une section en pied de tour en FLS (contrainte de flexion × SCF = 2 vs contrainte admissible en fatigue) et en ULS (Von Mises vs limite élastique). Ajuster l'épaisseur pour satisfaire les deux critères à masse minimale.
-2. **Entretoise (niveau B)** : estimer l'effort d'écartement des colonnes pour la houle la plus pénalisante (longueur d'onde de l'ordre de deux fois l'entraxe des colonnes), en déduire l'effort axial et la contrainte nominale dans l'entretoise. Comparer à une contrainte admissible.
-3. **Domaine de validité du SCF** : relever dans le document de définition OC4 les diamètres des entretoises, des colonnes déportées et de la colonne centrale ; calculer β = d/D pour chaque jonction ; dire si les formules paramétriques d'Efthymiou (établies pour les jackets) s'appliquent. Conclure sur ce qu'il faut faire quand elles ne s'appliquent pas.
-4. **Groupe centre (niveau C)** : comparer, sur un même état de mer, l'effort dans une entretoise obtenu au niveau B et la série temporelle du modèle flexible. Expliquer pourquoi la répartition des efforts hydrodynamiques (potentiels ramenés en un point / Morison répartis) conditionne la validité du résultat.
-5. **Assemblage (niveau D)** : à partir de l'étude publiée fournie (assemblage colonne-entretoise d'une semi-submersible), expliquer la chaîne *efforts globaux → modèle local éléments finis → SCF au point chaud → S-N → durée de vie*, et discuter les ordres de grandeur obtenus.
+1. **Tour (niveau A), atelier tour second passage, avec vos données.** Même méthode qu'à la Phase
+   3 (étape 0), mais toutes les entrées sont désormais les vôtres, pour **chaque groupe** :
+   - **géométrie de départ** = tour OC4 du modèle de référence — longueur et base lues dans le
+     fichier ElastoDyn principal (`TowerHt`, `TowerBsHt`), diamètres extérieurs lus dans le fichier
+     AeroDyn de la tour (`TwrDiam`/`TwrElev`), épaisseurs retrouvées comme au point 2 de la Phase 3
+     (à partir de `TMassDen` et d'une masse volumique d'acier) — rien n'est présumé ;
+   - **DEL court terme** par cas de votre LCT (sur les canaux de pied ou de tête de tour que vous
+     aurez identifiés au §4/§9b du tutoriel atelier tour, exposant `m = 4` pour la branche
+     principale et `m = 3`/`5` pour la sensibilité) — un outil dédié sera annoncé en séance, sinon
+     reprenez le programme du point 5 de la Phase 3 ;
+   - **occurrences `Oⱼ`** = celles de **votre** LCT de la Phase 1 (table conjointe vent × houle ×
+     courant), pas la loi de Weibull propre au classeur de l'atelier (voir
+     [`seances/atelier_tour/`](seances/atelier_tour/README.md), §2) ;
+   - **efforts extrêmes** = vos cas DLC 1.6 et 6.1 de la Phase 4 (ceci complète l'ULS du niveau A,
+     qui restait partiel avec les seules données de l'atelier) ;
+   - **test de l'hypothèse « somme des DEL »** (théorie au §4, exercice concret au §9b de
+     `seances/atelier_tour/`) avec les jauges
+     de tour OpenFAST : comparez le dommage obtenu directement à une jauge à celui obtenu en
+     sommant deux DEL séparés, et chiffrez l'écart — en particulier la part due aux mouvements du
+     flotteur (inertie et gravité en tangage), absente du classeur de l'atelier qui suppose une
+     tour sur base fixe.
+
+   Vérifier la section résultante en FLS (contrainte de flexion × SCF = 2 vs contrainte admissible
+   en fatigue) et en ULS (Von Mises vs limite élastique). Ajuster l'épaisseur pour satisfaire les
+   deux critères à masse minimale.
+2. **Boucle de dimensionnement, une itération.** Réinjectez les `R`, `S`, `T` (masse linéique,
+   raideurs) de la tour dimensionnée au point 1 dans le fichier tour d'ElastoDyn, et relancez
+   **un** nouveau calcul OpenFAST : un cas de fatigue représentatif (celui qui dimensionnait au
+   point 1) et le cas ULS dimensionnant. Commentez la variation des efforts obtenus par rapport au
+   premier passage.
+   > **Point dur, à régler avant de lancer ce calcul** : ElastoDyn ne demande pas seulement `R`,
+   > `S`, `T` par station, mais aussi les **formes modales** de la tour (coefficients polynomiaux
+   > `TwFAM1Sh(2-5)` etc., qui décrivent la déformée assumée du premier mode). Aucun outil de
+   > calcul de ces coefficients à partir d'une nouvelle distribution de masse/raideur n'est
+   > disponible dans l'environnement du cours (ni BModes, ni d'équivalent dans `openfast_toolbox` —
+   > son module `linearization` analyse un modèle déjà construit, via la linéarisation d'OpenFAST
+   > lui-même, mais ne calcule pas de nouveaux coefficients d'entrée ; à reconfirmer en séance, ce
+   > point n'a pas été vérifié en profondeur). **Approximation retenue** : conservez les
+   > coefficients polynomiaux d'origine tels quels, et dites-le explicitement comme une
+   > approximation.
+   >
+   > Pour en estimer l'ordre de grandeur sur la fréquence propre (sans attendre un résultat
+   > garanti), un quotient de Rayleigh, en réutilisant la **même** déformée assumée `φ(x)` (celle
+   > des coefficients d'origine) mais évaluée avec la **nouvelle** distribution de raideur `EI(x)`
+   > et de masse linéique `m(x)` :
+   > `f² ∝ [∫EI(x)·φ''(x)²dx] / [∫m(x)·φ(x)²dx + M_tête·φ(L)²]`
+   > — le terme `M_tête·φ(L)²` (masse du rotor + moyeu + nacelle en tête, très supérieure à la
+   > masse de la tour elle-même : à relever dans le fichier ElastoDyn principal, `NacMass`,
+   > `HubMass`, et la masse des pales) **ne doit pas être oublié**, il domine le dénominateur pour
+   > une éolienne. Attention à l'interprétation : le principe de Rayleigh garantit qu'une déformée
+   > assumée différente de la vraie déformée propre **d'une même structure** surestime sa fréquence
+   > — il ne garantit **pas** que la fréquence obtenue ainsi pour la tour redimensionnée encadre sa
+   > vraie nouvelle fréquence (ce sont deux structures différentes). Ce calcul donne donc un ordre
+   > de grandeur de l'effet de l'approximation, pas une borne garantie. Si l'écart avec la fréquence
+   > d'origine est significatif, dites-le et discutez-en — ce point ne demande pas de corriger
+   > l'approximation, seulement d'en estimer l'effet.
+
+   Comparez les fréquences propres de la tour (avant/après l'itération) aux fréquences 1P et 3P du
+   rotor (voir `seances/atelier_tour/`, §10, point non couvert par l'atelier — à faire ici).
+3. **Entretoise (niveau B)** : estimer l'effort d'écartement des colonnes pour la houle la plus pénalisante (longueur d'onde de l'ordre de deux fois l'entraxe des colonnes), en déduire l'effort axial et la contrainte nominale dans l'entretoise. Comparer à une contrainte admissible.
+4. **Domaine de validité du SCF** : relever dans le document de définition OC4 les diamètres des entretoises, des colonnes déportées et de la colonne centrale ; calculer β = d/D pour chaque jonction ; dire si les formules paramétriques d'Efthymiou (établies pour les jackets) s'appliquent. Conclure sur ce qu'il faut faire quand elles ne s'appliquent pas.
+5. **Groupe centre (niveau C)** : comparer, sur un même état de mer, l'effort dans une entretoise obtenu au niveau B et la série temporelle du modèle flexible. Expliquer pourquoi la répartition des efforts hydrodynamiques (potentiels ramenés en un point / Morison répartis) conditionne la validité du résultat.
+6. **Assemblage (niveau D)** : à partir de l'étude publiée fournie (assemblage colonne-entretoise d'une semi-submersible), expliquer la chaîne *efforts globaux → modèle local éléments finis → SCF au point chaud → S-N → durée de vie*, et discuter les ordres de grandeur obtenus.
 
 Rappel : aux niveaux A, B et C on obtient une contrainte **nominale**. Le SCF reste indispensable, et il faut savoir justifier d'où il vient.
 
-**Rendu R5** : note de vérification de la tour, calcul d'entretoise (niveau B), tableau β et conclusion sur le SCF ; groupe centre : comparaison B / C.
+**Rendu R5** : note de vérification de la tour (premier passage et itération), calcul d'entretoise (niveau B), tableau β et conclusion sur le SCF ; groupe centre : comparaison B / C.
 
 #### Phase 6 — Synthèse commune et soutenance
 
