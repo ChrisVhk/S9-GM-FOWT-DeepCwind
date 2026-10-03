@@ -137,8 +137,8 @@ True          TabDelim    - Use tab delimiters in text tabular output file? (fla
 "G0"          OutFmt      - Format used for text tabular output (except time).  Resulting field should be 10 characters. (quoted string) (currently unused)
           0   TStart      - Time to begin tabular output (s) (currently unused)
           1   DecFact     - Decimation factor for tabular output {1: output every time step} (-) (currently unused)
-          1   NTwGages    - Number of tower nodes that have strain gages for output [0 to 9] (-)
-         10   TwrGagNd    - List of tower nodes that have strain gages [1 to TwrNodes] (-) [unused if NTwGages=0]
+          9   NTwGages    - Number of tower nodes that have strain gages for output [0 to 9] (-)
+1, 3, 6, 8, 11, 13, 15, 18, 20   TwrGagNd    - List of tower nodes that have strain gages [1 to TwrNodes] (-) [unused if NTwGages=0]
           1   NBlGages    - Number of blade nodes that have strain gages for output [0 to 9] (-)
           9   BldGagNd    - List of blade nodes that have strain gages [1 to BldNodes] (-) [unused if NBlGages=0]
               OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
@@ -179,6 +179,33 @@ True          TabDelim    - Use tab delimiters in text tabular output file? (fla
 "TwrBsMxt"                - Side-to-side bending moment at the base of the tower (platform)
 "TwrBsMyt"                - Fore-aft     bending moment at the base of the tower (platform)
 "TwrBsMzt"                - Yaw                  moment at the base of the tower (platform)
+"TwHt1MLxt"               - Side-to-side (roll) moment at tower height 1
+"TwHt1MLyt"               - Fore-aft bending moment at tower height 1
+"TwHt1MLzt"               - Yaw (torsional) moment at tower height 1
+"TwHt2MLxt"               - Side-to-side (roll) moment at tower height 2
+"TwHt2MLyt"               - Fore-aft bending moment at tower height 2
+"TwHt2MLzt"               - Yaw (torsional) moment at tower height 2
+"TwHt3MLxt"               - Side-to-side (roll) moment at tower height 3
+"TwHt3MLyt"               - Fore-aft bending moment at tower height 3
+"TwHt3MLzt"               - Yaw (torsional) moment at tower height 3
+"TwHt4MLxt"               - Side-to-side (roll) moment at tower height 4
+"TwHt4MLyt"               - Fore-aft bending moment at tower height 4
+"TwHt4MLzt"               - Yaw (torsional) moment at tower height 4
+"TwHt5MLxt"               - Side-to-side (roll) moment at tower height 5
+"TwHt5MLyt"               - Fore-aft bending moment at tower height 5
+"TwHt5MLzt"               - Yaw (torsional) moment at tower height 5
+"TwHt6MLxt"               - Side-to-side (roll) moment at tower height 6
+"TwHt6MLyt"               - Fore-aft bending moment at tower height 6
+"TwHt6MLzt"               - Yaw (torsional) moment at tower height 6
+"TwHt7MLxt"               - Side-to-side (roll) moment at tower height 7
+"TwHt7MLyt"               - Fore-aft bending moment at tower height 7
+"TwHt7MLzt"               - Yaw (torsional) moment at tower height 7
+"TwHt8MLxt"               - Side-to-side (roll) moment at tower height 8
+"TwHt8MLyt"               - Fore-aft bending moment at tower height 8
+"TwHt8MLzt"               - Yaw (torsional) moment at tower height 8
+"TwHt9MLxt"               - Side-to-side (roll) moment at tower height 9
+"TwHt9MLyt"               - Fore-aft bending moment at tower height 9
+"TwHt9MLzt"               - Yaw (torsional) moment at tower height 9
 END of OutList section (the word "END" must appear in the first 3 columns of the last OutList line)
 ====== Outputs for all blade stations (same ending as above for Spn1.... =========================== [optional section]
           1   BldNd_BladesOut     - Number of blades to output all node information at.  Up to number of blades on turbine. (-)

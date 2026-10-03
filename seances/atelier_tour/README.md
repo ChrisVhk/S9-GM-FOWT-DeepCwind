@@ -265,15 +265,18 @@ convention de hauteur que celle utilisée par le classeur de l'atelier (`C3`, lo
 non, qu'est-ce que ça change pour comparer les deux séries de valeurs terme à terme ?
 
 **(b) Tester l'hypothèse « somme des DEL » (§4) avec les jauges de tour OpenFAST.** Le modèle de
-référence du projet a **une seule jauge de tour configurée, à mi-hauteur** (`NTwGages = 1`,
-`TwrGagNd = 10` sur 20 nœuds de tour — pas en pied de tour), et aucun canal `TwHt*` dans
-l'`OutList` : la capacité existe (`TwHt<N>{TD,AL,ML}{x,y,z}t`, moment de flexion compris) mais
-n'est pas exploitée. Ajoutez en pied de tour les canaux nécessaires (`TwrBsFzt` pour l'effort
-axial, `TwrBsMyt` pour le moment, déjà prévus par défaut) sur un cas turbulent, relancez, et
-comparez deux calculs de dommage sur ce même pied de tour : (1) somme des DEL calculés séparément
-sur `TwrBsFzt` et `TwrBsMyt` ; (2) rainflow direct sur la contrainte combinée reconstruite
-point par point, `σ(t) = TwrBsFzt(t)/A + TwrBsMyt(t)·(D/2)/I` — l'écart entre les deux mesure
-concrètement ce que coûte l'hypothèse de concomitance du §4.
+référence du projet a désormais **9 jauges de tour réparties du pied au sommet** (`NTwGages = 9`,
+nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20 — décision de l'enseignant, ajoutées depuis la première
+version de ce tutoriel), avec les canaux `TwHt1-9ML{x,y,z}t` dans l'`OutList` (moment de flexion
+dans les deux plans et torsion, à chaque jauge). Sur un cas turbulent, comparez deux calculs de
+dommage en **pied de tour** : (1) somme des DEL calculés séparément sur `TwrBsFzt` (effort axial)
+et `TwrBsMyt` (moment) ; (2) rainflow direct sur la contrainte combinée reconstruite point par
+point, `σ(t) = TwrBsFzt(t)/A + TwrBsMyt(t)·(D/2)/I` — l'écart entre les deux mesure concrètement ce
+que coûte l'hypothèse de concomitance du §4. Avec les 9 jauges, vous pouvez refaire cette
+comparaison **à plusieurs hauteurs** (pas seulement en pied) et regarder si l'écart varie le long
+de la tour, et comparer les DEL obtenus aux jauges à ceux du classeur de l'atelier (qui raisonne,
+lui, par tronçons entre deux hauteurs — à vous de voir comment faire correspondre les deux
+découpages).
 
 ## 10. Ce que l'atelier ne vérifie pas
 
