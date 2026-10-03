@@ -1,5 +1,5 @@
-# Ce .gitignore ne sert qu'aux fichiers PRODUITS par un calcul ou une compilation locale.
-# Il ne protege rien de sensible : aucun document prive ne doit entrer dans l'arbre, meme ignore.
+# Ce .gitignore sert aux fichiers PRODUITS par un calcul ou une compilation locale, et (voir
+# ateliers_prives/ plus bas) a un dossier de travail local tenu hors de l'arbre versionnee.
 
 # Sorties OpenFAST generees en relancant un cas localement.
 # Exception : la solution de reference r-test (donnee d'entree pour la regression du cas de
@@ -32,3 +32,7 @@ rendus/*
 # Resultats de calcul
 results/
 *.sum.yaml
+
+# Copies de travail locales de documents d'ateliers externes a ce depot (classeurs, consignes
+# proprietaires d'un intervenant) : jamais suivies, jamais dans l'historique.
+ateliers_prives/
