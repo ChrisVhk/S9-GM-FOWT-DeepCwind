@@ -19,6 +19,10 @@ ce dépôt** (ce dépôt ne suit aucun PDF, voir `README.md` racine). Les renvoi
 à « §5 », « §4.1 ») dans les séances et dans `ADAPTATION_LHEEA.md` servent de repère de traçabilité
 pour la provenance de chaque contenu, pas de lien vers un document consultable ici.
 
-**`practicals/practical2.ipynb`** : le cas `SWRT_022` qu'il utilise ne tourne pas encore (fichier
-AeroDyn mal apparié, détail dans `ADAPTATION_LHEEA.md`) — la cellule qui lit `SWRT_022.out`
-échouera. `practical1.ipynb` s'exécute intégralement.
+**`practicals/practical1.ipynb`** s'exécute intégralement et fait partie du parcours proposé.
+
+**`practicals/practical2.ipynb`** n'est **pas retenu dans le parcours** (aucune séance ni
+l'`ENONCE.md` ne s'appuient dessus) : sa seconde partie utilise le cas `SWRT_022`, qui ne tourne
+pas (fichier AeroDyn mal apparié, détail dans `ADAPTATION_LHEEA.md`) — décision de l'enseignant du
+03/10, retrait plutôt que correction. Sa première partie (génération de vent, TurbSim) reste
+fonctionnelle si vous l'ouvrez par curiosité, mais rien ne vous est demandé dessus.

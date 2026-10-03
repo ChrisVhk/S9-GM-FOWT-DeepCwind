@@ -46,7 +46,8 @@ modifies -- ADAPTATION_LHEEA.md fait foi pour l'exhaustivite, ce NOTICE en est l
   SWRT_021.fst pointait son champ InflowFile vers "unused" alors que CompInflow=1 (ne pouvait pas
   tourner meme sous v3.5.2) ; SWRT_022.fst et SWRT_023.fst referencaient un dossier "AeroDyn/" en
   casse alors que le dossier reel est "Aerodyn/minuscule" (sensibilite a la casse Windows->Linux).
-  Detail dans ADAPTATION_LHEEA.md, qui signale aussi un mesappariement AeroDyn v14/v15 non corrige
-  sur SWRT_022.fst.
+  Detail dans ADAPTATION_LHEEA.md, qui signale aussi un mesappariement AeroDyn v14/v15 sur
+  SWRT_022.fst, connu et non migre (le cas est retire du parcours propose aux etudiants plutot
+  que corrige).
 
 Aucune mention de copyright ou d'attribution du depot d'origine n'a ete retiree.

@@ -76,7 +76,7 @@ jamais été migrés vers v5.0.0.
 | `SWRT_021.fst`, champ `InflowFile` | `"unused"` alors que `CompInflow=1` | `"InflowWind/SWRT_IW.dat"` (cohérent avec `SWRT_022`/`SWRT_023`, qui référencent déjà ce fichier) | **Défaut préexistant du fichier d'origine, indépendant de la migration v5.0.0** — `SWRT_021` ne pouvait pas fonctionner même sous v3.5.2 avec ce réglage | `openfast SWRT_021.fst` → `EXIT=0` après correction |
 | `SWRT_022.fst`, `SWRT_023.fst`, chemins `AeroDyn/...` | `"AeroDyn/SWRT_AD(15).dat"` | `"Aerodyn/SWRT_AD(15).dat"` | **Sensibilité à la casse Windows→Linux** : le dossier réel s'appelle `Aerodyn` (minuscule), le chemin écrit dans le `.fst` utilisait `AeroDyn` — invisible sous Windows (NTFS insensible à la casse), bloquant sous Linux (ext4 sensible à la casse) | Le fichier est trouvé (l'erreur suivante change de nature, voir ci-dessous) |
 
-### `SWRT_022.fst` — mésappariement AeroDyn v14/v15, non corrigé
+### `SWRT_022.fst` — mésappariement AeroDyn v14/v15, connue, non migrée
 
 `SWRT_022.fst` déclare `CompAero=2` (le réglage qui, dans le commentaire du fichier d'origine,
 signifie « AeroDyn v15 ») mais son `AeroFile` pointe vers `Aerodyn/SWRT_AD.dat`, dont l'en-tête dit
@@ -90,7 +90,14 @@ d'origine de ces fichiers), le module « AeroDyn v14 » est un driver distinct d
 utilisé partout ailleurs dans ce dépôt. Le réparer demanderait soit de reconstruire un fichier
 AeroDyn v15 complet pour cette turbine (portage de la géométrie de pale), soit de clarifier
 l'intention pédagogique d'origine (le fichier v14 était peut-être volontaire, avec un `CompAero`
-mal réglé) — reste à faire.
+mal réglé).
+
+**Décision de l'enseignant (03/10)** : aucune référence à `SWRT_022`/`practical2.ipynb` n'existe
+dans le déroulé du cours (`seances/`, `ENONCE.md`) — ce cas est donc retiré du parcours proposé aux
+étudiants plutôt que corrigé (voir `README.md` de ce dossier). La portion de `practical2.ipynb`
+qui ne dépend pas de `SWRT_022` (génération de vent, TurbSim) reste fonctionnelle et dans le
+dépôt ; seule la deuxième partie du notebook (chargement aérodynamique via `SWRT_022`) est
+concernée par ce défaut, connu et non migré, sans qu'il soit nécessaire de le réparer.
 
 Conséquence pour les notebooks : `practical1.ipynb` s'exécute intégralement sans erreur
 (`jupyter nbconvert --execute`, 0 erreur). `practical2.ipynb` s'exécute jusqu'à la cellule qui lit
