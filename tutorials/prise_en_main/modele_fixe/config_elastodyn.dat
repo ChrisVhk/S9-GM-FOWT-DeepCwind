@@ -148,6 +148,8 @@ True          TabDelim    - Use tab delimiters in text tabular output file? (fla
 "OoPDefl1"                - Blade 1 out-of-plane deflection
 "IPDefl1"                 - Blade 1 in-plane     deflection
 "TwstDefl1"               - Blade 1 tip twist
+"RootMyb1"                - Blade 1 out-of-plane moment at the blade root
+"RootMxb1"                - Blade 1 in-plane moment at the blade root
 "BldPitch1"               - Blade 1 pitch angle
 "TTDspFA"                 - Tower fore-aft     deflection
 "TTDspSS"                 - Tower side-to-side deflection
