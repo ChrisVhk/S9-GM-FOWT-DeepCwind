@@ -26,6 +26,11 @@ La poussée axiale (ce qui charge la tour en flexion) suit la même logique :
 `T = 1/2 · ρ · A · V² · Ct(λ, β)`, avec `Ct` du même ordre de grandeur que `Cp` (typiquement
 `Ct ≈ 0,7-0,9` en-dessous du régime nominal).
 
+![Cp(λ) : une courbe en cloche, un maximum à λ*](figures/FIG-DMO-S9-004.png)
+
+*Figure 1 — Allure de `Cp(λ)` (qualitative, sans graduation). Le maximum est en `λ*` ; la courbe est
+plate autour : un écart modéré de `λ` coûte peu de puissance.*
+
 **Les zones de régulation** d'une machine à vitesse variable, pitch variable (c'est le cas de la
 NREL 5 MW de ce projet) ; Jonkman 2009 en distingue cinq (1, 1½, 2, 2½, 3), et le contrôleur
 du modèle les met toutes en œuvre. Elles se repèrent à la **vitesse de rotation côté génératrice**
@@ -48,6 +53,16 @@ Les trois suivantes :
   pour plafonner `Ω` à sa valeur nominale un peu plus tôt — chez Jonkman, la raison d'être
   explicite est de limiter la vitesse de bout de pale (et le bruit associé), pas seulement le
   couple générateur.
+
+![Les cinq régions : allure de Ω, β et P](figures/FIG-DMO-S9-005.png)
+
+*Figure 2 — Allure de `Ω`, `β` et `P` par région (régions de largeur égale, pas à l'échelle : aucune
+vitesse de vent n'est lisible, à vous de calculer les frontières).*
+
+![Les modules d'OpenFAST](figures/FIG-DMO-S9-003.png)
+
+*Figure 3 — Qui calcule quoi dans OpenFAST. Le contrôleur (ServoDyn / DISCON) est celui dont on étudie
+ici les régions.*
 
 ## Ordre de grandeur sur la NREL 5 MW (DeepCwind et monopile OC3)
 
@@ -88,12 +103,86 @@ dont la hauteur `TowerBsHt` (à lire dans `config_elastodyn.dat`) est le point d
 levier — pas le niveau de la mer. Comparez à ±20 % : le modèle complet
 inclut en plus le poids propre de la nacelle/tour en flexion et la variation de `Ct` avec `λ`.
 
+![Le bras de levier du moment au pied de tour](figures/FIG-DMO-S9-006.png)
+
+*Figure 4 — `TwrBsMyt` est pris au pied de la tour : le bras de levier de la poussée est
+`H_moyeu − TowerBsHt`.*
+
 **Fréquence 1P** : une pale fait un tour en `1/f` ; la fréquence de rotation est
 `f₁ₚ = RotSpeed / 60` (Hz, `RotSpeed` en tr/min). Chaque pale traverse à chaque tour le même
 cisaillement de vent, le même sillage de tour et subit la même gravité : ses moments d'emplanture
 (`RootMyb1`, hors plan ; `RootMxb1`, dans le plan, surtout par la gravité) oscillent à 1P. La tour, elle, ne voit que la somme des trois pales, déphasées de 120° :
 les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc Théorie du §6 de
 `seances/0a/README.md`).
+
+![1P sur la pale, 3P sur la tour](figures/FIG-DMO-S9-007.png)
+
+*Figure 5 — Spectres qualitatifs : la pale voit 1P (et ses harmoniques), la tour ne garde que les
+multiples du nombre de pales.*
+
+## Exemple résolu — IEA 15 MW (éolienne de référence, monopieu)
+
+Une autre machine que celle du projet, pour voir la démarche en entier sans toucher aux valeurs de
+la NREL 5 MW. **Données lues dans Gaertner et al. 2020** (NREL/TP-5000-75698), pages indiquées :
+diamètre de rotor 240 m, hauteur de moyeu 150 m, hauteur de la pièce de transition 15 m (Tab. ES-1
+p.iv) ; vitesse de rotation minimale 5 rpm, rotor au régime nominal 7,55 rpm ; vent nominal
+10,59 m/s ; seuil 6,98 m/s entre le régime de vitesse minimale et la Region 2 (§3.1 p.17) ;
+`λ*` de conception 9,0, `Cp` de conception 0,489, `Ct` de conception 0,799 (Tab. ES-2 p.vi) ;
+première fréquence propre tour-monopieu 0,17 Hz, entre 1P et 3P (§4 p.21). **Hypothèses de
+l'exemple** : `ρ = 1,225 kg/m³` (valeur courante, non lue dans le rapport) ; pied de tour pris au
+sommet de la pièce de transition (15 m au-dessus du niveau moyen) ; `Ct` pris à sa valeur de
+conception.
+
+**Cas : `V = 8 m/s`.**
+
+1. *Données.* `R = 120 m`, `A = πR² ≈ 45 239 m²`.
+2. *Ω attendu et région.* `Ω = λ*·V/R = 9 × 8 / 120 = 0,600 rad/s`, soit `0,600 × 60/(2π) ≈ 5,73 rpm`.
+   Comparée au minimum de 5 rpm : au-dessus, donc la loi `λ*` s'applique (région de suivi du `λ`
+   optimal, entre 6,98 et 10,59 m/s : 8 m/s y est).
+   *Contrôle de cohérence* : au seuil `V = 6,98 m/s`, la même formule donne `9 × 6,98/120 × 60/(2π) ≈ 5,00 rpm`,
+   le minimum ; à `V = 10,59 m/s`, `≈ 7,58 rpm`, à 0,4 % du régime nominal du rapport (7,55 rpm).
+3. *Poussée.* `T = ½ ρ A V² Ct = 0,5 × 1,225 × 45 239 × 8² × 0,799 ≈ 1 417 kN`.
+4. *Moment au pied.* Bras `H_moyeu − z_pied = 150 − 15 = 135 m`, donc
+   `M ≈ 1 417 × 135 ≈ 191 MN·m`.
+5. *1P et 3P.* `f₁ₚ = 5,73/60 ≈ 0,096 Hz`, `f₃ₚ ≈ 0,29 Hz`. La fréquence propre du rapport (0,17 Hz) est
+   bien entre les deux ; elle l'est à tout régime de 5 à 7,55 rpm (1P de 0,083 à 0,126 Hz, 3P de
+   0,25 à 0,38 Hz) — c'est la raison du choix du régime minimal (§3.1 p.17).
+
+**Le même exemple, mais `V = 5 m/s`.** `λ*·V/R = 9 × 5/120 = 0,375 rad/s ≈ 3,58 rpm`, **sous** le
+minimum de 5 rpm : la machine ne suit pas la loi `λ*` mais tient la vitesse minimale. Son `λ`
+réel est `5 × (2π/60) × 120 / 5 ≈ 12,6`, très au-dessus de `λ*` : c'est la région de vitesse minimale
+du rapport, dite « Region 1.5 » (§3.2 p.18, « suboptimal tip-speed ratios »). Même leçon que pour la
+NREL 5 MW : **on vérifie la région avant d'appliquer la loi de Region 2.**
+
+## Exercices gradués (non notés, corrigé publié)
+
+Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
+[`F1_exercices_IEA15_corriges.md`](F1_exercices_IEA15_corriges.md). Essayez avant de regarder.
+
+1. *(Niveau 1)* `V = 9 m/s` : `Ω` (rad/s et rpm), région.
+2. *(Niveau 1)* `V = 6 m/s` : `Ω` selon `λ*`, comparer au minimum ; quelle région ? quel `λ` réel ?
+3. *(Niveau 2)* `V = 10 m/s` : poussée, moment au pied (bras `H_moyeu − z_pied`), puissance aérodynamique
+   `½ ρ A V³ Cp` avec `Cp = 0,489` — comparer à la puissance nominale de 15 MW.
+4. *(Niveau 2)* Vérifier que la fréquence propre de 0,17 Hz reste entre 1P et 3P à 5 rpm et à 7,55 rpm.
+5. *(Niveau 3)* Un collègue annonce un moment de `M ≈ T × 150` pour le cas de l'exercice 3. Quelle erreur,
+   de combien en pour cent, et pourquoi la tolérance habituelle de ±20 % l'aurait-elle laissée passer
+   ou non ?
+
+## Pour aller plus loin — matière du cours DTU (emplacements réservés)
+
+*Un cours construit avec le DTU arrive : sa matière d'aéro-régulation deviendra la source du master
+DMO-S9 (la fiche F1 sert de source provisoire). Les emplacements ci-dessous se remplissent sans
+réécrire les sections précédentes.*
+
+<!-- DTU:BEGIN D1 -->
+**D1. Aérodynamique du rotor (BEM, `Cp(λ, β)` détaillée)** — *(à venir)*
+<!-- DTU:END D1 -->
+<!-- DTU:BEGIN D2 -->
+**D2. Contrôle et régulation (lois de couple, calage, régions, ROSCO / DISCON)** — *(à venir)*
+<!-- DTU:END D2 -->
+<!-- DTU:BEGIN D3 -->
+**D3. Charges et fréquences (1P/3P, diagramme de Campbell, résonances)** — *(à venir)*
+<!-- DTU:END D3 -->
 
 ## Limites
 
@@ -140,6 +229,11 @@ les harmoniques qui ne sont pas multiples de 3 se compensent, il reste 3P (bloc 
 - J. Jonkman, S. Butterfield, W. Musial, G. Scott, *Definition of a 5-MW Reference Wind Turbine
   for Offshore System Development*, NREL/TP-500-38060, 2009 — paramètres de la machine (R,
   puissance/vitesse nominales, cut-in/out, λ* et Cp max §7.2 et Tab. 7-2).
+- E. Gaertner, J. Rinker, L. Sethuraman, F. Zahle, B. Anderson, G. Barter, N. Abbas, F. Meng,
+  P. Bortolotti, W. Skrzypinski, G. Scott, R. Feil, H. Bredmose, K. Dykes, M. Shields, C. Allen,
+  A. Viselli, *Definition of the IEA 15-Megawatt Offshore Reference Wind Turbine*,
+  NREL/TP-5000-75698, 2020 — données de l'exemple résolu (Tab. ES-1 p.iv, Tab. ES-2 p.vi, §3.1 p.17,
+  §3.2 p.18, §4 p.21).
 - M. O. L. Hansen, *Aerodynamics of Wind Turbines*, Routledge — théorie du disque actuateur et
   BEM (relation de référence, formule, pas de reproduction de texte).
 - J. F. Manwell, J. G. McGowan, A. L. Rogers, *Wind Energy Explained*, Wiley — définitions
