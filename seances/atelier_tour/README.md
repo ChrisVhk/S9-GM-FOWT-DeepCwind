@@ -164,14 +164,13 @@ fatigue (voir §3-4, où c'est une comparaison à une courbe S-N qui gouverne, p
 totale tout en respectant les deux critères (FLS et ULS) ?
 
 **Modèle** : les propriétés de section d'un tronçon (aire, inertie) ne dépendent que de **sa
-propre** épaisseur. Si, de plus, aucun effort transporté par la tour ne dépend lui-même de
-l'épaisseur des tronçons (à vérifier : un effort axial qui inclurait le poids propre des tronçons
-au-dessus romprait cette indépendance), minimiser la masse totale
-sous contrainte « les deux critères ≤ 1 partout » revient à amener **chaque tronçon** à son
-critère le plus contraignant égal à 1 (dimensionnement pleinement contraint, *fully stressed
-design*). Comme les tronçons sont indépendants, il n'y a pas besoin d'une optimisation globale
-(Solveur) : une recherche de racine **section par section** (valeur-cible, ou *Objectif à
-atteindre* dans un tableur) suffit, et donne le même résultat.
+propre** épaisseur, et la contrainte FLS d'une section ne dépend pas de l'épaisseur des autres
+(voir « Ce que le modèle ne permet pas de conclure » pour une nuance côté ULS). Minimiser la masse
+totale sous contrainte « les deux critères ≤ 1 partout » revient alors à amener **chaque tronçon**
+à son critère le plus contraignant égal à 1 (dimensionnement pleinement contraint, *fully stressed
+design*). Une recherche de racine **section par section**, menée du sommet vers le pied (valeur-
+cible, ou *Objectif à atteindre* dans un tableur), suffit et donne le même résultat qu'une
+optimisation globale (Solveur).
 
 **Ordre de grandeur attendu** : la méthode section-par-section et le Solveur doivent converger
 vers la même épaisseur à chaque section, à la tolérance du solveur numérique près.
