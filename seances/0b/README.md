@@ -1,3 +1,4 @@
+<!-- destinations: github -->
 # Séance 0b — éolienne pilotée, monopieu, flottant (3 h)
 
 Déroulé pas à pas. L'énoncé complet est dans [`../../ENONCE.md`](../../ENONCE.md) (phase 0,

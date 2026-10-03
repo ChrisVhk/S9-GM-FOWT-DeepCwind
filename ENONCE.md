@@ -145,7 +145,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 | Cas | Vent | Zone de régulation |
 |---|---|---|
-| F03 | turbulent 7,5 m/s | Region 1½ (comme F01) |
+| F03 | turbulent 7,5 m/s | à identifier (même vent moyen que F01) |
 | F04 | turbulent 12 m/s | zone intermédiaire |
 | F05 | turbulent 16 m/s | zone 3 |
 

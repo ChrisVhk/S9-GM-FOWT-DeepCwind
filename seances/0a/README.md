@@ -1,3 +1,4 @@
+<!-- destinations: github -->
 # Séance 0a — lundi (3 h)
 
 Déroulé pas à pas. L'énoncé complet est dans [`../../ENONCE.md`](../../ENONCE.md) (phase 0,
@@ -125,13 +126,15 @@ Doit se terminer par `OpenFAST terminated normally.`.
 4. **Ce que le modèle ne permet pas de conclure** — la loi `λ* = constante` est une
    approximation : la loi de couple réelle du contrôleur peut s'en écarter légèrement à certaines
    vitesses, et ce modèle stationnaire ne dit rien du régime transitoire ni du comportement en
-   Region 2½/3. **Point de cours — Region 1½** : en Region 1½ le couple suit une rampe linéaire,
-   non la parabole de Region 2. Pourtant `λ*·V/R` y reste une bonne approximation de `Ω`, pour deux
-   raisons qu'il faut savoir énoncer : (a) la rampe est *raide* (pente bien supérieure à celle de la
-   parabole), donc une petite variation de vitesse suffit à rééquilibrer le couple aérodynamique :
-   `Ω` reste confinée près de la valeur qu'aurait la loi de Region 2 ; (b) `Cp(λ)` est plat autour
-   de son maximum (dérivée nulle en `λ*`) : un `λ` légèrement différent de `λ*` coûte très peu de
-   puissance. À vérifier sur vos propres résultats (écart relatif de `RotSpeed` à `λ*·V/R`).
+   Region 2½/3. **Point de cours — Region 1½** : en Region 1½ le couple suit une rampe
+   linéaire, non la parabole de Region 2. Cette rampe est *raide* (pente bien supérieure à celle de la
+   parabole) : une petite variation de vitesse suffit à rééquilibrer le couple aérodynamique, donc `Ω`
+   reste **confinée dans la bande entre les deux seuils**, quel que soit le vent de la région. Conséquence
+   à savoir énoncer : la loi `λ*·V/R` ne vaut qu'**en haut de la bande**, près du seuil de Region 2 ; plus bas
+   dans la région, `Ω` est tenue au-dessus de ce que donnerait la loi (la bande est un plancher), et le
+   `λ` réel s'écarte de `λ*`. Le fait que `Cp(λ)` soit plat autour de son maximum explique seulement que
+   la *puissance* perdue reste faible quand `λ` s'écarte un peu de `λ*`, pas que la loi donne `Ω`. À
+   vérifier sur vos résultats (écart relatif de `RotSpeed` à `λ*·V/R`).
 5. **Renvois** — fiche F1, section « Minimum vital » et « Ordre de grandeur » ; Jonkman 2009,
    §7.2 p.19 et Tab. 7-2 p.27 (paramètres numériques).
 
@@ -151,8 +154,8 @@ C'est la question Q0.1 du rendu R0.
    `T = 1/2 · ρ · A · V² · Ct`, puis `TwrBsMyt ≈ T × (H_moyeu − TowerBsHt)` — le moment est pris au
    pied de la tour, dont la hauteur `TowerBsHt` se lit dans `config_elastodyn.dat`. **Domaine de validité** :
    vent stationnaire pour F01 (le modèle stationnaire ne s'applique pas directement à l'échelon de
-   F02), `Ct` supposé à peu près constant sous le régime nominal (F01 est en Region 1½ : voir la
-   fiche F1, qui donne les seuils du contrôleur, à vous de repérer la région), régime établi
+   F02), `Ct` supposé à peu près constant sous le régime nominal (voir la fiche F1, qui donne les
+   seuils du contrôleur : à vous de repérer la région de F01), régime établi
    atteint (transitoire de démarrage écarté de la moyenne).
 3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` attendu (bloc précédent) et le
    comparer à `RotSpeed` observé (écart tolérable ~15-20 %, fiche F1) ; estimer `T` et

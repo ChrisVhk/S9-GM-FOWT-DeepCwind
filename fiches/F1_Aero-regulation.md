@@ -76,13 +76,15 @@ ici les régions.*
 | Multiplicateur (rapport rotor → génératrice) | 97:1 | Jonkman 2009, p.14 |
 | Vitesses génératrice des seuils : début de Region 1½ `VS_CtInSp` / début de Region 2 `VS_Rgn2Sp` | 70,16 rad/s / 91,21 rad/s (côté génératrice) | `DISCON.F90` du dépôt ; Jonkman 2009, p.19 (670 et 871 tr/min) |
 | λ* (TSR optimal, Region 2) | 7,55 | Jonkman 2009, §7.2 p.19 et Tab. 7-2 p.27 |
-| Cp maximal (à λ*, pas à 0°) | 0,482 | idem |
+| Cp maximal (à λ* et calage 0°) | 0,482 | Jonkman 2009, §7.2 p.19 |
 
 **Méthode** : en Region 2, `Ω attendu = λ*·V/R` (rad/s), à convertir en tr/min (`× 60/(2π)`).
 **Avant d'appliquer cette loi, vérifiez la région** : convertissez les deux seuils de la table
 (côté génératrice) en vitesse de rotor, puis comparez à votre `Ω` calculé. Sous le seuil de
 Region 2, c'est la rampe de Region 1½ qui gouverne, et la loi `λ*·V/R` n'en est qu'une approximation
-(voir la rubrique « Modèle » du §6 de `seances/0a/README.md`). La loi ne s'applique plus au-dessus du
+(voir le point de cours du §5 de `seances/0a/README.md`). La conversion d'un seuil de vitesse de rotation
+en vitesse de vent par `λ*` n'a de sens qu'**au seuil de Region 2**, là où la rampe rejoint la loi de Region 2 :
+plus bas, la rampe tient la vitesse dans sa bande et la loi `λ*·V/R` sous-estime `Ω`. La loi ne s'applique plus au-dessus du
 régime nominal — **à vous de calculer à quelle vitesse de vent ce régime est atteint**, et de comparer ce résultat au vent
 nominal (11,4 m/s) : si les deux diffèrent, c'est que la Region 2½ s'intercale entre les deux,
 avant la Region 3.
@@ -219,7 +221,8 @@ réécrire les sections précédentes.*
 1. Pour `V = 9 m/s`, avec `λ* = 7,55` et `R = 63 m`, quelle vitesse de rotation `Ω` (en tr/min)
    attendez-vous en Region 2 ?
 2. L'éolienne tourne en Region 3 à puissance nominale 5 MW et vitesse nominale 12,1 tr/min. Quel
-   couple générateur (en kN·m) cela représente-t-il ? (`P = T_gen · Ω`, `Ω` en rad/s)
+   couple sur l'arbre lent, côté rotor (en kN·m), cela représente-t-il ? (`P = T · Ω`, `Ω` en rad/s ; le couple
+   côté génératrice s'en déduit par le multiplicateur)
 3. Avec `ρ = 1,225 kg/m³`, `R = 63 m`, `Ct = 0,8`, estimez la poussée du rotor `T` (en kN) à
    `V = 10 m/s`, puis l'ordre de grandeur du moment `TwrBsMyt` attendu avec une hauteur de moyeu
    de 90 m et un pied de tour à `TowerBsHt` = 10 m au-dessus du niveau de la mer.
@@ -234,9 +237,9 @@ réécrire les sections précédentes.*
   A. Viselli, *Definition of the IEA 15-Megawatt Offshore Reference Wind Turbine*,
   NREL/TP-5000-75698, 2020 — données de l'exemple résolu (Tab. ES-1 p.iv, Tab. ES-2 p.vi, §3.1 p.17,
   §3.2 p.18, §4 p.21).
-- M. O. L. Hansen, *Aerodynamics of Wind Turbines*, Routledge — théorie du disque actuateur et
+- M. O. L. Hansen, *Aerodynamics of Wind Turbines*, Routledge — *référence générale, non consultée page par page pour cette fiche* — théorie du disque actuateur et
   BEM (relation de référence, formule, pas de reproduction de texte).
-- J. F. Manwell, J. G. McGowan, A. L. Rogers, *Wind Energy Explained*, Wiley — définitions
+- J. F. Manwell, J. G. McGowan, A. L. Rogers, *Wind Energy Explained*, Wiley — *référence générale, non consultée page par page pour cette fiche* — définitions
   TSR/Cp/Ct et zones de régulation (relation de référence).
 - `models/oc4_rtest/5MW_Baseline/ServoData/DISCON/DISCON.F90` (`VS_CtInSp`, `VS_Rgn2Sp`,
   `VS_Rgn2K`) — seuils des régions 1½ et 2 et loi de couple de Region 2 effectivement utilisés dans ce dépôt ; `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/

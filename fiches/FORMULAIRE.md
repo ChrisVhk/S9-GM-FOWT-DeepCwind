@@ -41,7 +41,7 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 | Raideur de heave `K₃₃ = ρ g A_wp` | N/m | `A_wp` : aire de flottaison |
 | `GM = KB + BM − KG`, `BM = I_wp / ∇` | m | `K₅₅ ≈ ρ g ∇ GM` (sans ancrage) |
 | Période propre `T_n = 2π √((M + A_ajoutée) / K)` | s | masse **ajoutée** comprise |
-| Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` | N/m | **valable si `D/λ_houle < 0,2`** ; au-delà, théorie potentielle (WAMIT) |
+| Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` | N/m | **valable si `D/λ_houle < 0,2`** ; forme du cylindre fixe — pour une structure mobile, vitesses relatives ; au-delà, théorie potentielle (WAMIT) |
 | Keulegan–Carpenter `KC = u_max T / D` | – | choisit le régime inertie / traînée |
 
 ## VERSO
@@ -53,7 +53,7 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 | Courbe S–N : `N = a · S⁻ᵐ` | `S` = **étendue** de contrainte, pas l'amplitude : `ΔS = 2 × amplitude` (piège de l'énoncé) |
 | Miner : `D = Σ nᵢ / Nᵢ` | linéaire, sans effet de séquence ; `D < 1/DFF` |
 | Court terme (DEL) : `S_e = (Σ nᵢ Sᵢᵐ / n_e)^(1/m)`, `n_e = f_e · T` | `m` de la courbe S–N ; `f_e` : fréquence équivalente choisie et annoncée |
-| Long terme : `S_e,LT = (Σⱼ O_j · S_e,j^m)^(1/m)` | pondération par les occurrences de la LCT |
+| Long terme : `S_e,LT = (Σⱼ O_j · S_e,j^m)^(1/m)` | pondération par les occurrences de la LCT (`O_j` en fraction, `Σ O_j = 1` ; même `n_e` pour tous les cas) |
 | Rainflow (ASTM E1049) | compte des cycles fermés ; résidu à traiter |
 
 Test de bon sens : une sinusoïde d'étendue et de fréquence connues doit redonner le DEL calculé à la main.

@@ -1,3 +1,4 @@
+<!-- destinations: github -->
 # Tutoriel de prise en main — de l'éolienne fixe à l'éolienne flottante
 
 Ce tutoriel transpose en OpenFAST v5.0.0 une progression inspirée d'un cours de Master Génie
