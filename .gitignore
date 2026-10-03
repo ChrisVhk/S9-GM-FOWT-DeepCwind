@@ -36,3 +36,7 @@ results/
 # Copies de travail locales de documents d'ateliers externes a ce depot (classeurs, consignes
 # proprietaires d'un intervenant) : jamais suivies, jamais dans l'historique.
 ateliers_prives/
+
+# Dossiers de test pytest (s9gm), supprimes apres chaque test.
+_pytest_*/
+.pytest_cache/

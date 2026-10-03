@@ -12,10 +12,11 @@ dependencies:
   - openfast=5.0.0=hd1f9c02_2
   - fortran-compiler
   - python=3.11
-  - numpy
-  - pandas
-  - matplotlib
+  - numpy=2.4.6
+  - pandas=3.0.6
+  - matplotlib=3.11.2
   - notebook
+  - pytest=9.1.1
   - ipykernel
   - pip
   - pip:
