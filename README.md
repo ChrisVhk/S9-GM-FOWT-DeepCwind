@@ -17,11 +17,14 @@ dépannage) est dans [`INSTALLATION.md`](INSTALLATION.md).
 | 0 | Tutoriel de prise en main : installation, éolienne fixe puis flottante, vérifications à la main | 6 h — 0a lundi, 0b séance suivante | R0 |
 | 1 | Du site à la Load Case Table (scatter diagram, DLC, binning/lumping) | 3 h | R1 |
 | 2 | Simulations de référence, lâchers, étude de sensibilité par groupe | 5 h | R2 |
-| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | 8 h | R3 |
+| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | 8 h (+ ≈3 h à la maison) | R3 |
 | 4 | Extrêmes (ULS) et ancrage | 12 h | R4 |
-| 5 | Structures tubulaires : section de tour, entretoise, SCF | 8 h | R5 |
+| 5 | Structures tubulaires : section de tour, entretoise, SCF | 8 h (+ ≈5 h à la maison) | R5 |
 | 6 | Synthèse commune des trois groupes et soutenance | 4 h | Soutenance |
 | | | **46 h** | |
+
+Les phases 3 et 5 se poursuivent à la maison (atelier tour) : les heures entre parenthèses
+s'ajoutent au volume de séance, détail dans `ENONCE.md`.
 
 Détail phase par phase, compétences visées, méthode de travail et règles d'évaluation :
 [`ENONCE.md`](ENONCE.md).

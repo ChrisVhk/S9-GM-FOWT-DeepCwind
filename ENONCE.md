@@ -96,16 +96,16 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 
 Les volumes suivent le référentiel DMO-S9 (cours 32 h, TD 26 h). Les dates sont au planning de la promotion.
 
-| Phase | Contenu | Créneau du référentiel | Volume indicatif | Rendu |
-|---|---|---|---|---|
-| **0** | Tutoriel de prise en main : installation, éolienne fixe (monopieu) puis flottante (DeepCwind), vérifications à la main | Design of Offshore Structures (CM 3 h) + Analysis (TD 3 h) | 6 h — **0a lundi**, 0b séance suivante | R0 |
-| **1** | Du site à la Load Case Table : scatter diagram, DLC, binning / lumping | Design of Offshore Structures (CM 3 h) | 3 h | R1 |
-| **2** | Simulations de référence, lâchers, étude de sensibilité par groupe | Analysis (CM 4 h + TD 1 h) | 5 h | R2 |
-| **3** | Fatigue : rainflow, S-N, Miner, DEL court et long terme | Analysis (CM 4 h + TD 4 h) | 8 h | R3 |
-| **4** | Extrêmes (ULS) et ancrage | Ancrage et accostage (CM 6 h + TD 6 h) | 12 h | R4 |
-| **5** | Structures tubulaires : section de tour, effort dans une entretoise, SCF et domaine de validité | Ancrage et accostage (TD 8 h) | 8 h | R5 |
-| **6** | Synthèse commune des trois groupes et soutenance | Ancrage et accostage (TD 4 h) | 4 h | Soutenance |
-| | | | **46 h** | |
+| Phase | Contenu | Créneau du référentiel | Volume indicatif | Travail personnel estimé | Rendu |
+|---|---|---|---|---|---|
+| **0** | Tutoriel de prise en main : installation, éolienne fixe (monopieu) puis flottante (DeepCwind), vérifications à la main | Design of Offshore Structures (CM 3 h) + Analysis (TD 3 h) | 6 h — **0a lundi**, 0b séance suivante | — | R0 |
+| **1** | Du site à la Load Case Table : scatter diagram, DLC, binning / lumping | Design of Offshore Structures (CM 3 h) | 3 h | — | R1 |
+| **2** | Simulations de référence, lâchers, étude de sensibilité par groupe | Analysis (CM 4 h + TD 1 h) | 5 h | — | R2 |
+| **3** | Fatigue : rainflow, S-N, Miner, DEL court et long terme | Analysis (CM 4 h + TD 4 h) | 8 h | **≈ 3 h** — la fin du premier passage de l'atelier tour (étape 0 : `SCF = 2` et le comparatif avec `SCF = 1`) se termine à la maison ; le début (prise en main, `SCF = 1`) se fait en séance | R3 |
+| **4** | Extrêmes (ULS) et ancrage | Ancrage et accostage (CM 6 h + TD 6 h) | 12 h | — | R4 |
+| **5** | Structures tubulaires : section de tour, effort dans une entretoise, SCF et domaine de validité | Ancrage et accostage (TD 8 h) | 8 h | **≈ 5 h** — fin du second passage de l'atelier (point 1, ≈ 3 h : sections FLS/ULS au-delà de celle traitée en séance) + boucle de dimensionnement (point 2, ≈ 2 h) à la maison ; le lancement du second passage sur vos propres données se fait en séance | R5 |
+| **6** | Synthèse commune des trois groupes et soutenance | Ancrage et accostage (TD 4 h) | 4 h | — | Soutenance |
+| | | | **46 h** | **≈ 8 h** | |
 
 Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence acier et béton (8 h) et l'accostage sont **facultatifs cette année** et feront l'objet d'un cours séparé dans un second temps.
 
@@ -264,11 +264,15 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
    - **efforts extrêmes** = vos cas DLC 1.6 et 6.1 de la Phase 4 (ceci complète l'ULS du niveau A,
      qui restait partiel avec les seules données de l'atelier) ;
    - **test de l'hypothèse « somme des DEL »** (théorie au §4, exercice concret au §9b de
-     `seances/atelier_tour/`) avec les jauges
-     de tour OpenFAST : comparez le dommage obtenu directement à une jauge à celui obtenu en
-     sommant deux DEL séparés, et chiffrez l'écart — en particulier la part due aux mouvements du
-     flotteur (inertie et gravité en tangage), absente du classeur de l'atelier qui suppose une
-     tour sur base fixe.
+     `seances/atelier_tour/`) avec les jauges de tour OpenFAST, à **trois hauteurs** (pied, milieu,
+     sommet) : à chacune, trois DEL à comparer deux à deux, pas directement entre les extrêmes —
+     la méthode de l'atelier (deux DEL combinés après coup) contre le calcul exact du même modèle
+     de transport (un seul rainflow sur le signal combiné point par point) isole le coût de
+     l'hypothèse de concomitance ; ce calcul exact contre le DEL mesuré directement à la jauge
+     isole ce que le modèle de transport statique ne capture pas (poids propre et inertie de la
+     tour, mouvements du flotteur en tangage, absents du classeur de l'atelier qui suppose une
+     tour sur base fixe). Commentez les deux écarts et leur sens, et s'ils sont les mêmes aux trois
+     hauteurs.
 
    Vérifier la section résultante en FLS (contrainte de flexion × SCF = 2 vs contrainte admissible
    en fatigue) et en ULS (Von Mises vs limite élastique). Ajuster l'épaisseur pour satisfaire les

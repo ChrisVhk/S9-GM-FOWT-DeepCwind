@@ -294,15 +294,36 @@ nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20), avec les canaux `TwHt1-9ML{x,y,z}
 pied et `YawBrFxp`/`YawBrMyp` en tête de tour (déjà présents). Commencez par identifier, dans
 l'onglet `Long term DEL` du classeur, les deux canaux exacts que le §4 vous a demandé de retrouver
 (effort tranchant et moment — en tête ou en pied ?), puis choisissez leurs équivalents OpenFAST
-dans cette liste. Sur un cas turbulent, comparez deux calculs de dommage avec ces canaux : (1)
-somme des DEL calculés séparément sur chacun des deux ; (2) rainflow direct sur la grandeur
-combinée reconstruite point par point (effort tranchant × bras de levier + moment, convertis en
-contrainte de flexion) — l'écart entre les deux mesure concrètement ce que coûte l'hypothèse de
-concomitance du §4. Avec les 9 jauges, vous pouvez refaire cette
-comparaison **à plusieurs hauteurs** (pas seulement en pied) et regarder si l'écart varie le long
-de la tour, et comparer les DEL obtenus aux jauges à ceux du classeur de l'atelier (qui raisonne,
-lui, par tronçons entre deux hauteurs — à vous de voir comment faire correspondre les deux
-découpages).
+dans cette liste.
+
+Faites le test à **trois hauteurs**, pas une seule, pour voir si l'écart varie le long de la tour :
+- **pied** : jauge 1 (nœud 1, 11,94 m MSL) ;
+- **milieu** : jauge 5 (nœud 11, 50,74 m MSL) ;
+- **sommet** : jauge 9 (nœud 20, 85,66 m MSL, la plus proche du sommet réel à 87,6 m sans y être
+  exactement — c'est un nœud de calcul, pas la frontière de la tour).
+
+À chaque hauteur, calculez **trois** DEL, pas deux — comparer la jauge directement à la méthode de
+l'atelier mélangerait deux choses différentes, à séparer :
+1. **Méthode de l'atelier** : `DEL(effort tranchant) × bras de levier + DEL(moment)` — deux DEL
+   déjà réduits, combinés après coup.
+2. **Calcul exact du modèle « transport statique »** : construisez le signal combiné **point par
+   point dans le temps** (`effort tranchant(t) × bras de levier + moment(t)`), puis un seul
+   rainflow sur ce signal combiné — c'est la définition même du calcul exact donnée au §4. La
+   comparaison **1 contre 2** isole exactement ce que coûte l'hypothèse de concomitance (les deux
+   utilisent le même modèle de transport, seule la méthode de réduction en DEL diffère).
+3. **DEL calculé directement sur le moment mesuré par la jauge** à cette hauteur (`TwHt<N>MLyt`) —
+   la vraie physique à cet endroit, pas un transport depuis la tête. La comparaison **2 contre 3**
+   isole ce que le modèle de transport statique (tête → jauge, sans rien d'autre) ne capture pas :
+   poids propre et inertie de la tour entre les deux points, mouvements du flotteur. **Ne comparez
+   pas 1 et 3 directement** : l'écart mélangerait les deux effets sans les distinguer.
+
+Commentez le signe de chaque écart et comment il varie avec la hauteur : est-ce que l'hypothèse de
+concomitance (1 contre 2) coûte la même chose partout ? Et la part « modèle de transport incomplet »
+(2 contre 3), plutôt plus grande en pied ou en tête de tour ? Avec les 9 jauges disponibles, vous
+pouvez aussi affiner en
+testant des hauteurs intermédiaires, et comparer les DEL obtenus aux jauges à ceux du classeur de
+l'atelier (qui raisonne, lui, par tronçons entre deux hauteurs — à vous de voir comment faire
+correspondre les deux découpages).
 
 ## 10. Ce que l'atelier ne vérifie pas
 
