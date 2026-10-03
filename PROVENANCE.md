@@ -27,7 +27,16 @@ Construit pour ce cours, à partir des modèles ci-dessus (licence Apache 2.0 de
 progression inspirée d'un cours de Master Génie Maritime (2013) sur les outils de conception
 éolien — adaptée ici en OpenFAST v5.0.0, pas une reproduction du document source.
 
-## `env/`, `scripts/`, `outils/`, `README.md`, `data/`
+## `models/oc5/`
+Dossier vide + `NOTE.md`, écrit pour ce dépôt à partir du document public de définition OC5 (voir
+`papers/02_*.md`) — pas de fichier de modèle OC5 construit à ce jour.
+
+## `papers/`
+Fiches de lecture écrites pour ce dépôt, sourcées sur des publications publiques (OC4/OC5/OC6,
+références DOI/OSTI/HAL dans chaque fiche) — aucun PDF source inclus, aucune reproduction de texte
+au-delà des relations/valeurs chiffrées citées avec leur page.
+
+## `env/`, `scripts/`, `outils/`, `ENONCE.md`, `seances/`, `README.md`, `INSTALLATION.md`, `data/`
 Écrits pour ce dépôt.
 
 ## `fiches/`

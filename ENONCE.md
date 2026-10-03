@@ -75,7 +75,7 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 
 **Outils d'IA : la règle du double contrôle.** Utilisez-les pour écrire un script, retrouver un paramètre dans un fichier OpenFAST, reformuler une norme. Mais tout résultat qu'ils produisent passe par deux contrôles : **un ordre de grandeur à la main** et **une source** (manuel OpenFAST, norme, document de référence). Un chiffre que vous ne savez pas recalculer ou justifier à l'oral n'a pas sa place dans un rendu.
 
-**Le temps de calcul est une ressource d'ingénieur.** Une simulation de 600 s prend environ 25 min, une simulation d'une heure plus de 2 h. Une LCT mal construite coûte des heures de machine pour rien : c'est pour cela qu'elle est validée avant lancement.
+**Le temps de calcul est une ressource d'ingénieur.** Une simulation de 600 s prend environ 25 min sur une machine de la salle, une simulation d'une heure plus de 2 h — ordre de grandeur pour un cas complet (flottant, houle, ancrage) ; les cas plus simples du tutoriel de prise en main sont nettement plus rapides (voir les temps mesurés dans `tutorials/prise_en_main/README.md` et `seances/0b/README.md`). Une LCT mal construite coûte des heures de machine pour rien : c'est pour cela qu'elle est validée avant lancement.
 
 **Fiches « minimum vital ».** Huit fiches de deux pages donnent le socle théorique nécessaire à chaque étape du projet (`fiches/` de ce dépôt). Une seule existe à ce jour (F1) ; les suivantes seront publiées au fil du projet, pas toutes avant lundi.
 
@@ -90,7 +90,7 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 | F7 — Caténaire statique | Équation de la chaîne, raideur de ligne | Phase 4 |
 | F8 — Ancrage dynamique et fatigue | MoorDyn vs quasi-statique, FAIRTEN et rainflow | Phase 3, phase 4 |
 
-*Correspondance construite à partir du sujet de chaque fiche ; à confirmer phase par phase à mesure que les fiches F2-F8 sont rédigées (elles sont tirées du master DMO-S9 en cours de constitution, pas écrites avant lui).*
+*Correspondance construite à partir du sujet de chaque fiche ; à confirmer phase par phase à mesure que les fiches F2-F8 sont rédigées et publiées.*
 
 ### 4. Déroulé et heures du référentiel
 

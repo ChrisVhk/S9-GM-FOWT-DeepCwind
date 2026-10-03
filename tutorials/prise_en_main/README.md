@@ -9,8 +9,8 @@ d'ouverture au cours DMO-S9 (phase 0 de l'énoncé).
 ```
 modele_fixe/      fichiers communs de l'éolienne fixe (monopieu OC3) -- ne pas lancer directement
 F01/, F02/, ...    un dossier LÉGER par cas : main.fst (pointe vers modele_fixe/) + ce qui change
-modele_flottant/   fichiers communs de l'éolienne flottante (DeepCwind OC4) -- ne pas lancer directement
-D00/, D01/, ...    idem, pour le flottant
+modele_flottant/   (à construire, séance 0b) fichiers communs de l'éolienne flottante DeepCwind
+D00/, D01/, ...    (à construire, séance 0b) idem, pour le flottant
 run_cas.sh         lance un cas (ou plusieurs, ou "all")
 ```
 

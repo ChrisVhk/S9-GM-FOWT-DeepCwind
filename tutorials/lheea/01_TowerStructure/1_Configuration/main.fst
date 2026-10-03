@@ -1,5 +1,5 @@
 ------- OpenFAST EXAMPLE INPUT FILE -------------------------------------------
-OpenFast Main File Tutorial 1 [migre LHEEA v3.2.1 -> OpenFAST v5.0.0, cf MIGRATION.md]
+OpenFast Main File Tutorial 1 [migre LHEEA v3.2.1 -> OpenFAST v5.0.0, cf tutorials/lheea/ADAPTATION_LHEEA.md]
 ---------------------- SIMULATION CONTROL --------------------------------------
 False         Echo            - Echo input data to <RootName>.ech (flag)
 "FATAL"       AbortLevel      - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}

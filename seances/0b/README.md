@@ -4,8 +4,8 @@ Déroulé pas à pas. L'énoncé complet est dans [`../../ENONCE.md`](../../ENON
 séance 0b).
 
 **À lire avant la séance** : fiches F2 (Houle linéaire), F3 (Hydrostatique), F4 (Morison) — à
-publier au fil de la rédaction du master DMO-S9 ; en leur absence, les renvois de cette page
-pointent vers le tutoriel LHEEA et la fiche F1 déjà disponibles.
+publier avant la séance ; en leur absence, les renvois de cette page pointent vers le tutoriel
+LHEEA et la fiche F1 déjà disponibles.
 
 Cette séance poursuit la progression du tutoriel OpenFAST Quickstart du LHEEA (cas 03 à 05),
 commencée en séance 0a (cas 01-02) : du contrôle réaliste d'une éolienne jusqu'au flotteur ancré.
@@ -50,12 +50,17 @@ openfast main.fst
 1. **Question physique** — Comment modélise-t-on une fondation flexible (pas un simple
    encastrement rigide ponctuel) pour une structure offshore ?
 2. **Modèle** — SubDyn représente le monopieu par des membres-poutres cylindriques droits reliés
-   à des nœuds, **tous encastrés au fond marin** (pas articulés). **Domaine de validité** : SubDyn
-   suppose des membres élancés et droits — pas adapté à une géométrie complexe comme le flotteur
-   DeepCwind (voir phase 5 du projet, autre méthode).
+   à des nœuds (pas articulés, liaisons rigides entre membres) ; un seul nœud, au fond marin, est
+   un véritable encastrement (les 6 DDL y sont bloqués) — le nœud du haut est l'interface avec la
+   partie ElastoDyn (transition piece), où la plateforme reste libre dans ses 6 DDL. **Domaine de
+   validité** : SubDyn représente une structure comme un assemblage de poutres élancées droites —
+   c'est le même principe qui sera utilisé en phase 5 (niveau C) pour le flotteur, pas une méthode
+   différente ; ce qui change d'un cas à l'autre, c'est la géométrie assemblée, pas la méthode.
 3. **Ordre de grandeur attendu** — la méthode : sur la rampe de vent fournie par ce cas
    (déterministe, pas de turbulence ici), comparer le moment en pied de structure en début et fin
-   de rampe, et le relier à la variation de poussée du rotor avec le vent.
+   de rampe, et le relier à la variation de poussée du rotor avec le vent. La flexibilité du
+   monopieu se traduit par une petite rotation de la plateforme (`PtfmPitch`) — pas nulle, mais
+   faible comparée à ce que vous observerez au cas flottant (05).
 4. **Ce que le modèle ne permet pas de conclure** — une rampe déterministe ne représente pas la
    variabilité d'un vent réel : c'est le cas suivant (05) qui introduit un vent turbulent, généré
    par TurbSim. Par ailleurs, ce cas (comme le 05) tourne en BEMT quasi-stationnaire
@@ -87,7 +92,8 @@ openfast main.fst
    sont précalculés pour CETTE géométrie précise (DeepCwind) — ne se transposent pas tels quels à
    un autre flotteur.
 3. **Ordre de grandeur attendu** — la méthode : comparer les mouvements de plateforme
-   (`PtfmPitch`, nul par construction au cas 04) et la puissance produite entre le cas fixe sur
+   (`PtfmPitch`, faible au cas 04 — flexibilité du monopieu seule — attendu bien plus grand ici,
+   réponse du flotteur à la houle et au vent) et la puissance produite entre le cas fixe sur
    monopieu (04, vent en rampe) et ce cas flottant (05, vent turbulent) — **sans oublier que les deux
    cas ne partagent pas le même vent** : une partie de la différence observée vient de là, pas
    seulement de la fondation.

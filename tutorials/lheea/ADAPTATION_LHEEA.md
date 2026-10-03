@@ -24,7 +24,11 @@ Conformément à la licence Apache-2.0 (§4b), chaque modification est signalée
 | `config_aerodyn.dat` | `WakeMod`, `SkewMod`, `AFAeroMod` unique | Renommés `Wake_Mod`, `Skew_Mod` ; `AFAeroMod` scindé en `UA_Mod` + `IntegrationMethod` | Renommage/refonte de champs AeroDyn v5.0.0 | `openfast main.fst` → `EXIT=0`, 200 s simulées |
 | `config_inflow.dat` | Sans `VelInterpCubic`, sans section LIDAR | `VelInterpCubic` ajouté en tête ; section LIDAR complète ajoutée (12 champs, à leurs valeurs par défaut — non utilisée avec `WindType=1/2/3`, mais doit être présente) | Lecture positionnelle Fortran : absence de la section cause un décalage de lecture, pas une erreur explicite | Erreur initiale détectée (décalage), corrigée ; `EXIT=0` après correction |
 
-| `config_aerodyn.dat` (cas 02 à 05) | `AFAeroMod=1` (modèle stationnaire actif) ; le bloc Beddoes-Leishman qui suit (`UAMod=3`) est présent dans le fichier mais inactif, puisqu'il n'est utilisé que si `AFAeroMod=2` | `AFAeroMod` remplacé par `UA_Mod`, qui pilote directement le modèle. Valeur retenue : `UA_Mod=3` (Beddoes-Leishman Minnema/Pierce, actif) | **Alignement sur le modèle de référence du projet** : `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat` porte la même valeur (`UA_Mod=3`), vérifiée avant de trancher. L'aérodynamique de profil des 4 cas (02-05) est donc instationnaire, pas stationnaire comme dans le tutoriel d'origine — à mentionner si ce cas sert à introduire la notion de modèle quasi-stationnaire | `openfast main.fst` → `EXIT=0` sur les 4 cas (inchangé, aucun fichier modifié) ; même valeur confirmée dans `tutorials/prise_en_main/modele_fixe/` |
+## Transversal (cas 02 à 05) — `config_aerodyn.dat`, `UA_Mod`
+
+| Champ / fichier | Avant (v3.2.1) | Après (v5.0.0) | Raison | Test qui le valide |
+|---|---|---|---|---|
+| `config_aerodyn.dat` (cas 02 à 05) | `AFAeroMod=1` (modèle stationnaire actif) ; le bloc Beddoes-Leishman qui suit (`UAMod=3`) est présent dans le fichier mais inactif, puisqu'il n'est utilisé que si `AFAeroMod=2` | `AFAeroMod` remplacé par `UA_Mod`, qui pilote directement le modèle. Valeur retenue : `UA_Mod=3` (Beddoes-Leishman Minnema/Pierce, actif) | Alignement sur le modèle de référence du projet : `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat` porte la même valeur (`UA_Mod=3`). L'aérodynamique de profil des 4 cas (02-05) est donc instationnaire, pas stationnaire comme dans le tutoriel d'origine | `openfast main.fst` → `EXIT=0` sur les 4 cas (aucun fichier modifié par ce point) ; même valeur confirmée dans `tutorials/prise_en_main/modele_fixe/` |
 
 ## Cas 03 — Éolienne contrôlée (`03_ControlledWT/`)
 
@@ -32,12 +36,13 @@ Conformément à la licence Apache-2.0 (§4b), chaque modification est signalée
 |---|---|---|---|---|
 | `config_servodyn.dat` | Sans `PitNeut`/`PitSpr`/`PitDamp` ×3 | Ajoutés après `TPCOn`, avant `TPitManS` | Format ServoDyn v5.0.0 (ressort/amortisseur de pas passif) | `EXIT=0`, 600 s simulées |
 | Contrôleur (`DLL_FileName`) | `DISCON.dll` (binaire Windows tiers, version/provenance non tracée) | `DISCON.so`, compilé par chaque étudiant (`scripts/build_discon.sh`) depuis `DISCON.F90`, source du tag OpenFAST v5.0.0 (Apache-2.0) | `.dll` inutilisable sous Linux ; traçabilité de la source (le binaire d'origine n'était pas accompagné de son code source identifié) | `nm -D DISCON.so \| grep " T DISCON$"` (symbole exporté) et log d'exécution `Running ServoDyn Interface for Bladed Controllers (using GNU Fortran for Linux)` |
+| Complexité du contrôleur | Le texte du tutoriel (§3) décrit une forme élémentaire (couple proportionnel à la vitesse, pas de pitch) | Le fichier migré utilise directement le contrôleur Bladed-DLL complet (ligne ci-dessus), pitch compris | Choix fait lors de la première migration : un seul contrôleur (`DISCON.so`/`DISCON_OC3Hywind.so`) pour tous les cas pilotés (03 à 05), plutôt qu'un contrôleur simplifié propre au cas 03 | `openfast main.fst` → log `Running ServoDyn Interface for Bladed Controllers` ; `BldPitch1` non nul en Region 3 (vérifiable sur le résultat) |
 
 ## Cas 04 — Monopieu (`04_MonopileWT/`)
 
 | Champ / fichier | Avant (v3.2.1) | Après (v5.0.0) | Raison | Test qui le valide |
 |---|---|---|---|---|
-| Hydrodynamique | Fichier HydroDyn v2.03 unique (environnement + houle + courant + membres Morison) | Scindé en `SeaState.dat` (environnement/houle/courant) + `HydroDyn.dat` (membres Morison), repris du cas r-test `5MW_OC3Mnpl_DLL_WTurb_WavesIrr` | Refonte du format HydroDyn en v5.0.0 (module SeaState introduit) ; conversion champ-à-champ manuelle jugée trop risquée | Comparaison géométrique ligne à ligne (joints, sections, coefficients hydrodynamiques) entre le fichier LHEEA d'origine et le fichier r-test repris : identiques (même système OC3-Monopile standard) |
+| Hydrodynamique | Fichier HydroDyn v2.03 unique (environnement + houle + courant + membres Morison) | Scindé en `SeaState.dat` (environnement/houle/courant) + `config_mpl_hydrodyn.dat` (membres Morison) + `config_mpl_subdyn.dat` (structure SubDyn), repris du cas r-test `5MW_OC3Mnpl_DLL_WTurb_WavesIrr` | Refonte du format HydroDyn en v5.0.0 (module SeaState introduit) ; conversion champ-à-champ manuelle jugée trop risquée | Comparaison géométrique ligne à ligne (joints, sections, coefficients hydrodynamiques) entre le fichier LHEEA d'origine et le fichier r-test repris : identiques (même système OC3-Monopile standard) |
 | `Wake_Mod` | `2` (DBEMT, choix d'origine) | `1` (BEMT) | OpenFAST v5.0.0 refuse `Wake_Mod=2` pour cette combinaison de projection (« Wake_Mod must be 0, 1, or 3 ») — **changement d'API découvert à l'exécution, pas anticipé par diff de champs**. **Conséquence pédagogique** : la dynamique d'écoulement enseignée n'est plus la même (BEMT quasi-stationnaire, pas DBEMT dynamique) | Message d'erreur explicite à l'exécution avant correction ; `EXIT=0` après |
 | Vent | `WindType=3` (TurbSim), fichier `.bts` absent de la distribution amont (exclu par le dépôt LHEEA lui-même) | `WindType=2`, fichier `Wind/ramp_wind.dat` déjà fourni par le tutoriel | Le `.bts` n'a jamais été distribué avec le dépôt amont | `EXIT=0`, 600 s simulées |
 
@@ -61,8 +66,8 @@ tiers.
 
 Les notebooks `practical1.ipynb` et `practical2.ipynb` (Small Wind Research Turbine, `SWRT`) ont
 été exécutés avec l'environnement actuel (`openfast_toolbox` v3.5.1 + `jupyter nbconvert
---execute`). Les cas `.fst`/ElastoDyn qu'ils utilisent dataient d'une version antérieure à
-v3.2.1 et n'avaient jamais été migrés.
+--execute`). Les cas `.fst`/ElastoDyn qu'ils utilisent (en-tête : « OpenFAST v3.5.2 ») n'avaient
+jamais été migrés vers v5.0.0.
 
 | Fichier | Avant | Après | Raison | Test qui le valide |
 |---|---|---|---|---|
@@ -71,21 +76,21 @@ v3.2.1 et n'avaient jamais été migrés.
 | `SWRT_021.fst`, champ `InflowFile` | `"unused"` alors que `CompInflow=1` | `"InflowWind/SWRT_IW.dat"` (cohérent avec `SWRT_022`/`SWRT_023`, qui référencent déjà ce fichier) | **Défaut préexistant du fichier d'origine, indépendant de la migration v5.0.0** — `SWRT_021` ne pouvait pas fonctionner même sous v3.5.2 avec ce réglage | `openfast SWRT_021.fst` → `EXIT=0` après correction |
 | `SWRT_022.fst`, `SWRT_023.fst`, chemins `AeroDyn/...` | `"AeroDyn/SWRT_AD(15).dat"` | `"Aerodyn/SWRT_AD(15).dat"` | **Sensibilité à la casse Windows→Linux** : le dossier réel s'appelle `Aerodyn` (minuscule), le chemin écrit dans le `.fst` utilisait `AeroDyn` — invisible sous Windows (NTFS insensible à la casse), bloquant sous Linux (ext4 sensible à la casse) | Le fichier est trouvé (l'erreur suivante change de nature, voir ci-dessous) |
 
-### Non résolu dans cette passe — `SWRT_022.fst`, mésappariement AeroDyn v14/v15
+### `SWRT_022.fst` — mésappariement AeroDyn v14/v15, non corrigé
 
-`SWRT_022.fst` déclare `CompAero=2` (AeroDyn, sens v5.0.0 générique) mais son `AeroFile` pointe
-vers `Aerodyn/SWRT_AD.dat`, dont l'en-tête dit explicitement **« AeroDyn v14.04.* INPUT FILE »**
-— un format de fichier complètement différent (pas de champ `Echo` en tête, schéma différent),
-que le parseur v5.0.0 ne sait pas lire (`ParseLoVar: The variable "Echo" was not found on line
-#4`). `SWRT_023.fst`, lui, pointe correctement vers `Aerodyn/SWRT_AD15.dat` (format v15) et n'a
-pas cette incohérence.
+`SWRT_022.fst` déclare `CompAero=2` (le réglage qui, dans le commentaire du fichier d'origine,
+signifie « AeroDyn v15 ») mais son `AeroFile` pointe vers `Aerodyn/SWRT_AD.dat`, dont l'en-tête dit
+explicitement **« AeroDyn v14.04.* INPUT FILE »** — un format de fichier complètement différent
+(pas de champ `Echo` en tête, schéma différent), que le parseur v5.0.0 ne sait pas lire
+(`ParseLoVar: The variable "Echo" was not found on line #4`). `SWRT_023.fst`, lui, pointe
+correctement vers `Aerodyn/SWRT_AD15.dat` (format v15) et n'a pas cette incohérence.
 
-**Ce n'est pas un défaut de migration** : même sous OpenFAST v3.5.2 (version d'origine de ces
-fichiers), le module « AeroDyn v14 » est un driver distinct de l'« AeroDyn v15 » utilisé partout
-ailleurs dans ce dépôt — réparer `SWRT_022` demanderait soit de reconstruire un fichier AeroDyn
-v15 complet pour cette turbine (portage de la géométrie de pale), soit de clarifier l'intention
-pédagogique originale (le fichier v14 était peut-être volontaire, avec un `CompAero` mal réglé).
-**Hors budget de cette passe** — engagement ouvert (voir `ENGAGEMENTS.md`).
+Ce mésappariement préexiste à toute migration v5.0.0 : même sous OpenFAST v3.5.2 (version
+d'origine de ces fichiers), le module « AeroDyn v14 » est un driver distinct de l'« AeroDyn v15 »
+utilisé partout ailleurs dans ce dépôt. Le réparer demanderait soit de reconstruire un fichier
+AeroDyn v15 complet pour cette turbine (portage de la géométrie de pale), soit de clarifier
+l'intention pédagogique d'origine (le fichier v14 était peut-être volontaire, avec un `CompAero`
+mal réglé) — reste à faire.
 
 Conséquence pour les notebooks : `practical1.ipynb` s'exécute intégralement sans erreur
 (`jupyter nbconvert --execute`, 0 erreur). `practical2.ipynb` s'exécute jusqu'à la cellule qui lit

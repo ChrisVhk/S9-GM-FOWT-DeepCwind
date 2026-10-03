@@ -37,8 +37,7 @@ qualitative : les solutions CFD peuvent servir de référence pour caler/amélio
 **p.2** : rappel du contexte — sous-estimation OC5 de **10 à 20 %** des charges ultimes et de fatigue.
 
 ## Ce que l'article dit explicitement ne pas expliquer
-Pages de résultats détaillés et de discussion non lues dans cette passe (hors budget de cette session) —
-à compléter. Le résumé ne tranche pas si l'accord CFD/essai suffit à expliquer la totalité de la
+Pages de résultats détaillés et de discussion non lues — à compléter. Le résumé ne tranche pas si l'accord CFD/essai suffit à expliquer la totalité de la
 sous-estimation observée en OC5 Phase II, seulement que l'excitation de fréquence-différence est
 correctement capturée par la CFD.
 

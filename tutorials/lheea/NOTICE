@@ -10,11 +10,14 @@ ED SPIN/ENSTA Bretagne), qui proposera cette adaptation au laboratoire. Détail 
 cas par cas (champ, avant, après, raison, test de validation) : voir ADAPTATION_LHEEA.md dans ce
 même dossier.
 
-Modifications apportées (Apache License 2.0, section 4b) :
-- migration des fichiers d'entree OpenFAST (ElastoDyn, AeroDyn, ServoDyn, InflowWind, HydroDyn)
-  du format OpenFAST v3.2.1 vers le format OpenFAST v5.0.0 (nouveaux champs, module SeaState
-  introduit) ; chaque modification de ce type est signalee par un commentaire
-  "[migre : ...]" dans le fichier concerne ;
+Modifications apportees (Apache License 2.0, section 4b). Le detail champ par champ, cas par cas,
+est dans ADAPTATION_LHEEA.md (ce meme dossier) ; certains fichiers portent en plus un commentaire
+"[migre : ...]" a l'endroit du changement, mais ce n'est pas systematique sur tous les fichiers
+modifies -- ADAPTATION_LHEEA.md fait foi pour l'exhaustivite, ce NOTICE en est le resume :
+- migration des fichiers d'entree OpenFAST (ElastoDyn, AeroDyn, ServoDyn, InflowWind, HydroDyn) du
+  format OpenFAST v3.2.1 vers le format OpenFAST v5.0.0 (nouveaux champs, module SeaState
+  introduit), et des fichiers equivalents des practicals SWRT (OpenFAST v3.5.2 -> v5.0.0, memes
+  champs) ;
   champs/sections ajoutes, entre autres : ModCoupling, RhoInf/ConvTol/MaxConvIter, NRotors,
   CompSeaSt, CompSoil, MirrorRotor, SeaStFile (fichier .fst) ; PitchDOF, section YAW-FRICTION,
   PBrIner/BlPIner, bloc de sortie par noeud de pale (ElastoDyn) ; renommage Wake_Mod/Skew_Mod,
@@ -38,5 +41,12 @@ Modifications apportées (Apache License 2.0, section 4b) :
   equivalente au AFAeroMod=1 d'origine) dans les cas 02 a 05 : alignement delibere sur le modele
   de reference du projet (models/oc4_rtest, meme valeur UA_Mod=3), pas une reproduction du
   comportement stationnaire d'origine (voir ADAPTATION_LHEEA.md).
+
+- practicals SWRT : deux defauts preexistants corriges, independants de la migration v5.0.0 --
+  SWRT_021.fst pointait son champ InflowFile vers "unused" alors que CompInflow=1 (ne pouvait pas
+  tourner meme sous v3.5.2) ; SWRT_022.fst et SWRT_023.fst referencaient un dossier "AeroDyn/" en
+  casse alors que le dossier reel est "Aerodyn/minuscule" (sensibilite a la casse Windows->Linux).
+  Detail dans ADAPTATION_LHEEA.md, qui signale aussi un mesappariement AeroDyn v14/v15 non corrige
+  sur SWRT_022.fst.
 
 Aucune mention de copyright ou d'attribution du depot d'origine n'a ete retiree.

@@ -146,9 +146,10 @@ C'est la question Q0.1 du rendu R0.
    Region 2 (loin du régime nominal, `Ct` à peu près constant), vent stationnaire pour F01 (le
    modèle stationnaire ne s'applique pas directement à l'échelon de F02), régime établi atteint
    (transitoire de démarrage écarté de la moyenne).
-3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` attendu (bloc précédent) et une
-   estimation de `T`/`TwrBsMyt`, puis les comparer à `RotSpeed`/`TwrBsMyt` observés, à ±15-20 %.
-   Les valeurs numériques pour F01 répondent à Q0.2 : à calculer, pas à relever.
+3. **Ordre de grandeur attendu** — la méthode : calculer `Ω` attendu (bloc précédent) et le
+   comparer à `RotSpeed` observé (écart tolérable ~15-20 %, fiche F1) ; estimer `T` et
+   `TwrBsMyt ≈ T × hauteur_moyeu`, à comparer à `TwrBsMyt` observé (±20 %, énoncé §3 bis). Les
+   valeurs numériques pour F01 répondent à Q0.2 : à calculer, pas à relever.
 4. **Ce que le modèle ne permet pas de conclure** — un écart dans la tolérance ne prouve pas
    que la configuration est correcte (un transitoire mal filtré peut produire le même symptôme
    qu'une vraie erreur), et cette vérification stationnaire ne valide rien sur la dynamique de
