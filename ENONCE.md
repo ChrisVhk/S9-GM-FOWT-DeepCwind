@@ -212,9 +212,12 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
    caractéristiques de section de la tour de **référence** (aire, inertie) — pas une donnée
    fournie, à calculer vous-mêmes comme à l'étape 0, mais pour cette géométrie-ci : diamètre
    extérieur lu dans le fichier AeroDyn de la tour (`TwrDiam`/`TwrElev`), épaisseur à retrouver à
-   partir de la masse linéique (`TMassDen` du fichier tour ElastoDyn) et d'une masse volumique
-   d'acier usuelle — ce n'est pas une lecture directe, un petit calcul par section. Appliquer un
-   **SCF = 2** (hypothèse d'avant-projet).
+   partir de la masse linéique (`TMassDen` du fichier tour ElastoDyn) — **à condition de choisir
+   une masse volumique**, et c'est un choix à justifier, pas une évidence : l'acier pur donne
+   7850 kg/m³, mais une tour réelle inclut peinture, boulonnerie et soudures, souvent représentées
+   par une masse volumique « effective » plus élevée dans ce genre de modèle. Dites laquelle vous
+   retenez et pourquoi, et vérifiez la cohérence du résultat (diamètre/épaisseur réalistes pour une
+   éolienne 5 MW). Appliquer un **SCF = 2** (hypothèse d'avant-projet).
 3. **Courbe S-N** : choisir la courbe DNV-RP-C203 adaptée (type de soudure, milieu air ou eau, épaisseur) et justifier ce choix.
 4. **Dommage** : Miner sur chaque cas, puis cumul pondéré par les occurrences Oⱼ ; durée de vie avec le DFF imposé.
 5. **DEL** : programmer vous-mêmes le DEL court terme Sₑ et long terme Sₑₜ (formules au lexique), puis comparer avec l'outil d'`openfast_toolbox`. Un écart entre les deux doit être expliqué.
@@ -281,8 +284,8 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
    > calcul de ces coefficients à partir d'une nouvelle distribution de masse/raideur n'est
    > disponible dans l'environnement du cours (ni BModes, ni d'équivalent dans `openfast_toolbox` —
    > son module `linearization` analyse un modèle déjà construit, via la linéarisation d'OpenFAST
-   > lui-même, mais ne calcule pas de nouveaux coefficients d'entrée ; à reconfirmer en séance, ce
-   > point n'a pas été vérifié en profondeur). **Approximation retenue** : conservez les
+   > lui-même, mais ne calcule pas de nouveaux coefficients d'entrée). **Approximation retenue** :
+   > conservez les
    > coefficients polynomiaux d'origine tels quels, et dites-le explicitement comme une
    > approximation.
    >
