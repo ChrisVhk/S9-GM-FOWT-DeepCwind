@@ -195,7 +195,10 @@ critère FLS avec `SCF = 1,5` (délibérément différent du `SCF = 2` imposé p
 l'atelier), DEL long terme de flexion `My = 2000 kN·m`, DEL long terme axial `Fz = 100 kN`
 (convention OpenFAST : `z` = axe de la tour, effort axial ; `x`/`y` = cisaillement), contrainte
 admissible au coude à 10⁷ cycles `σ_coude = 100 MPa`, épaisseur de référence `t_réf = 25 mm`,
-exposant d'épaisseur `k = 0,2`.
+exposant d'épaisseur `k = 0,2`. On suppose ici que le DEL long terme a été construit pour ce même
+nombre de cycles de référence `nₑ = 10⁷` (sinon il faudrait d'abord ramener l'un ou l'autre au
+même `nₑ`, par `Sₑₜ(nₑ)` ∝ `nₑ^(−1/m)` — c'est aussi ce que fait le DFF, le facteur de sécurité en
+fatigue imposé en Phase 3, que cet exemple ignore par simplicité).
 
 Aire et inertie d'un tube creux : `P(t) = (π/4)·[D² − (D−2t)²]`, `Q(t) = (π/64)·[D⁴ − (D−2t)⁴]`.
 Contrainte DEL : `σ = SCF·(My·(D/2)/Q + Fz/P)`. Contrainte admissible :
@@ -217,12 +220,15 @@ entre 40 et 60 mm si votre balayage initial est plus grossier).
 Vérification ULS à cette épaisseur, avec des efforts extrêmes concomitants **également
 inventés** — et volontairement choisis plus grands que les DEL ci-dessus, comme il se doit pour
 des efforts extrêmes (`Fz = −800 kN` axial, `Mx = 1200 kN·m`, `My = 3000 kN·m`, `Mz = 300 kN·m` de
-torsion, acier `Re = 355 MPa`) : combinez axial + flexion résultante (`√(Mx²+My²)`) pour la
-contrainte normale, torsion pour le cisaillement (`τ = Mz·(D/2)/(2Q)`), puis Von Mises. Vous
-devriez trouver `σ_vM ≈ 87 MPa`, soit un ratio ULS `X_ULS ≈ 0,25` — très inférieur à 1. Un tronçon
-dimensionné pile à sa limite de fatigue peut donc rester très en-deçà de sa limite ULS : c'est une
-conséquence de ce jeu de charges et de ce `Re`, pas une généralité absolue (voyez à quel ordre de
-grandeur de `Re` ou d'efforts extrêmes l'ULS redeviendrait dimensionnant).
+torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)/(D/2)/Q ≈ 91,8 MPa` en
+valeur absolue, de part et d'autre de l'axe neutre. **Le point le plus défavorable est celui où
+flexion et effort axial sont de même signe** (ici, la face comprimée : `σ = σ_axial − |σ_flex| ≈
+−5,1 − 91,8 ≈ −96,9 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi au §5
+quand vous balayez les angles. Torsion pour le cisaillement (`τ = Mz·(D/2)/(2Q) ≈ 4,3 MPa`), puis
+Von Mises : vous devriez trouver `σ_vM ≈ 97 MPa`, soit un ratio ULS `X_ULS ≈ 0,27` — très inférieur
+à 1. Un tronçon dimensionné pile à sa limite de fatigue peut donc rester très en-deçà de sa limite
+ULS : c'est une conséquence de ce jeu de charges et de ce `Re`, pas une généralité absolue (voyez
+à quel ordre de grandeur de `Re` ou d'efforts extrêmes l'ULS redeviendrait dimensionnant).
 
 ## 8. Encadré — sous Ubuntu
 
