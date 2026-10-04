@@ -141,7 +141,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 **À lire avant la séance : F2 (Houle linéaire), F3 (Hydrostatique), F4 (Morison)** — dès qu'elles sont publiées.
 
-6. **Éolienne fixe, vent turbulent** : générer les champs de vent avec **TurbSim** (vous choisissez et justifiez l'intensité de turbulence), puis lancer :
+6. **Éolienne fixe, vent turbulent** : générer les champs de vent avec **TurbSim** (intensité de turbulence imposée : classe IEC « B » ; vous choisissez et fixez la graine, voir `seances/0b/README.md`), puis lancer :
 
 | Cas | Vent | Zone de régulation |
 |---|---|---|

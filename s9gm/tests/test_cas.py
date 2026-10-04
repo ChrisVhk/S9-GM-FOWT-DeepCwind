@@ -162,7 +162,8 @@ def test_turbsim_sans_modele_echoue(tmp_path, pref):
 
 # ---- gabarit à trous seances/0b/turbsim_gabarit.inp (LOT A2) --------------------------------------
 GABARIT = (RACINE_TESTS / "seances" / "0b" / "turbsim_gabarit.inp")
-TROUS = {"URef": "9", "IECturbc": '"B"', "RandSeed1": "4242"}
+TROUS = {"RandSeed1": "4242"}          # le seul trou du gabarit
+SURCHARGES = {"URef": "9", "IECturbc": '"C"'}  # champs déjà remplis, surchargés pour l'essai
 
 
 @pytest.fixture
@@ -173,8 +174,8 @@ def modele_gabarit(pref):
     return m
 
 
-def _lct_gabarit(tmp_path, pref, trous):
-    cols = {f"turbsim.{k}": v for k, v in PETITE_GRILLE.items()} | {f"turbsim.{k}": v for k, v in trous.items()}
+def _lct_gabarit(tmp_path, pref, trous, surcharges=None):
+    cols = {f"turbsim.{k}": v for k, v in PETITE_GRILLE.items()} | {f"turbsim.{k}": v for k, v in (surcharges or {}).items()} | {f"turbsim.{k}": v for k, v in trous.items()}
     p = tmp_path / "lct_g.csv"
     p.write_text("cas,fst.TMax," + ",".join(f'"{c}"' for c in cols) + f"\n{pref}_G,20," +
                  ",".join('"' + v.replace('"', '""') + '"' for v in cols.values()) + "\n", encoding="utf-8")
@@ -183,25 +184,26 @@ def _lct_gabarit(tmp_path, pref, trous):
 
 def test_gabarit_non_rempli_refuse_et_nomme_les_champs(tmp_path, pref, modele_gabarit):
     """Falsificateur : aucun trou rempli -> refus, et le message nomme chaque champ manquant."""
-    p = _lct_gabarit(tmp_path, pref, {"URef": "9"})  # IECturbc et RandSeed1 restent à compléter
-    with pytest.raises(ValueError, match=r"RandSeed1, IECturbc"):
+    p = _lct_gabarit(tmp_path, pref, {})  # la graine reste à compléter
+    with pytest.raises(ValueError, match=r"RandSeed1"):
         cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
 
 
-def test_gabarit_les_trous_sont_exactement_trois():
+def test_gabarit_a_un_seul_trou_et_la_classe_iec_est_imposee():
     import re
     trous = [m[1] for l in GABARIT.read_text(encoding="utf-8").split("\n") if (m := re.match(r"^\s*A_COMPLETER\s+(\w+)", l))]
     assert sorted(trous) == sorted(TROUS)
+    assert re.search(r'^"B"\s+IECturbc\s', GABARIT.read_text(encoding="utf-8"), re.M)  # classe imposée
 
 
 @requiert_turbsim
 def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_gabarit):
     """Falsificateur : le gabarit rempli À LA MAIN (éditeur de texte) donne, par TurbSim, le même .bts
     que le même gabarit rempli par les colonnes turbsim.* de la LCT et lancé par `cas`."""
-    (dossier,) = cas.generer_serie(_lct_gabarit(tmp_path, pref, TROUS), modele_gabarit, PRISE_EN_MAIN)
+    (dossier,) = cas.generer_serie(_lct_gabarit(tmp_path, pref, TROUS, SURCHARGES), modele_gabarit, PRISE_EN_MAIN)
     genere = (dossier / "Wind" / f"{pref}_G.bts").read_bytes()
     texte = GABARIT.read_text(encoding="utf-8")
-    for k, v in (PETITE_GRILLE | TROUS).items():
+    for k, v in (PETITE_GRILLE | SURCHARGES | TROUS).items():
         texte = re.sub(rf"^(\s*)(A_COMPLETER|\S+)(\s+){k}(\s)", lambda m: f"{m[1]}{v}{m[3]}{k}{m[4]}", texte, flags=re.M)
     main = tmp_path / "main"
     main.mkdir()

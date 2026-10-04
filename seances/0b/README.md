@@ -206,25 +206,27 @@ même démarche avec votre `modele_flottant/` ; en revanche `cas` ne sait édite
 `config_inflow.dat` : la houle (`SeaState.dat`) est un fichier de plus à ajouter à `FICHIERS` dans
 `s9gm/cas.py` — c'est un exercice de lecture du code, avec ses tests dans `s9gm/tests/`.
 
-### Le champ de vent : gabarit TurbSim à trous
+### Le champ de vent : gabarit TurbSim
 
-[`turbsim_gabarit.inp`](turbsim_gabarit.inp) est un fichier d'entrée TurbSim **complet, sauf trois champs**
-marqués `A_COMPLETER` que **vous choisissez et justifiez** : `URef` (vent moyen), `IECturbc` (classe ou intensité
-de turbulence IEC) et `RandSeed1` (graine). Copiez-le dans `tutorials/prise_en_main/modele_fixe/turbsim.inp`,
-puis remplissez les trous soit dans le fichier, soit par des colonnes `turbsim.Clé` de votre LCT :
+[`turbsim_gabarit.inp`](turbsim_gabarit.inp) est un fichier d'entrée TurbSim **complet, sauf un champ** marqué
+`A_COMPLETER`, que **vous choisissez** : `RandSeed1` (la graine). La classe de turbulence IEC est **imposée**
+(`IECturbc = "B"`) et le vent moyen vient de l'énoncé (7,5 m/s dans le gabarit, pour F03 ; pour F04 et F05 vous
+le changez dans votre LCT par `turbsim.URef`). Copiez le gabarit dans `tutorials/prise_en_main/modele_fixe/turbsim.inp`,
+puis remplissez la graine soit dans le fichier, soit par une colonne `turbsim.Clé` de votre LCT :
 
 ```
-cas,fst.TMax,turbsim.URef,turbsim.IECturbc,turbsim.RandSeed1
-F03,300,<votre choix>,<votre choix>,<votre graine>
+cas,fst.TMax,turbsim.URef,turbsim.RandSeed1
+F03,300,7.5,<votre graine>
+F04,300,12,<votre graine>
 ```
 
 `cas` écrit alors `Wind/<cas>.inp`, lance TurbSim, produit `Wind/<cas>.bts` et pointe `inflow.WindType` /
-`inflow.FileName_BTS` dessus (sauf si votre LCT les fixe). Un trou laissé vide est **refusé**, avec le nom du champ.
+`inflow.FileName_BTS` dessus (sauf si votre LCT les fixe). Un trou laissé vide est **refusé**, avec le nom du champ. Fixer la graine rend le cas reproductible ; la changer donne une autre réalisation.
 
 #### Bloc Théorie
 
 1. **Question physique** — Un vent turbulent est une réalisation aléatoire : quelles grandeurs décident de ce
-   que vous simulez, et lesquelles sont des choix de modélisation à justifier plutôt que des données ?
+   que vous simulez, et lesquelles sont des choix (la graine) plutôt que des données imposées ?
 2. **Modèle** — TurbSim synthétise un champ de vitesse 3D à partir d'un spectre (modèle de Kaimal selon IEC),
    d'une cohérence spatiale, d'un profil moyen en loi de puissance, et d'une graine : mêmes entrées, mêmes
    graines, **même champ**, octet pour octet. Le vent moyen fixe le point de fonctionnement ; la classe de
@@ -232,7 +234,7 @@ F03,300,<votre choix>,<votre choix>,<votre graine>
    atmosphérique neutre type IEC, au-dessus d'une surface rugueuse ; pas de rafale extrême, pas de jet de
    basse couche.
 3. **Ordre de grandeur attendu** — la méthode : avant de lancer, écrire le vent moyen et l'intensité de
-   turbulence que vous attendez à la hauteur du moyeu, puis les relire sur le champ produit (moyenne et
+   turbulence que vous attendez à la hauteur du moyeu (la classe IEC imposée la fixe), puis les relire sur le champ produit (moyenne et
    écart-type de la composante longitudinale au moyeu). Si votre estimation et le champ diffèrent, c'est
    l'estimation ou le fichier d'entrée qui est faux.
 4. **Ce que le modèle ne permet pas de conclure** — qu'une seule graine représente la variabilité du site :
