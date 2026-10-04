@@ -13,14 +13,42 @@
   "periode": "1979-01 a 2000-12 (22 ans) selon l'article",
   "hauteur_vent_m": 100,
   "fichier_tableau": "floatech_wob_pdf_array.bin",
-  "forme": [18, 7, 9, 6],
-  "axes": ["U100 (m/s)", "Hs (m)", "Tp (s)", "desalignement vent/houle (deg)"],
+  "forme": [
+    18,
+    7,
+    9,
+    6
+  ],
+  "axes": [
+    "U100 (m/s)",
+    "Hs (m)",
+    "Tp (s)",
+    "desalignement vent/houle (deg)"
+  ],
   "bornes": {
-    "U100": [0, 36, 18],
-    "Hs": [0, 14, 7],
-    "Tp": [3, 21, 9],
-    "desalignement": [-180, 180, 6]
+    "U100": [
+      0,
+      36,
+      18
+    ],
+    "Hs": [
+      0,
+      14,
+      7
+    ],
+    "Tp": [
+      3,
+      21,
+      9
+    ],
+    "desalignement": [
+      -180,
+      180,
+      6
+    ]
   },
   "nature": "probabilites (somme = 1 sur le tableau complet)",
-  "modifications": "aucune : fichiers renommes seulement ; les noms d'origine sont '04 arrayvalues_pdfWoB.bin', '04 arraydescription_pdfWoB.json', '04 README_pdfWoB.txt', '03 MetOcean_WoB_ERA5.xlsx'"
+  "modifications": "aucune : fichiers renommes seulement ; les noms d'origine sont '04 arrayvalues_pdfWoB.bin', '04 arraydescription_pdfWoB.json', '04 README_pdfWoB.txt', '03 MetOcean_WoB_ERA5.xlsx'",
+  "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+  "axes_source": "script '01 Derivation of Met-Ocean Conditions for FOWT simulation.py' de l'archive Zenodo, lignes 185-207 (np.linspace pour les bornes ; np.histogramdd dans l'ordre U100, Hs, Tp, desalignement)"
 }

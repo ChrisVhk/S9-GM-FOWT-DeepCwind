@@ -90,10 +90,14 @@ def test_energie_dommage_m2_egale_celle_du_site(t):                  # critère 
     assert abs(r["ecart_relatif"]) <= TOL_IDENTITE
 
 
-def test_energie_moyenne_sous_le_site_dans_la_tolerance(t):          # critère 2
+def test_energie_moyenne_sous_le_site_dans_la_tolerance(t, record_property):          # critère 2
     r = mo.representativite(t, mo.lumper(t, methode="moyenne"))["energie"]
-    assert r["E_lct"] <= r["E_site"]
-    assert abs(r["ecart_relatif"]) <= TOL_MOYENNE, f"écart relatif {r['ecart_relatif']:.3f}"
+    assert r["E_lct"] <= r["E_site"]                   # inégalité de Jensen : échec = erreur de code
+    record_property("ecart_relatif_energie_moyenne", r["ecart_relatif"])      # valeur consignée dans tous les cas
+    if abs(r["ecart_relatif"]) > TOL_MOYENNE:             # le critère dit : résultat, pas échec du module
+        import warnings
+        warnings.warn(f"lumping « moyenne » non comparable en énergie : écart relatif {r['ecart_relatif']:+.3f} "
+                      f"> {TOL_MOYENNE} (critère CRITERE_energie_houle.md, point 2)")
 
 
 def test_energie_maximum_au_dessus_du_site(t):                       # critère 3 : pas de borne supérieure

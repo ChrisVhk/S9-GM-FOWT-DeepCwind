@@ -218,6 +218,7 @@ puis remplissez la graine soit dans le fichier, soit par une colonne `turbsim.Cl
 cas,fst.TMax,turbsim.URef,turbsim.RandSeed1
 F03,300,7.5,<votre graine>
 F04,300,12,<votre graine>
+F05,300,16,<votre graine>
 ```
 
 `cas` écrit alors `Wind/<cas>.inp`, lance TurbSim, produit `Wind/<cas>.bts` et pointe `inflow.WindType` /

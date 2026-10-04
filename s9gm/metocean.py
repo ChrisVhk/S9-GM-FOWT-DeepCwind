@@ -72,11 +72,12 @@ voir `data/metocean/floatech_wob.metadata.json` et `PROVENANCE.md`.
    probabilité `P_c = Σ p`, on choisit une valeur représentative de Hs : **moyenne** `Σ p·Hs / P_c`, **maximum**
    (valeur de la plus haute classe de probabilité non nulle), ou **pondérée dommage** `(Σ p·Hs^m / P_c)^{1/m}`
    avec l'exposant `m` donné par l'appelant. `m = 1` redonne la moyenne ; le maximum est le cas limite
-   `m → ∞`. La période est la moyenne pondérée, le désalignement est une moyenne circulaire (moyenne) ou la
-   classe la plus probable (maximum). **Domaine de validité** : la valeur représentative d'une classe n'est un
-   bon substitut que si la quantité visée varie comme la puissance `m` de Hs ; `lumper` ne choisit pas `m` pour vous.
+   `m → ∞`. La période est la moyenne pondérée, le désalignement est une moyenne circulaire (moyenne, dommage) ou celui de la case la plus
+   probable de la classe (maximum). **Domaine de validité** : la valeur représentative d'une classe n'est un
+   bon substitut que si la quantité visée varie comme la puissance `m` de Hs ; `lumper` ne choisit pas `m` pour vous. « Maximum » est la plus haute classe de Hs de probabilité non nulle
+   (milieu de classe), conservateur au regard de l'énergie calculée sur les milieux de classe, pas d'un Hs réel.
 3. **Ordre de grandeur attendu** — la méthode : pour une classe, calculer les trois valeurs et les ranger :
-   moyenne, pondérée dommage et maximum sont dans cet ordre ; l'identité `m = 2` conserve exactement
+   moyenne, pondérée dommage (pour un exposant au moins égal à un) et maximum sont dans cet ordre ; l'identité `m = 2` conserve exactement
    `Σ p·Hs²` (énergie de houle) et rien d'autre.
 4. **Ce que le modèle ne permet pas de conclure** — qu'une LCT lumpée donne le même dommage que le tableau : la
    conservation d'une grandeur (ici `Hs^m`) ne conserve pas les autres, et la réponse d'une structure dépend de
