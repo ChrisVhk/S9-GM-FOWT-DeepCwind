@@ -264,6 +264,13 @@ OpenFAST, machine de développement du cours) :
 Classeur d'architecture du flotteur (`DeepCwind_ARCHITECTURE.xlsx`) et raideurs hydrostatiques
 K33/K55 à la main : voir `ENONCE.md`, phase 0, séance 0b, points 7-8.
 
+**Pourquoi calculer à la main, puis confronter à `s9gm.hydro` (la théorie par les chiffres).** Le module `s9gm.hydro`
+sait calculer ces raideurs depuis la géométrie : l'outil ne remplace pas votre calcul, il le **met à l'épreuve**. Un
+calcul à la main sur les colonnes seules donne une première réponse ; la confrontation au module et au fichier `.hst` du
+modèle vous montre un écart. Cet écart n'est ni une faute ni un bruit : c'est de l'information, à attribuer à ce que
+vous avez laissé de côté (un membre, une hypothèse, un terme). Même démarche pour les périodes propres, où ce qui est
+négligé (masse ajoutée, ancrage) pèse davantage. Le module n'est utile que si vous savez prédire ce qu'il va dire.
+
 ## Rendu R0 (suite)
 
 Questions Q0.3 à Q0.5 de l'énoncé (section « Phase 0 », rendu R0) : classeur d'architecture,

@@ -150,7 +150,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 | F05 | turbulent 16 m/s | zone 3 |
 
 7. **Architecture du modèle de flotteur, au tableur** : à partir de la géométrie de la DeepCwind (dimensions fournies), compléter le classeur `DeepCwind_ARCHITECTURE.xlsx` du tutoriel : **nœuds** (coordonnées dans le repère inertiel), **membres** (nœud 1 → nœud 2, jeu de propriétés, discrétisation), **jeux de propriétés** (diamètre, épaisseur) et **coefficients hydrodynamiques** (Cd, Ca) par groupe — colonne centrale, colonnes déportées, bases, pontoons, entretoises. Retrouver ensuite chaque colonne du tableau dans le fichier HydroDyn du modèle. C'est la façon la plus directe de comprendre comment OpenFAST « voit » une structure tubulaire, et ce tableau resservira en phase 5 (entretoises, β = d/D).
-8. **Éolienne flottante (DeepCwind)** — d'abord **à la main** : raideur hydrostatique en pilonnement K33 = ρ·g·Awl et en tangage K55 = Δ·g·GM, à partir des dimensions fournies ; comparer aux valeurs utilisées par HydroDyn, puis aux périodes propres.
+8. **Éolienne flottante (DeepCwind)** — d'abord **à la main** : raideur hydrostatique en pilonnement K33 = ρ·g·Awl et en tangage K55 = Δ·g·GM, à partir des dimensions fournies ; comparer aux valeurs utilisées par HydroDyn, puis aux périodes propres. **Calculez d'abord sur les colonnes seules, à la main, sans rien ouvrir d'autre ; confrontez ensuite le résultat à `s9gm.hydro` et au fichier `.hst` du modèle, puis attribuez l'écart** (quel membre, quelle hypothèse, quel terme négligé l'explique).
 
 | Cas | Vent | Houle |
 |---|---|---|
@@ -165,7 +165,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 **Rendu R0** :
 - Q0.1 — Tableau de régulation à la main et comparaison avec le cas F02.
 - Q0.2 — Vérifications à la main de F01 (1P, poussée, moment en pied de tour) : écarts et explication.
-- Q0.3 — Classeur d'architecture complété, et correspondance avec le fichier HydroDyn ; K33 et K55 à la main contre HydroDyn ; périodes propres qui en découlent.
+- Q0.3 — Classeur d'architecture complété, et correspondance avec le fichier HydroDyn ; K33 et K55 **à la main** (colonnes seules), puis **confrontés à `s9gm.hydro` et au fichier `.hst` du modèle, avec attribution de l'écart** ; périodes propres qui en découlent, et ce qui les écarte des valeurs publiées. L'attribution compte plus que le chiffre.
 - Q0.4 — Tableau fixe / flottant (max, écart-type) et trois constats argumentés : ce qui change, pourquoi, et ce que ce tableau ne permet pas encore de conclure sur la fatigue.
 - Q0.5 — Citez les paramètres qui définissent une ligne de Load Case Table (au moins huit) et dites lesquels vous avez déjà fait varier dans ce tutoriel.
 - Q0.6 (si vous avez relancé un cas turbulent à 600 s en plus des 300 s de la séance) — Comparez les statistiques d'un même canal entre les deux durées : l'écart est-il dans le bruit, ou significatif ? Qu'est-ce que cela vous dit sur la durée à retenir pour un rendu qui compte ?
