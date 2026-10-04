@@ -57,7 +57,7 @@ Les trois suivantes :
 ![Les cinq régions : allure de Ω, β et P](figures/FIG-DMO-S9-005.png)
 
 *Figure 2 — Allure de `Ω`, `β` et `P` par région (régions de largeur égale, pas à l'échelle : aucune
-vitesse de vent n'est lisible, à vous de calculer les frontières). La version à l'échelle, sur axes physiques, ne montre que les données publiées de Jonkman 2009 : la zone entre le cut-in et le vent nominal y reste volontairement vide, c'est l'objet de Q0.1.*
+vitesse de vent n'est lisible, à vous de calculer les frontières). La version à l'échelle, sur axes physiques, ne montre que les données publiées de Jonkman 2009 : la zone entre le cut-in et le vent nominal y reste volontairement vide : c'est l'objet de Q0.1, qui demande les frontières intérieures 1½/2 et 2/2½ ; 3 et 11,4 m/s sont des données.*
 
 ![Les modules d'OpenFAST](figures/FIG-DMO-S9-003.png)
 

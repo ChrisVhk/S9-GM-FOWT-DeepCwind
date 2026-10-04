@@ -127,7 +127,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
    - vérifier : `openfast -v` doit afficher **`OpenFAST-v5.0.0`**. Une autre version = installation à reprendre.
 2. **Organisation d'un calcul** : fichiers de base du modèle / un dossier par cas de charge / un script de lancement. Lancer les cas LHEEA 01 (tour seule) et 02 (rotor libre) pour vérifier que tout fonctionne.
 3. **Lire un `.fst`** : pour chaque section, dire ce qu'on modifie pour débuter (durée, pas de temps, modules actifs, degrés de liberté, sorties) et ce qu'on laisse tel quel.
-4. **Régulation de l'éolienne NREL 5 MW, à la main** (fiche F1) : avec R = 63 m, vitesse en bout de pale maximale 80 m/s, régime nominal 12,1 tr/min, puissance nominale 5 MW et un TSR optimal de 7,55 (Jonkman 2009), construire le tableau vitesse de vent → vitesse de rotation → puissance, et identifier les zones de fonctionnement (Region 1, 1½, 2, 2½, 3) et l'`Ω` attendu dans chaque région (loi `λ*·V/R` en Region 2, équilibre des couples en Region 1½).
+4. **Régulation de l'éolienne NREL 5 MW, à la main** (fiche F1) : avec R = 63 m, vitesse en bout de pale maximale 80 m/s, régime nominal 12,1 tr/min, puissance nominale 5 MW et un TSR optimal de 7,55 (Jonkman 2009), construire le tableau vitesse de vent → vitesse de rotation → puissance, et identifier les zones de fonctionnement (Region 1, 1½, 2, 2½, 3) et l'`Ω` attendu dans chaque région (loi `λ*·V/R` en Region 2, équilibre des couples en Region 1½). Les **frontières intérieures** (1½/2 et 2/2½) sont à trouver ; 3 m/s (cut-in) et 11,4 m/s (vent nominal, début de la Region 3) sont des données publiées.
 5. **Éolienne fixe (monopieu OC3), cas à vent constant et à échelon** :
 
 | Cas | Vent | Ce qu'on regarde |
