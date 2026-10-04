@@ -67,7 +67,18 @@ Vérifié le 05/10 (INV-18), pas présumé :
   `AeroDyn15` (− `Buoyancy`, + colonnes `TwrCp`, `TwrCa` du tableau de tour, `BldNd_BladesOut` = 0 pour
   alléger les sorties) ; `SubDyn` (+ bloc `INITIAL RIGID-BODY POSITION`, + colonne `TPID` des joints
   d'interface) ; `ServoDyn` (+ `PitNeut`, `PitSpr`, `PitDamp` ×3, `DLL_FileName` → `../ServoData/libdiscon.so`).
-  Aucun paramètre physique n'est modifié (masses, raideurs, profils, polaires, gains) : seul le **format** — affirmé ici, **non contrôlé** par un diff conservé contre le commit amont.
+  **Diff contre l'amont** (commit `e4993d6`, `diff -w`, fait le 05/10 ; les fichiers `ElastoDyn_tower`, `HydroDyn`, `SeaState`, `ROSCO.yaml`, `config_inflow.dat` (= `IEA-15-240-RWT_InflowFile.dat`) sont **identiques** à l'amont). Chaque ligne modifiée est classée *format* (clé renommée, ligne ou colonne ajoutée avec une valeur neutre, chemin, option de sortie) ou *physique* (valeur d'un paramètre de la machine changée) :
+
+| Fichier | Lignes modifiées | Classe |
+|---|---|---|
+| `main.fst` (comparaison clé par clé) | `BDBldFile(1-3)` → `"unused"` (BeamDyn non utilisé, `CompElast = 1`) ; `InflowFile` → `config_inflow.dat` ; ajoutés : `ModCoupling = 1` (couplage lâche), `RhoInf`, `ConvTol`, `MaxConvIter`, `NRotors = 1`, `CompSoil = 0`, `MirrorRotor = F`, `SoilFile` | format |
+| ElastoDyn | `BldFile1-3` → `BldFile(1-3)` ; ajoutés `PitchDOF = False`, `PtfmRefxt/yt = 0`, `PBrIner(1-3) = 0`, `BlPIner(1-3) = 0` | format (valeurs neutres) |
+| AeroDyn15 | `Buoyancy = False` retiré ; colonnes `TwrCp`, `TwrCa` = 0 ajoutées au tableau de tour (20 lignes) ; `BldNd_BladesOut` 1 → 0 | format ; la dernière est une option de **sortie** |
+| SubDyn | bloc `INITIAL RIGID-BODY POSITION` (zéros) ; colonne `TPID = 1` à la ligne d'interface | format |
+| ServoDyn | `PitNeut`, `PitSpr`, `PitDamp` (×3, = 0) ajoutés ; `DLL_FileName` → `../ServoData/libdiscon.so` | format ; chemin |
+| `DISCON.IN` | `LoggingLevel` 1 → 0 | option de **sortie** |
+
+**Bilan : aucune ligne *physique*** (masses, raideurs, profils, polaires, gains, consignes inchangés). Réserves honnêtes : (1) le diff prouve ce qui a été écrit, pas que OpenFAST v5.0.0 *interprète* chaque valeur neutre ajoutée comme l'ancien comportement (valeurs 0 / `False` alignées sur le tutoriel LHEEA migré et sur la logique « terme absent », sans lecture de la documentation v5 ligne à ligne) ; (2) `TwrCp`, `TwrCa`, `PitNeut/Spr/Damp` : usage dans cette configuration non vérifié. Rien de cela n'explique par ailleurs l'écart de Cp du notebook, qui n'est pas attribué.
   `ROSCO` : `LoggingLevel` 1 → 0 (pas de fichier `.dbg`) ; ces modifications de `DISCON.IN`, `DLL_FileName` (ServoDyn) et `BldNd_BladesOut` (AeroDyn) ne sont pas repérées dans les fichiers. Fichiers non repris : BeamDyn (`CompElast = 1`),
   `HydroDyn`/`SeaState`/`SubDyn` conservés mais désactivés dans les cas (`CompSeaSt = CompHydro = 0`).
 - **ROSCO** : `DISCON.IN` écrit par l'amont avec ROSCO 2.10.1 ; bibliothèque `libdiscon.so` fournie par le
