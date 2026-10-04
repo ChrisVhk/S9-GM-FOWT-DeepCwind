@@ -114,21 +114,15 @@ def von_mises(sx, sy=0.0, sz=0.0, txy=0.0, tyz=0.0, tzx=0.0):
     raise NotImplementedError('trou : `σ_eq = √(½[(σx−σy)² + (σy−σz)² + (σz−σx)²] + 3(τxy² + τyz² + τzx²))` (voir le bloc Théorie).')
 
 
-
-
 def verifier_domaine_efthymiou(beta, tau, gamma, alpha, theta_deg, zeta=None):
     """Lève `HorsDomaineError` (qui nomme le paramètre, sa valeur et la borne violée) si un paramètre est hors du
     domaine de validité des SCF d'Efthymiou. `zeta` (écartement relatif, joints à entretoises) est contrôlé s'il est donné."""
     raise NotImplementedError('trou : lisez les bornes de β, τ, γ, α, θ (et ζ) dans DNV-RP-C203, annexe B (page à citer) ; levez `HorsDomaineError` en nommant le paramètre, sa valeur et la borne violée.')
 
 
-
-
-
-
 def scf_ty_axial_encastre(beta, tau, gamma, alpha, theta_deg):
     """SCF des joints T/Y, charge axiale, extrémités de corde encastrées : selle et couronne, côté corde et côté entretoise
-    (équations 1 à 4 du tableau B-1 ; correction de corde courte F1 pour α < 12 aux selles)."""
+    (équations 1 à 4 du tableau B-1 ; correction de corde courte aux selles)."""
     raise NotImplementedError('trou : équations (1) à (4) du tableau B-1 de DNV-RP-C203, annexe B (édition et page à citer) ; commencez par `verifier_domaine_efthymiou`.')
 
 
@@ -139,7 +133,7 @@ def scf_ty_flexion_plan(beta, tau, gamma, alpha, theta_deg):
 
 def scf_ty_flexion_hors_plan(beta, tau, gamma, alpha, theta_deg, *, edition):
     """SCF des joints T/Y en flexion hors plan : selles de la corde et de l'entretoise (équations 10 et 11, correction
-    de corde courte F3 pour α < 12). L'équation 10 diffère entre les éditions : `edition` ∈ {"2010", "2020"} obligatoire."""
+    de corde courte). L'équation 10 diffère entre les éditions : `edition` ∈ {"2010", "2020"} obligatoire."""
     raise NotImplementedError("trou : équations (10) et (11) du tableau B-1 de DNV-RP-C203, annexe B ; lisez-les dans l'édition que vous citez (elles diffèrent entre éditions) ; commencez par `verifier_domaine_efthymiou`.")
 
 
