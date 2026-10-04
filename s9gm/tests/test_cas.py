@@ -162,7 +162,7 @@ def test_turbsim_sans_modele_echoue(tmp_path, pref):
 
 # ---- gabarit à trous seances/0b/turbsim_gabarit.inp (LOT A2) --------------------------------------
 GABARIT = (RACINE_TESTS / "seances" / "0b" / "turbsim_gabarit.inp")
-TROUS = {"IECturbc": '"B"', "RandSeed1": "4242"}   # les deux trous du gabarit
+TROUS = {"IECturbc": "12", "RandSeed1": "4242"}   # les deux trous du gabarit (valeur d'essai neutre : pourcentage d'intensité)
 SURCHARGES = {"URef": "9"}                          # champ déjà rempli, surchargé pour l'essai
 
 
@@ -187,7 +187,7 @@ def test_gabarit_non_rempli_refuse_et_nomme_les_champs(tmp_path, pref, modele_ga
     p = _lct_gabarit(tmp_path, pref, {"RandSeed1": "4242"})  # la catégorie IEC reste à compléter
     with pytest.raises(ValueError, match=r"IECturbc"):
         cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
-    p = _lct_gabarit(tmp_path, pref, {"IECturbc": '"B"'})   # la graine reste à compléter
+    p = _lct_gabarit(tmp_path, pref, {"IECturbc": "12"})   # la graine reste à compléter
     with pytest.raises(ValueError, match=r"RandSeed1"):
         cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
 

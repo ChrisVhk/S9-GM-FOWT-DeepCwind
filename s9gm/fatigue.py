@@ -15,8 +15,8 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
 1. **Question physique** — Un signal de contrainte irrégulier (vent turbulent, houle) n'est pas une suite de
    cycles : comment le découper en cycles d'étendue et de moyenne définies, pour pouvoir lui appliquer une courbe
    S-N établie sur des essais à amplitude constante ?
-2. **Modèle** — on ne garde que les inversions (pics et creux), puis la méthode à trois points de la norme
-   ASTM E1049 : on empile les inversions ; dès que l'étendue de la dernière variation X est au moins égale à celle
+2. **Modèle** — on ne garde que les inversions (pics et creux), puis une méthode à trois points (celle que décrit la norme
+   ASTM E1049, que nous n'avons **pas pu consulter** : voir la dérivation à la main de l'exemple dans les tests) : on empile les inversions ; dès que l'étendue de la dernière variation X est au moins égale à celle
    de la précédente Y, Y est un cycle fermé — **complet** s'il ne contient pas le point de départ, **demi-cycle** sinon —
    et on retire les points concernés ; à la fin, la pile résiduelle donne des demi-cycles. Un cycle complet compte 1, un
    demi-cycle 0,5. **Domaine de validité** : un signal à une seule composante de contrainte, sans correction de
@@ -27,7 +27,7 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
 4. **Ce que le modèle ne permet pas de conclure** — que le comptage donne l'ordre des cycles (il le détruit) ni
    qu'il tienne compte de la contrainte moyenne ; et un signal court laisse une part importante de demi-cycles
    résiduels, dont le traitement change légèrement le résultat.
-5. **Renvois** — fiche F8 (fatigue, rainflow) ; ASTM E1049 (méthode de comptage) ; DNV-RP-C203 §2.2 (cumul de dommage
+5. **Renvois** — fiche F8 (fatigue, rainflow) ; ASTM E1049 (méthode de comptage ; norme non consultée ici) ; DNV-RP-C203 §2.2 (cumul de dommage
    à partir des cycles comptés).
 
 ### Bloc Théorie
@@ -41,7 +41,8 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
    **Domaine de validité** : les paramètres sont ceux d'une classe de détail, d'un environnement et d'une édition
    de la norme donnés ; ce module ne les connaît pas, c'est à vous de les lire et de les citer.
 3. **Ordre de grandeur attendu** — la méthode : à étendue fixée, calculer `N` sur chaque branche et vérifier que la
-   courbe est continue au coude ; vérifier que doubler l'épaisseur multiplie le dommage par `2^(k·m)`.
+   courbe est continue au coude ; vérifier que, sur une même branche de la courbe et pour `t ≥ t_ref`, doubler l'épaisseur multiplie le dommage par
+   `2^(k·m)` (`m` la pente de la branche).
 4. **Ce que le modèle ne permet pas de conclure** — qu'une courbe soit valable hors de son domaine (détail,
    environnement, finition, protection) ni que les éditions de la norme soient interchangeables : certaines valeurs
    (exposant d'épaisseur de classes, courbe de joint tubulaire) ont changé entre éditions.
@@ -58,10 +59,12 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
    **Domaine de validité** : cumul linéaire, sans effet d'ordre ; les étendues sont celles du rainflow, avec leur
    comptage de demi-cycles.
 3. **Ordre de grandeur attendu** — la méthode : pour un signal sinusoïdal, calculer à la main `n` et `N` et comparer
-   le rapport ; vérifier que le dommage est multiplié par `2^m` si on double toutes les étendues.
+   le rapport ; vérifier que le dommage est multiplié par `2^m` si on double toutes les étendues **sur une courbe à une seule
+   pente** ; sur une courbe à deux pentes, ce facteur dépend de la branche où tombent les étendues.
 4. **Ce que le modèle ne permet pas de conclure** — que `D < 1` garantisse l'absence de fissure : le dommage est un
    indicateur statistique, et le DFF couvre incertitude et conséquences d'une rupture, pas seulement le calcul.
-5. **Renvois** — fiche F8 (fatigue) ; DNV-RP-C203 §2.2 (cumul de Palmgren-Miner ; le DFF y renvoie à DNV-OS-C101, section 6) ;
+5. **Renvois** — fiche F8 (fatigue) ; DNV-RP-C203 §2.2 (cumul de Palmgren-Miner ; le DFF y renvoie à DNV-OS-C101 : section 6 dans l'édition
+   2010, Ch.2 Sec.5 dans l'édition 2019 amendée 2020 — citez l'édition que vous utilisez) ;
    `ENONCE.md`, phase 3.
 
 ### Bloc Théorie

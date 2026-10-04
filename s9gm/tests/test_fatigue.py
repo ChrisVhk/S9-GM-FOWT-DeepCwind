@@ -112,7 +112,7 @@ def test_amplitude_a_la_place_de_l_etendue_donne_un_autre_resultat():
     assert d_ok / d_mauvais == pytest.approx(2.0 ** M, rel=1e-9)        # dommage divisé par 2^m = 8
 
 
-# ---- C3 : séquence d'exemple ASTM E1049, dérivation à la main -----------------------------------------------
+# ---- C3 : séquence d'exemple (attribuée à ASTM E1049, norme NON consultée), dérivation à la main -----------------------------------------------
 @trou
 def test_rainflow_sequence_exemple_e1049():
     # Méthode à trois points, à la main : demi-cycles 3, 4, 8, 9, 8, 6 et un cycle complet 4.
