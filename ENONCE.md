@@ -141,7 +141,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 **À lire avant la séance : F2 (Houle linéaire), F3 (Hydrostatique), F4 (Morison)** — dès qu'elles sont publiées.
 
-6. **Éolienne fixe, vent turbulent** : générer les champs de vent avec **TurbSim** (intensité de turbulence imposée : classe IEC « B » ; vous choisissez et fixez la graine, voir `seances/0b/README.md`), puis lancer :
+6. **Éolienne fixe, vent turbulent** : générer les champs de vent avec **TurbSim** (vous choisissez la **catégorie de turbulence IEC** et la justifiez par le projet OC3 (Jonkman et Musial, NREL/TP-5000-48191, §2.4.1) et par la correspondance des catégories de la norme IEC 61400-1 ; vous fixez aussi la graine, voir `seances/0b/README.md`), puis lancer :
 
 | Cas | Vent | Zone de régulation |
 |---|---|---|
@@ -174,7 +174,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 #### Phase 1 — Du site à la Load Case Table
 
-**Données fournies** (dossier `data/metocean/` du dépôt, publié par l'enseignant avant cette phase — absent du dépôt à son ouverture) : un site réel au large de l'île de Barra (Écosse), à partir des conditions publiées en accès ouvert par le projet européen FLOATECH (Papi et al., université de Florence, réanalyse ERA5, licence CC-BY 4.0) : distribution conjointe vent / Hs / Tp / désalignement vent-houle, extrêmes ; courant et niveaux d'eau d'après le projet européen LIFES50+. Citer ces sources dans vos rendus.
+**Données fournies** (dossier `data/metocean/` du dépôt, publié par l'enseignant avant cette phase — absent du dépôt à son ouverture) : un site réel au large de l'île de Barra (Écosse), à partir des conditions publiées en accès ouvert par le projet européen FLOATECH (Papi et al., université de Florence, réanalyse ERA5, licence CC-BY 4.0) : distribution conjointe vent / Hs / Tp / désalignement vent-houle, extrêmes ; pour le courant et les niveaux d'eau, **consultez** le livrable public D1.1 du projet LIFES50+ (« Oceanographic and meteorological conditions for the design », Iberdrola Ingeniería y Construcción, projet 640741, 03/10/2015, accessible par CORDIS) : il n'est pas redistribué avec ce dépôt, ses données ne sont pas fournies. Citer ces sources dans vos rendus.
 
 1. Lire le scatter diagram : quelles cellules sont les plus probables ? Lesquelles portent le plus d'énergie de houle ?
 2. Choisir les DLC du projet et justifier par composant :

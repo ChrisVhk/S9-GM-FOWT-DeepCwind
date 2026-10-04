@@ -162,8 +162,8 @@ def test_turbsim_sans_modele_echoue(tmp_path, pref):
 
 # ---- gabarit à trous seances/0b/turbsim_gabarit.inp (LOT A2) --------------------------------------
 GABARIT = (RACINE_TESTS / "seances" / "0b" / "turbsim_gabarit.inp")
-TROUS = {"RandSeed1": "4242"}          # le seul trou du gabarit
-SURCHARGES = {"URef": "9", "IECturbc": '"C"'}  # champs déjà remplis, surchargés pour l'essai
+TROUS = {"IECturbc": '"B"', "RandSeed1": "4242"}   # les deux trous du gabarit
+SURCHARGES = {"URef": "9"}                          # champ déjà rempli, surchargé pour l'essai
 
 
 @pytest.fixture
@@ -184,16 +184,19 @@ def _lct_gabarit(tmp_path, pref, trous, surcharges=None):
 
 def test_gabarit_non_rempli_refuse_et_nomme_les_champs(tmp_path, pref, modele_gabarit):
     """Falsificateur : aucun trou rempli -> refus, et le message nomme chaque champ manquant."""
-    p = _lct_gabarit(tmp_path, pref, {})  # la graine reste à compléter
+    p = _lct_gabarit(tmp_path, pref, {"RandSeed1": "4242"})  # la catégorie IEC reste à compléter
+    with pytest.raises(ValueError, match=r"IECturbc"):
+        cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
+    p = _lct_gabarit(tmp_path, pref, {"IECturbc": '"B"'})   # la graine reste à compléter
     with pytest.raises(ValueError, match=r"RandSeed1"):
         cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
 
 
-def test_gabarit_a_un_seul_trou_et_la_classe_iec_est_imposee():
+def test_gabarit_a_exactement_deux_trous_iecturbc_et_graine():
     import re
     trous = [m[1] for l in GABARIT.read_text(encoding="utf-8").split("\n") if (m := re.match(r"^\s*A_COMPLETER\s+(\w+)", l))]
     assert sorted(trous) == sorted(TROUS)
-    assert re.search(r'^"B"\s+IECturbc\s', GABARIT.read_text(encoding="utf-8"), re.M)  # classe imposée
+    assert not re.search(r'^"[ABC]"\s+IECturbc\s', GABARIT.read_text(encoding="utf-8"), re.M)  # catégorie non imposée
 
 
 @requiert_turbsim

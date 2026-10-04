@@ -131,7 +131,7 @@ def test_la_lct_exportee_est_relue_par_cas(tmp_path, t, pref):
     import shutil
     df = mo.lumper(t, methode="moyenne")
     lct, etats = mo.exporter_lct(df, tmp_path / "lct.csv", tmp_path / "etats.csv", z_table=100.0, z_hub=90.0,
-                                 loi="puissance", exposant=0.12, tmax=300, graine0=1000, prefixe=f"{pref}_M")
+                                 loi="puissance", exposant=0.12, tmax=300, graine0=1000, prefixe=f"{pref}_M", iecturbc='"B"')
     lignes = cas.lire_lct(lct)
     assert len(lignes) == len(df) and lignes[0]["turbsim.RandSeed1"] == "1000"
     et = pd.read_csv(etats)

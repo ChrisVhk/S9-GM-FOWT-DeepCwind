@@ -324,20 +324,21 @@ def reconstruire(t, df):
 
 
 def exporter_lct(df, chemin_lct, chemin_etats, *, z_table, z_hub, loi, exposant=None, z0=None, tmax,
-                 graine0, prefixe="M"):
+                 graine0, prefixe="M", iecturbc=None):
     """Écrit une LCT lisible par `s9gm.cas` (colonnes `cas`, `fst.TMax`, `turbsim.URef`,
     `turbsim.RandSeed1`) et un fichier compagnon (états de mer : U à la table et au moyeu, Hs, Tp, mis, P,
     O_h, O_pct), car `cas` n'édite pas le fichier de houle. `z_table`, `z_hub`, `loi` (et `exposant` ou `z0`)
-    sont **obligatoires** : le changement de hauteur du vent est un choix, jamais un défaut."""
+    sont **obligatoires** : le changement de hauteur du vent est un choix, jamais un défaut. `iecturbc` : si
+    donné, ajoute la colonne `turbsim.IECturbc` ; absent, la catégorie reste à compléter dans le modèle TurbSim."""
     d = occurrences(df)
     d = d.reset_index(drop=True)
     d["cas"] = [f"{prefixe}{j:03d}" for j in range(len(d))]
     d["U_hub"] = hauteur_vent(d["U"], z_table, z_hub, loi=loi, exposant=exposant, z0=z0)
     with open(chemin_lct, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["cas", "fst.TMax", "turbsim.URef", "turbsim.RandSeed1"])
+        w.writerow(["cas", "fst.TMax", "turbsim.URef", "turbsim.RandSeed1"] + (["turbsim.IECturbc"] if iecturbc else []))
         for j, r in d.iterrows():
-            w.writerow([r["cas"], tmax, f"{r['U_hub']:.4f}", graine0 + j])
+            w.writerow([r["cas"], tmax, f"{r['U_hub']:.4f}", graine0 + j] + ([iecturbc] if iecturbc else []))
     d[["cas", "U", "U_hub", "Hs", "Tp", "mis", "P", "O_h", "O_pct"]].rename(columns={"U": "U_table"}).to_csv(
         chemin_etats, index=False, float_format="%.10g")
     return Path(chemin_lct), Path(chemin_etats)
