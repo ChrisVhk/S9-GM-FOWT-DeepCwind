@@ -138,9 +138,10 @@ def systeme(flot):
 
 def test_H5_periodes_propres_contre_coulling(flot, K):
     M, zG, I55, I44 = systeme(flot)
-    a33 = hydro.lire_masse_ajoutee(ADDED, 3, 3, 0, RHO, ULEN)
-    a55 = hydro.lire_masse_ajoutee(ADDED, 5, 5, 0, RHO, ULEN)
-    a44 = hydro.lire_masse_ajoutee(ADDED, 4, 4, 0, RHO, ULEN)
+    # convention WAMIT : période −1 = fréquence NULLE (0 = fréquence infinie)
+    a33 = hydro.lire_masse_ajoutee(ADDED, 3, 3, -1, RHO, ULEN)
+    a55 = hydro.lire_masse_ajoutee(ADDED, 5, 5, -1, RHO, ULEN)
+    a44 = hydro.lire_masse_ajoutee(ADDED, 4, 4, -1, RHO, ULEN)
     K55 = K["K55"] - M * G * zG                      # raideur de gravité ajoutée ; ancrage négligé
     K44 = K["K44"] - M * G * zG
     T = {"heave": hydro.periode_propre(K["K33"], M, a33), "pitch": hydro.periode_propre(K55, I55, a55),

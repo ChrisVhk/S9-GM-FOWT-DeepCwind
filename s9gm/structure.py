@@ -131,10 +131,10 @@ def scf_ty_flexion_plan(beta, tau, gamma, alpha, theta_deg):
     raise NotImplementedError('trou : équations (8) et (9) du tableau B-1 de DNV-RP-C203, annexe B (édition et page à citer) ; commencez par `verifier_domaine_efthymiou`.')
 
 
-def scf_ty_flexion_hors_plan(beta, tau, gamma, alpha, theta_deg, *, edition):
+def scf_ty_flexion_hors_plan(beta, tau, gamma, alpha, theta_deg):
     """SCF des joints T/Y en flexion hors plan : selles de la corde et de l'entretoise (équations 10 et 11, correction
-    de corde courte). L'équation 10 diffère entre les éditions : `edition` ∈ {"2010", "2020"} obligatoire."""
-    raise NotImplementedError("trou : équations (10) et (11) du tableau B-1 de DNV-RP-C203, annexe B ; lisez-les dans l'édition que vous citez (elles diffèrent entre éditions) ; commencez par `verifier_domaine_efthymiou`.")
+    de corde courte). Équations identiques dans les éditions 2010 et 2019/2020 (lu sur pages rendues)."""
+    raise NotImplementedError("trou : équations (10) et (11) du tableau B-1 de DNV-RP-C203, annexe B ; citez l'édition lue ; commencez par `verifier_domaine_efthymiou`.")
 
 
 def effort_axial_entretoise(delta_F, phi_deg, *, partage):

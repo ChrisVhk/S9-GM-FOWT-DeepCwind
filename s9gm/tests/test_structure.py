@@ -119,9 +119,3 @@ def test_scf_domaine_courant_superieur_a_un():
         assert v > 1.0
     for v in st.scf_ty_flexion_plan(0.5, 0.5, 15.0, 12.0, 90.0).values():
         assert v > 1.0
-
-
-@trou
-def test_scf_hors_plan_exige_l_edition():
-    with pytest.raises(TypeError):
-        st.scf_ty_flexion_hors_plan(0.5, 0.5, 15.0, 12.0, 90.0)

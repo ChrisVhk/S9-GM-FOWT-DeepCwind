@@ -281,7 +281,7 @@ def lire_hst(chemin, rho, g=9.80665, ulen=1.0):
 
 
 def lire_masse_ajoutee(chemin, i, j, periode, rho, ulen=1.0):
-    """Masse ajoutée A_ij d'un `.1` WAMIT à la période `periode` (0 : fréquence nulle, −1 : infinie),
+    """Masse ajoutée A_ij d'un `.1` WAMIT à la période `periode` (convention WAMIT : −1 = fréquence nulle, 0 = fréquence infinie),
     redimensionnée par ρ L^(3 + [i>3] + [j>3]). Échoue si la période n'est pas dans le fichier."""
     for ligne in Path(chemin).read_text().splitlines():
         p = ligne.split()
