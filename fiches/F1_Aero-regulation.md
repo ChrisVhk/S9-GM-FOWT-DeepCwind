@@ -57,7 +57,7 @@ Les trois suivantes :
 ![Les cinq régions : allure de Ω, β et P](figures/FIG-DMO-S9-005.png)
 
 *Figure 2 — Allure de `Ω`, `β` et `P` par région (régions de largeur égale, pas à l'échelle : aucune
-vitesse de vent n'est lisible, à vous de calculer les frontières).*
+vitesse de vent n'est lisible, à vous de calculer les frontières). La version à l'échelle, sur axes physiques, ne montre que les données publiées de Jonkman 2009 : la zone entre le cut-in et le vent nominal y reste volontairement vide, c'est l'objet de Q0.1.*
 
 ![Les modules d'OpenFAST](figures/FIG-DMO-S9-003.png)
 
@@ -113,9 +113,25 @@ rotor à vitesse imposée, calage 0°, `V` = 8 m/s au moyeu, cisaillement 0,11 c
 d'un calcul de Jonkman : outil (AeroDyn v15 de ce dépôt), cisaillement 0,11, ombre de la tour, inclinaison de l'arbre et
 précône du modèle du dépôt ; pales rigides ici. On utilise donc la courbe du dépôt, plate entre `λ = 7` et `λ = 8`, pour rester cohérent avec les cas F01 et F02. Interpolation : linéaire ou spline, au choix (écart sans effet sur le résultat à 1 % près).
 
-| λ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 7,55 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Cp | 0,0058 | 0,0243 | 0,1054 | 0,2229 | 0,3645 | 0,4468 | 0,4660 | 0,4644 | 0,4610 | 0,4431 | 0,4144 | 0,3779 | 0,3334 | 0,2850 | 0,2306 | 0,1651 | 0,0880 |
+| λ | Cp |
+|---:|---:|
+| 1 | 0,006 |
+| 2 | 0,024 |
+| 3 | 0,105 |
+| 4 | 0,223 |
+| 5 | 0,364 |
+| 6 | 0,447 |
+| 7 | 0,466 |
+| 7,55 | 0,464 |
+| 8 | 0,461 |
+| 9 | 0,443 |
+| 10 | 0,414 |
+| 11 | 0,378 |
+| 12 | 0,333 |
+| 13 | 0,285 |
+| 14 | 0,231 |
+| 15 | 0,165 |
+| 16 | 0,088 |
 
 ![Cp(λ) de la NREL 5 MW à calage nul, calculée sur le modèle du dépôt](figures/FIG-DMO-S9-008.png)
 
