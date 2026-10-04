@@ -5,8 +5,8 @@ Fonctions : `dispersion`, `longueur_onde`, `vitesse_orbitale`, `kc`, `d_sur_lamb
 `lire_masse_ajoutee`. Toutes les grandeurs sont en unités SI ; l'axe `z` est vertical vers le haut, origine à la
 surface libre au repos (SWL) ; la masse ajoutée est un **paramètre explicite** de `periode_propre`.
 
-Une seule source par grandeur : la géométrie vient de `data/geometrie_deepcwind.md` (lue par `lire_membres`),
-jamais d'une saisie à la main.
+Une seule source par grandeur : la géométrie (coordonnées et diamètres) vient de `data/geometrie_deepcwind.md`, lue
+par `lire_membres`, jamais d'une saisie à la main.
 
 ### Bloc Théorie
 
@@ -76,8 +76,8 @@ jamais d'une saisie à la main.
    dans la sortie d'un code de diffraction (`.1`, normalisée par `ρ L³` ou `ρ L⁵`). **Domaine de validité** : la
    masse ajoutée dépend de la fréquence ; la valeur à fréquence nulle n'est qu'une approximation à la résonance ;
    les lignes d'ancrage, ignorées ici, ajoutent de la raideur en dérive et peu en pilonnement.
-3. **Ordre de grandeur attendu** — la méthode : pour le pilonnement, la masse ajoutée est du même ordre que la
-   masse du flotteur ; la période en découle ; comparer à la période de houle dominante du site avant d'accepter le
+3. **Ordre de grandeur attendu** — la méthode : pour le pilonnement, comparer la masse ajoutée lue à la masse du
+   flotteur, en déduire la période, et la comparer à la période de houle dominante du site avant d'accepter le
    dimensionnement.
 4. **Ce que le modèle ne permet pas de conclure** — que la période calculée soit la période mesurée : l'amortissement,
    le couplage entre degrés de liberté et l'ancrage la déplacent.
@@ -114,8 +114,23 @@ RACINE = Path(__file__).resolve().parents[1]
 GEOMETRIE_MD = RACINE / "data" / "geometrie_deepcwind.md"
 TOLERANCE_NEWTON = 1e-13       # résidu relatif |ω² − g k tanh(kh)| / ω² visé
 NITER_MAX = 60
-# diamètre selon le préfixe de l'abréviation du membre (Tab. 3-10 de geometrie_deepcwind.md)
-DIAMETRES = {"MC": 6.5, "UC": 12.0, "BC": 24.0, "DU": 1.6, "DL": 1.6, "YU": 1.6, "YL": 1.6, "CB": 1.6}
+# libellés (Tab. 3-10 de geometrie_deepcwind.md) dont on lit le diamètre ; préfixes d'abréviation des membres associés
+_LIBELLES_DIAMETRES = {"Diamètre de la colonne centrale": ("MC",), "Diamètre des colonnes déportées": ("UC",),
+                       "Diamètre des colonnes de base": ("BC",),
+                       "Diamètre des pontons et croisillons": ("DU", "DL", "YU", "YL", "CB")}
+
+
+def _lire_diametres(texte):
+    d = {}
+    for ligne in texte.splitlines():
+        for lib, prefs in _LIBELLES_DIAMETRES.items():
+            if ligne.startswith(f"| {lib}"):
+                v = float(re.search(r"\|\s*([\d,]+)\s*m\s*\|?\s*$", ligne)[1].replace(",", "."))
+                d.update({p: v for p in prefs})
+    manquants = {p for ps in _LIBELLES_DIAMETRES.values() for p in ps} - set(d)
+    if manquants:
+        raise ValueError(f"diamètres introuvables dans la géométrie : {sorted(manquants)}")
+    return d
 
 
 # ---------------------------------------------------------------- houle -------------------------------------
@@ -168,7 +183,9 @@ def lire_membres(chemin=GEOMETRIE_MD):
     """Membres du tableau « Membres et coordonnées » de `geometrie_deepcwind.md` : liste de dicts `nom`,
     `abrev`, `p1`, `p2`, `diametre` (virgule décimale française lue). Une seule source de géométrie."""
     membres, dans = [], False
-    for ligne in Path(chemin).read_text(encoding="utf-8").splitlines():
+    texte = Path(chemin).read_text(encoding="utf-8")
+    DIAMETRES = _lire_diametres(texte)                              # lus dans le même fichier : une seule source
+    for ligne in texte.splitlines():
         if ligne.startswith("## Membres et coordonnées"):
             dans = True
             continue

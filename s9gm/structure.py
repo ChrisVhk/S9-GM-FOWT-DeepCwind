@@ -23,7 +23,8 @@ que vous utilisez, et se citent avec leur tableau et leur page.
    les deux et vérifier qu'ils s'accordent à quelques pour cent près avant de se fier au résultat exact.
 4. **Ce que le modèle ne permet pas de conclure** — que la contrainte nominale soit celle qui gouverne la fatigue :
    le raccord soudé la multiplie par un facteur de concentration (voir les fonctions `scf_*`).
-5. **Renvois** — fiche F8 (fatigue et ancrage) ; fiche F1 (efforts du rotor) ; `ENONCE.md`, phase 5.
+5. **Renvois** — fiche F1 (efforts du rotor sur la tour) ; `ENONCE.md`, phase 5 (aucune fiche ne traite encore la
+   résistance des tubes).
 
 ### Bloc Théorie
 
@@ -39,7 +40,8 @@ que vous utilisez, et se citent avec leur tableau et leur page.
    directions ne doit rien donner (pression hydrostatique).
 4. **Ce que le modèle ne permet pas de conclure** — que le matériau résiste : le voilement, la fatigue et la rupture
    fragile ne sont pas dans le critère.
-5. **Renvois** — fiche F8 (efforts, fatigue) ; DNV-OS-J101 (critère de plastification) ; `ENONCE.md`, phase 5.
+5. **Renvois** — fiche F1 (efforts du rotor) ; le critère de plastification de la norme de dimensionnement que vous
+   appliquez (à citer avec son édition) ; `ENONCE.md`, phase 5.
 
 ### Bloc Théorie
 
@@ -55,14 +57,14 @@ concentration de contrainte d'un joint tubulaire.*
    de corde courte s'applique aux valeurs en selle. **Domaine de validité** : chaque paramètre est borné ; hors de ce
    domaine, la formule n'a plus de justification et la fonction **refuse** le calcul par une erreur qui nomme le
    paramètre et la borne.
-3. **Ordre de grandeur attendu** — la méthode : vérifier d'abord que les cinq rapports adimensionnels sont dans leurs
-   bornes (à calculer avant tout), puis comparer les SCF des quatre points de contrôle : ils sont du même ordre de
+3. **Ordre de grandeur attendu** — la méthode : vérifier d'abord que les quatre rapports adimensionnels et l'angle sont dans
+   leurs bornes (à calculer avant tout), puis comparer les SCF des quatre points de contrôle : ils sont du même ordre de
    grandeur et supérieurs à un.
 4. **Ce que le modèle ne permet pas de conclure** — que le SCF d'un joint réel soit celui de la formule : joints
    multi-entretoises, soudures non standard et chargements combinés relèvent d'autres méthodes (annexe de la norme,
    éléments finis).
-5. **Renvois** — fiche F8 (fatigue) ; DNV-RP-C203, annexe B (tableaux de SCF et domaine de validité : tableau,
-   page et édition à citer) ; `ENONCE.md`, phase 5.
+5. **Renvois** — fiche F4 (efforts de houle sur les colonnes, d'où viennent les charges d'un joint) ; DNV-RP-C203,
+   annexe B (tableaux de SCF et domaine de validité : tableau, page et édition à citer) ; `ENONCE.md`, phase 5.
 
 ### Bloc Théorie
 
@@ -78,7 +80,8 @@ concentration de contrainte d'un joint tubulaire.*
    entretoise perpendiculaire n'en reprend aucune.
 4. **Ce que le modèle ne permet pas de conclure** — la répartition réelle entre entretoises : il faut un modèle
    d'éléments finis ou un calcul de portique.
-5. **Renvois** — fiche F4 (forces de Morison sur les colonnes) ; fiche F8 (dimensionnement) ; `ENONCE.md`, phase 5.
+5. **Renvois** — fiche F4 (forces de Morison sur les colonnes) ; `ENONCE.md`, phase 5. **Cette formule n'est pas tirée
+   d'une source des documents du dépôt : c'est une estimation de statique, donnée comme hypothèse à justifier.**
 """
 from __future__ import annotations
 
@@ -111,7 +114,7 @@ def contrainte_flexion(M, D, I):
 
 def von_mises(sx, sy=0.0, sz=0.0, txy=0.0, tyz=0.0, tzx=0.0):
     """Contrainte équivalente de Von Mises d'un état de contrainte 3-D."""
-    raise NotImplementedError('trou : `σ_eq = √(½[(σx−σy)² + (σy−σz)² + (σz−σx)²] + 3(τxy² + τyz² + τzx²))` (voir le bloc Théorie).')
+    raise NotImplementedError('trou : voir la rubrique « Modèle » du bloc Théorie de ce module.')
 
 
 def verifier_domaine_efthymiou(beta, tau, gamma, alpha, theta_deg, zeta=None):

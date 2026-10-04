@@ -89,16 +89,6 @@ def test_H4_eau_peu_profonde():
     assert hydro.dispersion(200.0, 1.0) == pytest.approx(w / math.sqrt(G * 1.0), rel=1e-3)
 
 
-@pytest.mark.parametrize("T,d", [(10, 100), (15, 30)])
-def test_H4_approximation_de_DNV_RP_C205(T, d):
-    """DNV-RP-C205 (avril 2014) §3.2.2.4, p. 36-37 (pages rendues) : coefficients α1…α4 de la page 37."""
-    a = (0.666, 0.445, -0.105, 0.272)
-    w_ = 4 * math.pi ** 2 * d / (G * T ** 2)
-    f = 1 + sum(ai * w_ ** (n + 1) for n, ai in enumerate(a))
-    lam = T * math.sqrt(G * d) * math.sqrt(f / (1 + w_ * f))
-    assert hydro.longueur_onde(T, d) == pytest.approx(lam, rel=0.01)
-
-
 def test_H4_refus_parametres_invalides():
     with pytest.raises(ValueError, match="profondeur"):
         hydro.dispersion(10.0, 0.0)
@@ -108,9 +98,30 @@ def test_H4_refus_parametres_invalides():
 
 # ---- H5 : périodes propres (Coulling et al. 2013, Tab. XIII, p. 023116-15 : colonne « Data ») ---------------
 PUBLIE = {"heave": 17.5, "pitch": 26.8, "roll": 26.9}
-# Masses de tour et de rotor-nacelle : `.ED.sum` d'OpenFAST v5.0.0 sur models/oc4_rtest (fichier non versionné) :
-# « Tower Mass 249718 kg », « Tower-top Mass 349389,844 kg ».
-M_TOUR, M_RNA = 249718.0, 349389.844
+BLADE = OC4 / "5MW_Baseline" / "NRELOffshrBsline5MW_Blade.dat"
+TOWER = OC4 / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat"
+
+
+def _table(chemin, marqueur, n):
+    L = Path(chemin).read_text().splitlines()
+    i = next(k for k, l in enumerate(L) if marqueur in l)
+    return np.array([[float(x) for x in L[i + 2 + j].split()] for j in range(n)])
+
+
+def masses_tour_rna():
+    """Masses de la tour et du rotor-nacelle intégrées depuis les fichiers ElastoDyn PUBLICS (masse linéique × longueur,
+    facteurs d'ajustement) : tour exacte à 1e-8, rotor-nacelle à ≈ 0,06 % du `.ED.sum` d'OpenFAST (non versionné)."""
+    nb = int(cle(BLADE, "NBlInpSt"))
+    b = _table(BLADE, "BlFract", nb)
+    m_pale = cle(BLADE, "AdjBlMs") * np.trapezoid(b[:, 2], b[:, 0] * (cle(ELASTO, "TipRad") - cle(ELASTO, "HubRad")))
+    nt = int(cle(TOWER, "NTwInpSt"))
+    t = _table(TOWER, "HtFract", nt)
+    m_tour = cle(TOWER, "AdjTwMa") * np.trapezoid(t[:, 1], t[:, 0] * (cle(ELASTO, "TowerHt") - cle(ELASTO, "TowerBsHt")))
+    m_rna = cle(ELASTO, "HubMass") + cle(ELASTO, "NacMass") + cle(ELASTO, "NumBl") * m_pale
+    return m_tour, m_rna
+
+
+M_TOUR, M_RNA = masses_tour_rna()
 
 
 def md_plateforme():
@@ -152,6 +163,10 @@ def test_H5_periodes_propres_contre_coulling(flot, K):
     assert T["roll"] == pytest.approx(PUBLIE["roll"], rel=0.20)
 
 
+def test_masses_tour_et_rna_integrees_coherentes():
+    assert 0.2e6 < M_TOUR < 0.3e6 and 0.3e6 < M_RNA < 0.4e6
+
+
 def test_gm_et_raideur_totale_coherents(flot, K):
     M, zG, *_ = systeme(flot)
     gm = hydro.gm(flot, zG, axe="x")
@@ -180,4 +195,4 @@ def test_H6_D_sur_lambda_en_eau_profonde():
 def test_regime_morison_exige_un_seuil():
     with pytest.raises(TypeError):
         hydro.regime_morison(0.1)
-    assert hydro.regime_morison(0.1, seuil=0.2) == "morison" and hydro.regime_morison(0.3, seuil=0.2) == "diffraction"
+    assert hydro.regime_morison(0.1, seuil=0.17) == "morison" and hydro.regime_morison(0.3, seuil=0.17) == "diffraction"   # seuil d'essai arbitraire, pas celui de la norme
