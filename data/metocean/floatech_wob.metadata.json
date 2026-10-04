@@ -1,0 +1,26 @@
+{
+  "source": "An Open-Source Procedure to Derive Met-Ocean Conditions for the Simulation of Floating Wind Turbines",
+  "auteur": "Francesco Papi (University of Florence), avec Yves Perignon (CNRS, Ecole Centrale de Nantes) et Alessandro Bianchini",
+  "doi": "10.5281/zenodo.10102696",
+  "url": "https://zenodo.org/records/10102696",
+  "version": "1.1.0",
+  "date_publication": "2023-11-10",
+  "licence": "CC-BY-4.0",
+  "financement": "FLOATECH (European Commission, Grant 101007142)",
+  "article": "Papi F., Perignon Y., Bianchini A., J. Phys.: Conf. Ser. 2385 (2022) 012117, https://zenodo.org/record/7547997",
+  "site": "West of Barra (Scotland), 56.886 N, 7.948 W",
+  "donnees_origine": "ERA5 reanalysis, ~31 km grid",
+  "periode": "1979-01 a 2000-12 (22 ans) selon l'article",
+  "hauteur_vent_m": 100,
+  "fichier_tableau": "floatech_wob_pdf_array.bin",
+  "forme": [18, 7, 9, 6],
+  "axes": ["U100 (m/s)", "Hs (m)", "Tp (s)", "desalignement vent/houle (deg)"],
+  "bornes": {
+    "U100": [0, 36, 18],
+    "Hs": [0, 14, 7],
+    "Tp": [3, 21, 9],
+    "desalignement": [-180, 180, 6]
+  },
+  "nature": "probabilites (somme = 1 sur le tableau complet)",
+  "modifications": "aucune : fichiers renommes seulement ; les noms d'origine sont '04 arrayvalues_pdfWoB.bin', '04 arraydescription_pdfWoB.json', '04 README_pdfWoB.txt', '03 MetOcean_WoB_ERA5.xlsx'"
+}

@@ -89,3 +89,8 @@ Vérifié le 05/10 (INV-18), pas présumé :
 - **`data/iea15_wisdem_performance.csv`** : tableau « Rotor Performance » du classeur
   `Documentation/IEA-15-240-RWT_tabular.xlsx` du même dépôt (50 lignes ; données idéalisées de WISDEM,
   état stationnaire — pas la même source que les courbes OpenFAST + ROSCO de la Fig. 3-1 du rapport).
+
+## `data/metocean/`
+Origine : Papi F. (Université de Florence), avec Perignon Y. (CNRS, École Centrale de Nantes) et Bianchini A., *An Open-Source Procedure to Derive Met-Ocean Conditions for the Simulation of Floating Wind Turbines*, Zenodo, version 1.1.0, 10/11/2023, [DOI 10.5281/zenodo.10102696](https://doi.org/10.5281/zenodo.10102696) ; article associé : Papi F., Perignon Y., Bianchini A., *Derivation of Met-Ocean Conditions for the Simulation of Floating Wind Turbines: a European case study*, J. Phys.: Conf. Ser. 2385 (2022) 012117. **Licence CC BY 4.0** : attribution ci-dessus, fichiers **renommés seulement, non modifiés**. Financement : projet FLOATECH (Commission européenne, subvention 101007142).
+Contenu : tableau 4-D de probabilités (vent à **100 m** × Hs × Tp × désalignement vent/houle) du site West of Barra (56,886 °N, 7,948 °O), réanalyse **ERA5** (maille ≈ 31 km), **janvier 1979 – décembre 2000** selon l'article ; classeur des états de mer (NSS, SSS, ESS, DLC 1.2). Métadonnées dans `data/metocean/floatech_wob.metadata.json`.
+Vérifié : la somme du tableau vaut 1 (lecture du fichier) ; la période et la hauteur de vent sont celles de l'article, **pas relues dans les fichiers ERA5** (non fournis). Le classeur porte 252 lignes de données DLC 1.2 contre 251 classes annoncées dans l'article (écart non expliqué).
