@@ -14,7 +14,8 @@
    **valeur**. Une figure n'est livrée (`enregistrer`) que si le registre
    `s9gm/REGISTRE_FIGURES.md` porte, pour son identifiant, la réponse écrite à « qu'apprend cette
    image à un étudiant qui ne connaît pas le cas ? ». **Domaine de validité** : séries issues de
-   `s9gm.lire` (colonne `Time` en secondes) ; au plus six canaux par figure.
+   `s9gm.lire` (colonne `Time` en secondes) ; au plus six canaux par figure. `tracer_courbes` :
+   comparaisons y(x) (main / calcul / valeurs publiées), la forme du trait distinguant les sources.
 3. **Ordre de grandeur attendu** — la méthode : avant de tracer, écrire la question à laquelle le
    graphique répond ; après, vérifier qu'un lecteur qui n'a jamais vu le cas peut la retrouver sans
    la légende orale. Pour un graphique qui répond à une question notée, demander
@@ -112,6 +113,42 @@ def tracer_statistiques(stats_par_cas, canal, *, modele, etat, masquer_ordonnees
         if titre:
             ax.set_title(titre, fontsize=10.5)
         _habiller(fig, [ax], provenance, masquer_ordonnees)
+    return fig
+
+
+_STYLES = {"ligne": dict(ls="-", lw=1.4), "tirets": dict(ls="--", lw=1.4),
+           "points": dict(ls="none", marker="o", ms=4.5)}
+
+
+def tracer_courbes(panneaux, *, xlabel, cas, modele, etat, titre=None, masquer_ordonnees=False):
+    """Courbes y(x) superposées (un panneau par grandeur, abscisse partagée) : la comparaison
+    main / OpenFAST / valeurs publiées du notebook de la séance 0b, hors série temporelle.
+
+    `panneaux` : liste de dicts `{"ylabel": str, "courbes": [{"label", "x", "y", "style"}, ...],
+    "reperes": {nom: x}}` ; `style` ∈ {"ligne", "tirets", "points"} (la forme, pas seulement la
+    couleur, distingue les courbes) ; `reperes` (optionnel) trace un trait vertical nommé.
+    Provenance obligatoire, charte seule, au plus six panneaux. Renvoie la figure."""
+    provenance = ligne_provenance(cas, modele, etat)
+    if not 1 <= len(panneaux) <= 6:
+        raise ValueError("entre 1 et 6 panneaux par figure")
+    with plt.rc_context(_RC):
+        fig, axes = plt.subplots(len(panneaux), 1, sharex=True, squeeze=False,
+                                 figsize=(8, 2.6 * len(panneaux) + 0.9))
+        axes = axes[:, 0]
+        for ax, pan in zip(axes, panneaux):
+            for i, c in enumerate(pan["courbes"]):
+                ax.plot(c["x"], c["y"], color=COULEURS_DONNEES[i % 3], label=c["label"],
+                        **_STYLES[c.get("style", "ligne")])
+            for nom, x in pan.get("reperes", {}).items():
+                ax.axvline(x, color=CHARTE["GREY"], lw=0.8, ls=":")
+                ax.text(x, 1.0, nom, transform=ax.get_xaxis_transform(), fontsize=7.5,
+                        color=CHARTE["GREY"], ha="center", va="bottom")
+            ax.set_ylabel(pan["ylabel"])
+            ax.legend(fontsize=8, frameon=False)
+        axes[-1].set_xlabel(xlabel)
+        if titre:
+            axes[0].set_title(titre, fontsize=10.5, pad=14)
+        _habiller(fig, axes, provenance, masquer_ordonnees)
     return fig
 
 

@@ -103,3 +103,22 @@ def test_figure_avec_porte_pedagogique_livree(df, tmp_path):
 def test_registre_sans_valeur_reponse():
     texte = visu.REGISTRE.read_text(encoding="utf-8")
     assert not re.search(r"\b\d+[.,]?\d*\s*(tr/min|rad/s|m/s|kN|MN|kW|MW)\b", texte)
+
+
+def test_courbes_aucune_couleur_hors_charte_et_provenance():
+    x = np.linspace(3, 25, 40)
+    fig = visu.tracer_courbes(
+        [{"ylabel": "Y", "courbes": [{"label": "main", "x": x, "y": x, "style": "ligne"},
+                                      {"label": "calcul", "x": x[::5], "y": x[::5] * 1.02, "style": "points"},
+                                      {"label": "publié", "x": x, "y": x * 0.98, "style": "tirets"}],
+          "reperes": {"repère": 10.0}}],
+        xlabel="x", titre="essai", **PROV)
+    n, ex = _hors_charte(fig)
+    assert n == 0, f"{n} couleurs hors charte, par ex. {ex}"
+    assert visu.ligne_provenance(**PROV) in [t.get_text() for t in fig.texts]
+
+
+def test_courbes_refuse_provenance_vide():
+    with pytest.raises(ValueError):
+        visu.tracer_courbes([{"ylabel": "Y", "courbes": [{"label": "a", "x": [0, 1], "y": [0, 1]}]}],
+                            xlabel="x", cas="", modele="m", etat="e")

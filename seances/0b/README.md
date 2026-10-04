@@ -112,6 +112,21 @@ cd tutorials/lheea/05_FOWT/1_Configuration
 openfast main.fst
 ```
 
+## Carnet — « la théorie par les chiffres » (IEA 15 MW, environ 30 min, à faire quand vous voulez)
+
+[`theorie_par_les_chiffres.ipynb`](theorie_par_les_chiffres.ipynb) reprend les formules de la fiche F1
+(coefficient de puissance, régions du contrôleur, puissance, poussée, calage, fréquences 1P et 3P) et les calcule
+**à la main sur une autre machine que celle de votre rendu** (l'IEA 15 MW sur monopieu), puis les confronte à un
+calcul OpenFAST lu par `s9gm.lire` et aux valeurs publiées (Gaertner et al. 2020). Il vous demande de modifier un
+paramètre et de voir l'effet, et de **justifier chaque écart** plutôt que de le constater. Il ne répond à aucune
+question de votre rendu R0. Les six calculs OpenFAST sont livrés (`data/`) ; pour les relancer vous-même :
+`bash scripts/installer_rosco.sh` puis `LANCER = True` dans le carnet (environ un quart d'heure, 6 cœurs).
+
+```bash
+micromamba activate s9gm-fowt
+jupyter notebook seances/0b/theorie_par_les_chiffres.ipynb
+```
+
 ## 4. Vos propres cas — F03-F05 et D00-D05 (à construire)
 
 Les cas 01-05 du tutoriel LHEEA (ci-dessus et séance 0a) montrent la progression complète fixe →
@@ -190,6 +205,12 @@ cherchera ce fichier et s'arrêtera. Pour les cas flottants (D00-D05),
 même démarche avec votre `modele_flottant/` ; en revanche `cas` ne sait éditer que `main.fst` et
 `config_inflow.dat` : la houle (`SeaState.dat`) est un fichier de plus à ajouter à `FICHIERS` dans
 `s9gm/cas.py` — c'est un exercice de lecture du code, avec ses tests dans `s9gm/tests/`.
+
+**TurbSim depuis la LCT (option).** Si le modèle contient un `turbsim.inp`, des colonnes `turbsim.Clé` (`turbsim.RandSeed1`,
+`turbsim.URef`, `turbsim.IECturbc`…) éditent une copie de ce fichier dans `Wind/<cas>.inp` et `cas` lance TurbSim :
+`Wind/<cas>.bts` est produit, et `inflow.WindType` / `inflow.FileName_BTS` y sont pointés (sauf si votre LCT les
+fixe). Fixez `turbsim.RandSeed1` : même graine, même champ — c'est ce qui rend un cas reproductible. À vous de
+choisir (et de justifier) l'intensité de turbulence.
 
 **En séance : `TMax = 300 s`** pour les cas turbulents (F03-F05, D03-D05) — tient dans les 3 h.
 **En option, à la maison : `TMax = 600 s`**, à relancer et comparer au cas de 300 s (Q0.6, si
