@@ -206,11 +206,40 @@ même démarche avec votre `modele_flottant/` ; en revanche `cas` ne sait édite
 `config_inflow.dat` : la houle (`SeaState.dat`) est un fichier de plus à ajouter à `FICHIERS` dans
 `s9gm/cas.py` — c'est un exercice de lecture du code, avec ses tests dans `s9gm/tests/`.
 
-**TurbSim depuis la LCT (option).** Si le modèle contient un `turbsim.inp`, des colonnes `turbsim.Clé` (`turbsim.RandSeed1`,
-`turbsim.URef`, `turbsim.IECturbc`…) éditent une copie de ce fichier dans `Wind/<cas>.inp` et `cas` lance TurbSim :
-`Wind/<cas>.bts` est produit, et `inflow.WindType` / `inflow.FileName_BTS` y sont pointés (sauf si votre LCT les
-fixe). Fixez `turbsim.RandSeed1` : même graine, même champ — c'est ce qui rend un cas reproductible. À vous de
-choisir (et de justifier) l'intensité de turbulence.
+### Le champ de vent : gabarit TurbSim à trous
+
+[`turbsim_gabarit.inp`](turbsim_gabarit.inp) est un fichier d'entrée TurbSim **complet, sauf trois champs**
+marqués `A_COMPLETER` que **vous choisissez et justifiez** : `URef` (vent moyen), `IECturbc` (classe ou intensité
+de turbulence IEC) et `RandSeed1` (graine). Copiez-le dans `tutorials/prise_en_main/modele_fixe/turbsim.inp`,
+puis remplissez les trous soit dans le fichier, soit par des colonnes `turbsim.Clé` de votre LCT :
+
+```
+cas,fst.TMax,turbsim.URef,turbsim.IECturbc,turbsim.RandSeed1
+F03,300,<votre choix>,<votre choix>,<votre graine>
+```
+
+`cas` écrit alors `Wind/<cas>.inp`, lance TurbSim, produit `Wind/<cas>.bts` et pointe `inflow.WindType` /
+`inflow.FileName_BTS` dessus (sauf si votre LCT les fixe). Un trou laissé vide est **refusé**, avec le nom du champ.
+
+#### Bloc Théorie
+
+1. **Question physique** — Un vent turbulent est une réalisation aléatoire : quelles grandeurs décident de ce
+   que vous simulez, et lesquelles sont des choix de modélisation à justifier plutôt que des données ?
+2. **Modèle** — TurbSim synthétise un champ de vitesse 3D à partir d'un spectre (modèle de Kaimal selon IEC),
+   d'une cohérence spatiale, d'un profil moyen en loi de puissance, et d'une graine : mêmes entrées, mêmes
+   graines, **même champ**, octet pour octet. Le vent moyen fixe le point de fonctionnement ; la classe de
+   turbulence fixe l'écart-type ; la graine fixe *quelle* réalisation. **Domaine de validité** : turbulence
+   atmosphérique neutre type IEC, au-dessus d'une surface rugueuse ; pas de rafale extrême, pas de jet de
+   basse couche.
+3. **Ordre de grandeur attendu** — la méthode : avant de lancer, écrire le vent moyen et l'intensité de
+   turbulence que vous attendez à la hauteur du moyeu, puis les relire sur le champ produit (moyenne et
+   écart-type de la composante longitudinale au moyeu). Si votre estimation et le champ diffèrent, c'est
+   l'estimation ou le fichier d'entrée qui est faux.
+4. **Ce que le modèle ne permet pas de conclure** — qu'une seule graine représente la variabilité du site :
+   deux graines donnent deux champs différents, et leurs charges diffèrent ; une graine ne dit rien de
+   l'extrême de dimensionnement.
+5. **Renvois** — fiche F1 (vent moyen et régions de régulation) ; IEC 61400-1 (modèle de turbulence normale) ;
+   `s9gm/cas.py` (génération du champ depuis la LCT), `s9gm/tests/test_cas.py` (mêmes entrées, même champ).
 
 **En séance : `TMax = 300 s`** pour les cas turbulents (F03-F05, D03-D05) — tient dans les 3 h.
 **En option, à la maison : `TMax = 600 s`**, à relancer et comparer au cas de 300 s (Q0.6, si

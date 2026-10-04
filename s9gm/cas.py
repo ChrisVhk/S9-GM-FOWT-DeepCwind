@@ -159,6 +159,11 @@ def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True):
     lignes, fin = _lire_lignes(modele_inp)
     for cle, val in modifs.items():
         remplacer_valeur(lignes, cle, val)
+    # gabarit à trous (seances/0b/turbsim_gabarit.inp) : un champ resté « A_COMPLETER » est refusé, nommé
+    trous = [m[1] for l in lignes if (m := re.match(r"^\s*A_COMPLETER\s+(\w+)", l))]
+    if trous:
+        raise ValueError(f"{modele_inp.name} : champ(s) à compléter, à choisir et justifier : "
+                         f"{', '.join(trous)} (colonnes turbsim.<Clé> de la LCT, ou éditez le fichier)")
     entree = vent / f"{dossier.name}.inp"
     _ecrire_lignes(entree, lignes, fin)
     _controler_relecture_turbsim(entree, modifs)
