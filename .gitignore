@@ -40,3 +40,6 @@ ateliers_prives/
 # Dossiers de test pytest (s9gm), supprimes apres chaque test.
 _pytest_*/
 .pytest_cache/
+
+# Calculs du notebook 0b (cases/iea15_stationnaire/_calculs) : sorties regenerables
+cases/iea15_stationnaire/_calculs/

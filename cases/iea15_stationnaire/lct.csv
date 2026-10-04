@@ -1,0 +1,7 @@
+cas,fst.TMax,fst.DT_Out,fst.CompSeaSt,fst.CompHydro,inflow.HWindSpeed
+V05_0,600,0.1,0,0,5
+V07_0,600,0.1,0,0,7
+V09_0,600,0.1,0,0,9
+V10_59,600,0.1,0,0,10.59
+V13_0,600,0.1,0,0,13
+V18_0,600,0.1,0,0,18

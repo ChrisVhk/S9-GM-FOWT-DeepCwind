@@ -47,3 +47,34 @@ ici telles quelles pour que les étudiants y accèdent sans avoir accès à ce d
 Les fichiers `DISCON.F90` / `DISCON_OC3Hywind.F90` (sources du contrôleur) proviennent du dépôt
 OpenFAST (tag v5.0.0, licence Apache 2.0). **Aucun binaire compilé (`.so`) n'est suivi dans ce
 dépôt** : chacun compile le sien avec `scripts/build_discon.sh` (voir le README).
+
+## `models/iea15_monopile/`
+Origine : [IEAWindTask37/IEA-15-240-RWT](https://github.com/IEAWindTask37/IEA-15-240-RWT), commit
+`e4993d63de10f165389534461dd544006750fe60` (ReleaseNotes v1.1.6), dossiers `OpenFAST/IEA-15-240-RWT/`
+(éléments communs) et `OpenFAST/IEA-15-240-RWT-Monopile/` (variante monopieu, contrôleur ROSCO). Modèle de
+référence décrit dans Gaertner et al. 2020, NREL/TP-5000-75698. **Licence Apache 2.0** (`LICENSE` copié dans
+le dossier). Variante monopieu retenue (pas le flotteur) : modèle de **la machine seule**, sans houle ni
+hydrodynamique dans les cas de la séance 0b : le monopieu, lui, reste élastique (SubDyn actif, `CompSub = 1`) mais sans masse ajoutée ni charge hydrodynamique.
+
+Vérifié le 05/10 (INV-18), pas présumé :
+- **Compatibilité OpenFAST v5.0.0 — NON : les fichiers amont ne se lisent pas tels quels.** Ils suivent
+  l'ancien format d'entrée ; OpenFAST v5.0.0 s'arrête sur chacun des cinq fichiers suivants. Dérivation,
+  champs **ajoutés** (valeur neutre ; repérés par `[s9gm: …]` dans ElastoDyn, AeroDyn, SubDyn et ServoDyn, mais pas dans `main.fst`) ou **retirés** :
+  `main.fst` (reconstruit sur la trame v5 : `ModCoupling`, `RhoInf`, `ConvTol`, `MaxConvIter`, `NRotors`,
+  `CompSoil`, `MirrorRotor`, `SoilFile` ; valeurs amont conservées ; renommé en `main.fst`, `InflowFile`
+  pointe vers `config_inflow.dat` copie de `IEA-15-240-RWT_InflowFile.dat`, `BDBldFile` = `"unused"`) ;
+  `ElastoDyn` (+ `PitchDOF`, `PtfmRefxt/yt`, `PBrIner(1-3)`, `BlPIner(1-3)`, `BldFile1-3` → `BldFile(1-3)`) ;
+  `AeroDyn15` (− `Buoyancy`, + colonnes `TwrCp`, `TwrCa` du tableau de tour, `BldNd_BladesOut` = 0 pour
+  alléger les sorties) ; `SubDyn` (+ bloc `INITIAL RIGID-BODY POSITION`, + colonne `TPID` des joints
+  d'interface) ; `ServoDyn` (+ `PitNeut`, `PitSpr`, `PitDamp` ×3, `DLL_FileName` → `../ServoData/libdiscon.so`).
+  Aucun paramètre physique n'est modifié (masses, raideurs, profils, polaires, gains) : seul le **format** — affirmé ici, **non contrôlé** par un diff conservé contre le commit amont.
+  `ROSCO` : `LoggingLevel` 1 → 0 (pas de fichier `.dbg`) ; ces modifications de `DISCON.IN`, `DLL_FileName` (ServoDyn) et `BldNd_BladesOut` (AeroDyn) ne sont pas repérées dans les fichiers. Fichiers non repris : BeamDyn (`CompElast = 1`),
+  `HydroDyn`/`SeaState`/`SubDyn` conservés mais désactivés dans les cas (`CompSeaSt = CompHydro = 0`).
+- **ROSCO** : `DISCON.IN` écrit par l'amont avec ROSCO 2.10.1 ; bibliothèque `libdiscon.so` fournie par le
+  paquet **conda-forge `rosco` 2.10.6** (Apache-2.0), installé par `scripts/installer_rosco.sh` dans un
+  environnement séparé (`s9gm-rosco`, `--no-deps`) puis copié dans `models/iea15_monopile/ServoData/`
+  (jamais suivi : `*.so`). Écart 2.10.1 → 2.10.6 **non élucidé** : rien ne prouve qu'il soit sans effet sur Ω(V)
+  au pour-cent ; la comparaison à Gaertner 2020 du carnet 0b en est le seul garde-fou.
+- **`data/iea15_wisdem_performance.csv`** : tableau « Rotor Performance » du classeur
+  `Documentation/IEA-15-240-RWT_tabular.xlsx` du même dépôt (50 lignes ; données idéalisées de WISDEM,
+  état stationnaire — pas la même source que les courbes OpenFAST + ROSCO de la Fig. 3-1 du rapport).
