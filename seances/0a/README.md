@@ -142,7 +142,7 @@ Doit se terminer par `OpenFAST terminated normally.`.
 
 Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
 puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
-vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1½, 2, 2½, 3), **avec l'`Ω` attendu dans chaque région** :
+vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1, 1½, 2, 2½, 3), **avec l'`Ω` attendu dans chaque région** :
 loi `λ*·V/R` en Region 2, **équilibre des couples** en Region 1½ (la fiche F1 donne la loi de la rampe du
 contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). C'est la question Q0.1 du rendu R0.
 

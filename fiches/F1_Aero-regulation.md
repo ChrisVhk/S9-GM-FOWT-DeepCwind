@@ -43,7 +43,7 @@ du modèle les met toutes en œuvre. Elles se repèrent à la **vitesse de rotat
   que **vous calculerez** (voir « Méthode »).
 Les trois suivantes :
 - **Region 2** (de `VS_Rgn2Sp` jusqu'au régime nominal) : pitch fixe (souvent proche de 0°), le couple
-  générateur est piloté pour maintenir `λ` à sa valeur optimale `λ*` (celle qui maximise `Cp`) —
+  générateur est piloté pour maintenir `λ` à sa valeur de consigne `λ*` (la valeur de conception de Jonkman, 7,55, pour laquelle le gain `VS_Rgn2K` est réglé ; la courbe `Cp(λ)` est plate au voisinage de son maximum) —
   la vitesse de rotation suit donc le vent : `Ω(V) = λ*·V/R`.
 - **Region 3** (au-dessus du vent nominal) : la puissance est plafonnée à la puissance nominale,
   `Ω` est maintenue constante (régime nominal), c'est le **pitch** qui augmente pour réduire `Cp`
@@ -109,8 +109,9 @@ Côté rotor, le couple équivalent est `N · Q_gen(N·Ω)`.
 **2. La courbe `Cp(λ)` de la NREL 5 MW à calage nul.** Jonkman 2009 ne donne que le point maximal (`Cp = 0,482`
 à `λ = 7,55`, §7.2 p.19). La courbe ci-dessous est **calculée sur le modèle du dépôt** (OpenFAST v5.0.0, AeroDyn v15,
 rotor à vitesse imposée, calage 0°, `V` = 8 m/s au moyeu, cisaillement 0,11 comme F01 ; script
-`outils/courbe_cp_nrel5mw.py`, données `data/cp_lambda_nrel5mw_pitch0.csv`). Son maximum (≈ 0,47 vers `λ = 7`) diffère
-de quelques pour cent du point de Jonkman : on utilise la courbe du dépôt pour rester cohérent avec les cas F01 et F02.
+`outils/courbe_cp_nrel5mw.py`, données `data/cp_lambda_nrel5mw_pitch0.csv`). Son maximum (≈ 0,47 vers `λ = 7`) est inférieur de 3 à 4 % au point de Jonkman. Variables qui diffèrent
+d'un calcul de Jonkman : outil (AeroDyn v15 de ce dépôt), cisaillement 0,11, ombre de la tour, inclinaison de l'arbre et
+précône du modèle du dépôt ; pales rigides ici. On utilise donc la courbe du dépôt, plate entre `λ = 7` et `λ = 8`, pour rester cohérent avec les cas F01 et F02. Interpolation : linéaire ou spline, au choix (écart sans effet sur le résultat à 1 % près).
 
 | λ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 7,55 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -232,9 +233,9 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
   DBEMT (`Wake_Mod=2`)** — le modèle dynamique du sillage n'est pas actif. En vent turbulent ou
   en régime transitoire rapide (échelon de F02), la réponse aérodynamique instantanée peut
   différer d'un calcul DBEMT ou d'une mesure réelle (cf `tutorials/prise_en_main/README.md`).
-- Les coefficients `Cp`/`Ct` utilisés ici sont des ordres de grandeur usuels pour ce type de
-  machine, **pas des valeurs tirées d'une table `Cp(λ,β)` du modèle** — une vérification plus
-  fine nécessiterait d'extraire cette table (sortie `RtAeroCp`/`RtAeroCt` d'AeroDyn).
+- Le `Ct ≈ 0,8` de l'estimation de poussée est un ordre de grandeur usuel, **pas une valeur tirée d'une table
+  `Ct(λ,β)` du modèle** (sortie `RtAeroCt` d'AeroDyn). La courbe `Cp(λ)` à calage nul, elle, est calculée sur le
+  modèle du dépôt (section « Region 1½ ») ; seul le calage 0° est couvert, pas `Cp(λ, β)` complète.
 
 ## Pièges
 
