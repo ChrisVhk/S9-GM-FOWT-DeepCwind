@@ -67,7 +67,7 @@ Vérifié le 05/10 (INV-18), pas présumé :
   `AeroDyn15` (− `Buoyancy`, + colonnes `TwrCp`, `TwrCa` du tableau de tour, `BldNd_BladesOut` = 0 pour
   alléger les sorties) ; `SubDyn` (+ bloc `INITIAL RIGID-BODY POSITION`, + colonne `TPID` des joints
   d'interface) ; `ServoDyn` (+ `PitNeut`, `PitSpr`, `PitDamp` ×3, `DLL_FileName` → `../ServoData/libdiscon.so`).
-  **Diff contre l'amont** (commit `e4993d6`, `diff -w`, fait le 05/10 ; les fichiers `ElastoDyn_tower`, `HydroDyn`, `SeaState`, `ROSCO.yaml`, `config_inflow.dat` (= `IEA-15-240-RWT_InflowFile.dat`) sont **identiques** à l'amont). Chaque ligne modifiée est classée *format* (clé renommée, ligne ou colonne ajoutée avec une valeur neutre, chemin, option de sortie) ou *physique* (valeur d'un paramètre de la machine changée) :
+  **Diff contre l'amont** (commit `e4993d6`, `diff -w`, fait le 05/10 ; sont **identiques** à l'amont (`diff`) : `ElastoDyn_tower`, `HydroDyn`, `SeaState`, `ROSCO.yaml`, `config_inflow.dat` (= `IEA-15-240-RWT_InflowFile.dat`), `IEA-15-240-RWT_ElastoDyn_blade.dat`, `IEA-15-240-RWT_AeroDyn15_blade.dat`, `Cp_Ct_Cq.IEA15MW.txt` et tout `Airfoils/`. La sortie des `diff` n'est pas versionnée : la preuve se rejoue contre le commit amont). Chaque ligne modifiée est classée *format* (clé renommée, ligne ou colonne ajoutée avec une valeur neutre, chemin, option de sortie) ou *physique* (valeur d'un paramètre de la machine changée) :
 
 | Fichier | Lignes modifiées | Classe |
 |---|---|---|
@@ -79,7 +79,7 @@ Vérifié le 05/10 (INV-18), pas présumé :
 | `DISCON.IN` | `LoggingLevel` 1 → 0 | option de **sortie** |
 
 **Bilan : aucune ligne *physique*** (masses, raideurs, profils, polaires, gains, consignes inchangés). Réserves honnêtes : (1) le diff prouve ce qui a été écrit, pas que OpenFAST v5.0.0 *interprète* chaque valeur neutre ajoutée comme l'ancien comportement (valeurs 0 / `False` alignées sur le tutoriel LHEEA migré et sur la logique « terme absent », sans lecture de la documentation v5 ligne à ligne) ; (2) `TwrCp`, `TwrCa`, `PitNeut/Spr/Damp` : usage dans cette configuration non vérifié. Rien de cela n'explique par ailleurs l'écart de Cp du notebook, qui n'est pas attribué.
-  `ROSCO` : `LoggingLevel` 1 → 0 (pas de fichier `.dbg`) ; ces modifications de `DISCON.IN`, `DLL_FileName` (ServoDyn) et `BldNd_BladesOut` (AeroDyn) ne sont pas repérées dans les fichiers. Fichiers non repris : BeamDyn (`CompElast = 1`),
+  `ROSCO` : `LoggingLevel` 1 → 0 (pas de fichier `.dbg`) . Fichiers non repris : BeamDyn (`CompElast = 1`),
   `HydroDyn`/`SeaState`/`SubDyn` conservés mais désactivés dans les cas (`CompSeaSt = CompHydro = 0`).
 - **ROSCO** : `DISCON.IN` écrit par l'amont avec ROSCO 2.10.1 ; bibliothèque `libdiscon.so` fournie par le
   paquet **conda-forge `rosco` 2.10.6** (Apache-2.0), installé par `scripts/installer_rosco.sh` dans un
