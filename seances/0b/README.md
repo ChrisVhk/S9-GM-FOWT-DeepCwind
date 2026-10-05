@@ -269,7 +269,7 @@ sait calculer ces raideurs depuis la géométrie : l'outil ne remplace pas votre
 calcul à la main sur les colonnes seules donne une première réponse ; la confrontation au module et au fichier `.hst` du
 modèle vous montre un écart. Cet écart n'est ni une faute ni un bruit : c'est de l'information, à attribuer à ce que
 vous avez laissé de côté (un membre, une hypothèse, un terme). Même démarche pour les périodes propres, où ce qui est
-négligé (masse ajoutée, ancrage) pèse davantage. Le module n'est utile que si vous savez prédire ce qu'il va dire.
+négligé pèse davantage : à vous de le chiffrer, terme par terme, avant de l'invoquer. Le module n'est utile que si vous savez prédire ce qu'il va dire.
 
 ## Rendu R0 (suite)
 
