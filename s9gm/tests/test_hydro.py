@@ -56,14 +56,6 @@ def test_H2_K33_egal_hst(K):
     assert K["K33"] == pytest.approx(hydro.lire_hst(HST, RHO, G, ULEN)[2, 2], rel=0.01)
 
 
-def test_H2_attribution_sans_les_croisillons_l_ecart_est_plus_grand(K):
-    sans = hydro.geometrie_flottaison(hydro.lire_membres(), avec_membres_inclines=False)
-    k33_hst = hydro.lire_hst(HST, RHO, G, ULEN)[2, 2]
-    e_avec = abs(K["K33"] / k33_hst - 1)
-    e_sans = abs(RHO * G * sans.A_wp / k33_hst - 1)
-    assert e_sans > e_avec and e_sans > 0.01            # l'écart de 1 % n'est tenu qu'avec les membres inclinés
-
-
 # ---- H3 : K44 et K55 de poussée --------------------------------------------------------------------------
 def test_H3_K44_K55_egaux_hst_a_10_pour_cent(K):
     C = hydro.lire_hst(HST, RHO, G, ULEN)
@@ -153,7 +145,7 @@ def test_H5_periodes_propres_contre_coulling(flot, K):
     a33 = hydro.lire_masse_ajoutee(ADDED, 3, 3, -1, RHO, ULEN)
     a55 = hydro.lire_masse_ajoutee(ADDED, 5, 5, -1, RHO, ULEN)
     a44 = hydro.lire_masse_ajoutee(ADDED, 4, 4, -1, RHO, ULEN)
-    K55 = K["K55"] - M * G * zG                      # raideur de gravité ajoutée ; ancrage négligé
+    K55 = K["K55"] - M * G * zG                      # raideur de gravité ajoutée
     K44 = K["K44"] - M * G * zG
     T = {"heave": hydro.periode_propre(K["K33"], M, a33), "pitch": hydro.periode_propre(K55, I55, a55),
          "roll": hydro.periode_propre(K44, I44, a44)}

@@ -40,12 +40,12 @@ par `lire_membres`, jamais d'une saisie à la main.
    mouvements autour de la flottaison au repos ; la raideur de gravité du poids du système n'y est pas incluse (elle
    se rajoute : voir `gm`) ; les extrémités inclinées des membres coupées par le plan horizontal sont négligées.
 3. **Ordre de grandeur attendu** — la méthode : le volume immergé calculé doit redonner la poussée du poids du
-   système ; `K33` doit se comparer à l'aire de flottaison des seules colonnes, puis à celle qui inclut les membres
-   inclinés qui coupent le plan ; `K44` et `K55` sont des différences de deux grands termes — leur erreur relative
-   est bien plus grande que celle de `K33`.
-4. **Ce que le modèle ne permet pas de conclure** — que le maillage d'un code de diffraction (facettes) donne
-   exactement la même aire que le cylindre idéal, ni que les raideurs hydrostatiques seules donnent la période
-   propre : il faut le poids et la masse ajoutée.
+   système ; chaque raideur se compare à un calcul indépendant (le fichier `.hst`), et tout écart se **chiffre** puis
+   s'**attribue** terme par terme avant d'être expliqué ; `K44` et `K55` sont des différences de deux grands termes —
+   leur erreur relative est bien plus grande que celle de `K33`.
+4. **Ce que le modèle ne permet pas de conclure** — que la géométrie idéalisée (cylindres) soit celle qu'un autre
+   code a utilisée, ni que les raideurs hydrostatiques seules donnent la période propre : il faut le poids et la masse
+   ajoutée.
 5. **Renvois** — fiche F3 (hydrostatique) ; `data/geometrie_deepcwind.md` (membres) ; fichiers `.hst` du modèle
    (raideurs adimensionnelles, mise à l'échelle par `ρ g L^n`).
 
@@ -61,8 +61,8 @@ par `lire_membres`, jamais d'une saisie à la main.
    formule donne une raideur et non un `GM`.
 3. **Ordre de grandeur attendu** — la méthode : repérer le terme stabilisant (inertie de la flottaison) et le
    terme déstabilisant (centre de gravité au-dessus du centre de poussée) et vérifier leur signe avant tout calcul.
-4. **Ce que le modèle ne permet pas de conclure** — que la stabilité statique suffise : poussée du vent sur le rotor,
-   ancrage et dynamique la modifient.
+4. **Ce que le modèle ne permet pas de conclure** — que la stabilité statique suffise : poussée du vent sur le rotor
+   et dynamique la modifient.
 5. **Renvois** — fiche F3 (hydrostatique) ; fiche F1 (poussée du rotor) ; `ENONCE.md`, phase 0, séance 0b.
 
 ### Bloc Théorie
@@ -75,12 +75,12 @@ par `lire_membres`, jamais d'une saisie à la main.
    masse (ou inertie) **ajoutée** de l'eau entraînée, `K` raideur totale du degré de liberté. La masse ajoutée se lit
    dans la sortie d'un code de diffraction (`.1`, normalisée par `ρ L³` ou `ρ L⁵`). **Domaine de validité** : la
    masse ajoutée dépend de la fréquence ; la valeur à fréquence nulle n'est qu'une approximation à la résonance ;
-   les lignes d'ancrage, ignorées ici, ajoutent de la raideur en dérive et peu en pilonnement.
+   le modèle ne contient que la raideur donnée, la masse et la masse ajoutée : tout autre terme est absent.
 3. **Ordre de grandeur attendu** — la méthode : pour le pilonnement, comparer la masse ajoutée lue à la masse du
    flotteur, en déduire la période, et la comparer à la période de houle dominante du site avant d'accepter le
    dimensionnement.
 4. **Ce que le modèle ne permet pas de conclure** — que la période calculée soit la période mesurée : l'amortissement,
-   le couplage entre degrés de liberté et l'ancrage la déplacent.
+   le couplage entre degrés de liberté et les termes absents du modèle la déplacent.
 5. **Renvois** — fiche F5 (hydrodynamique potentielle, masse ajoutée) ; fiche F3 (hydrostatique) ;
    `seances/0b/README.md` (modèle flottant).
 
@@ -221,7 +221,7 @@ class Flottaison:
 
 def geometrie_flottaison(membres, *, avec_membres_inclines=True):
     """Volume immergé, centre de poussée et propriétés de la section à la flottaison (SWL, z = 0) de cylindres.
-    `avec_membres_inclines=False` ignore la section des membres inclinés qui coupent la SWL (essai d'attribution)."""
+    `avec_membres_inclines=False` ignore la section des membres inclinés qui coupent la SWL."""
     V = Vz = A = Ax = Ay = Ix = Iy = 0.0
     for m in membres:
         p1, p2, D = m["p1"], m["p2"], m["diametre"]
