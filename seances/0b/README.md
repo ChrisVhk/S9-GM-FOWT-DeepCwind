@@ -202,9 +202,9 @@ print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<durée à �
 À retenir : le modèle partagé a pour vent par défaut une rampe lue dans `Wind/ramp_wind.dat`, chemin
 relatif au dossier du cas (que `cas` ne copie pas) ; un cas qui ne précise pas `inflow.WindType`
 cherchera ce fichier et s'arrêtera. Pour les cas flottants (D00-D05),
-même démarche avec votre `modele_flottant/` ; en revanche `cas` ne sait éditer que `main.fst` et
-`config_inflow.dat` : la houle (`SeaState.dat`) est un fichier de plus à ajouter à `FICHIERS` dans
-`s9gm/cas.py` — c'est un exercice de lecture du code, avec ses tests dans `s9gm/tests/`.
+même démarche avec votre `modele_flottant/` ; `cas` édite `main.fst`, `config_inflow.dat`, l'état de mer
+(`seastate.Clé`, copie locale de `SeaState.dat`) et l'entrée TurbSim (`turbsim.Clé`) ; ses tests
+(`s9gm/tests/test_cas_flottant.py`) comparent chaque fichier généré à un fichier fait à la main.
 
 ### Le champ de vent : gabarit TurbSim
 

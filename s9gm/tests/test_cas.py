@@ -78,6 +78,15 @@ def test_regenerer_un_cas_supprime_ses_anciennes_sorties(pref):
     assert not (d / "main.outb").exists() and not (d / "run.log").exists()
 
 
+def _meme_champ(a, b):
+    """Même champ de vent ? L'en-tête d'un .bts porte la date et l'heure de génération (à la minute) : on compare le
+    CHAMP lu (`u`), pas les octets."""
+    import numpy as np
+    from openfast_toolbox.io import TurbSimFile
+    ua, ub = TurbSimFile(str(a))["u"], TurbSimFile(str(b))["u"]
+    return ua.shape == ub.shape and bool(np.array_equal(ua, ub))
+
+
 # ---- TurbSim branché dans `cas` --------------------------------------------------
 import re
 import shutil
@@ -147,7 +156,7 @@ def test_turbsim_meme_graine_meme_champ_que_a_la_main(tmp_path, pref, modele_tur
     main.mkdir()
     shutil.copy(dossier / "Wind" / f"{pref}_F03.inp", main / "x.inp")
     subprocess.run(["turbsim", "x.inp"], cwd=main, check=True, capture_output=True)
-    assert (main / "x.bts").read_bytes() == genere
+    assert _meme_champ(main / "x.bts", (dossier / "Wind" / f"{pref}_F03.bts"))
     (autre,) = cas.generer_serie(_lct_turbsim(tmp_path, pref, graine="999"), modele_turbsim, PRISE_EN_MAIN)
     assert (autre / "Wind" / f"{pref}_F03.bts").read_bytes() != genere
 
@@ -212,4 +221,4 @@ def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_
     main.mkdir()
     (main / "x.inp").write_text(texte, encoding="utf-8")
     subprocess.run(["turbsim", "x.inp"], cwd=main, check=True, capture_output=True)
-    assert (main / "x.bts").read_bytes() == genere
+    assert _meme_champ(main / "x.bts", (dossier / "Wind" / f"{pref}_G.bts"))

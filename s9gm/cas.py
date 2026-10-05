@@ -19,7 +19,10 @@
    Un préfixe de plus, `turbsim.Clé`, édite de la même façon une copie de `turbsim.inp` du modèle
    (graine, vitesse de référence, intensité de turbulence…) et lance TurbSim : le champ `.bts` du cas est
    produit dans `Wind/<cas>.bts` et `inflow.WindType`/`inflow.FileName_BTS` y sont pointés, sauf si la
-   LCT les fixe elle-même. TurbSim est déterministe : même graine, même entrée → même `.bts`.
+   LCT les fixe elle-même. TurbSim est déterministe : même graine, même entrée → même `.bts`. Le préfixe
+   `seastate.Clé` édite de même une copie locale de `SeaState.dat` (hauteur significative, période de pic,
+   graine de la houle…) et pointe `SeaStFile` dessus ; l'entrée TurbSim peut aussi être l'unique `*.inp` du
+   dossier `Wind/` du modèle.
 3. **Ordre de grandeur attendu** — la méthode : un cas que vous fabriquez à la main (F01 du
    tutoriel) doit être reproduit *à l'identique* (comparaison `diff`) par une ligne de LCT. Si la
    machine et les sorties ne diffèrent d'aucune ligne, le générateur ne fait que ce que vous lui
@@ -53,12 +56,13 @@ CLES_FICHIERS_PARTAGES = ("EDFile", "AeroFile", "ServoFile", "SeaStFile", "Hydro
                           "MooringFile")
 FICHIERS = {"fst": "main.fst", "inflow": "config_inflow.dat"}
 TURBSIM = "turbsim"   # préfixe de colonne : édite `turbsim.inp` du modèle, voir `generer_vent`
+SEASTATE = "seastate"  # préfixe de colonne : édite `SeaState.dat` du modèle (état de mer de chaque cas)
 _COMMENTAIRE_MIGRE = re.compile(r"\s*\[migre[^\]]*\]\s*$")
 
 
 def lire_lct(chemin_csv):
     """Lit une LCT au format CSV (séparateur « , » ou « ; »). Colonne `cas` obligatoire ; les autres
-    colonnes sont `fichier.Clé` avec fichier ∈ {fst, inflow, turbsim}. Renvoie une liste de dicts.
+    colonnes sont `fichier.Clé` avec fichier ∈ {fst, inflow, turbsim, seastate}. Renvoie une liste de dicts.
 
     Un tableur s'exporte en CSV (« enregistrer sous… ») : on évite ainsi une dépendance de plus."""
     with open(chemin_csv, encoding="utf-8-sig", newline="") as f:
@@ -72,9 +76,9 @@ def lire_lct(chemin_csv):
     if len(set(noms)) != len(noms):
         raise ValueError("noms de cas en double dans la LCT")
     for col in lignes[0]:
-        if col != "cas" and col.split(".", 1)[0] not in (*FICHIERS, TURBSIM):
+        if col != "cas" and col.split(".", 1)[0] not in (*FICHIERS, TURBSIM, SEASTATE):
             raise ValueError(f"colonne « {col} » : le préfixe doit être l'un de "
-                             f"{sorted((*FICHIERS, TURBSIM))}")
+                             f"{sorted((*FICHIERS, TURBSIM, SEASTATE))}")
     return [{k.strip(): v.strip() for k, v in l.items()} for l in lignes]
 
 
@@ -142,6 +146,12 @@ def _controler_relecture(chemin, attendu):
             raise AssertionError(f"{chemin} : relu {cle} = {f[cle]!r}, demandé {valeur!r}")
 
 
+def _fichier_modele(modele, cle):
+    """Fichier du modèle désigné par la clé `cle` de son `main.fst` (chemin relatif au dossier du modèle)."""
+    lignes, _ = _lire_lignes(Path(modele) / FICHIERS["fst"])
+    return Path(modele) / _sans_guillemets(_valeur_de(lignes, cle))
+
+
 def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True):
     """Fabrique `dossier/Wind/<cas>.inp` depuis `modele/turbsim.inp` (clés de `modifs` remplacées, comme
     pour `main.fst`) et, si `executer`, lance TurbSim pour produire `dossier/Wind/<cas>.bts`.
@@ -151,6 +161,10 @@ def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True):
     le même `.bts`. `RandSeed1` est donc à fixer explicitement dans la LCT pour qu'un cas se reproduise."""
     dossier, modele = Path(dossier), Path(modele)
     modele_inp = modele / "turbsim.inp"
+    if not modele_inp.is_file():   # à défaut, l'unique entrée TurbSim du dossier Wind/ du modèle
+        candidats = sorted((modele / "Wind").glob("*.inp")) if (modele / "Wind").is_dir() else []
+        if len(candidats) == 1:
+            modele_inp = candidats[0]
     if not modele_inp.is_file():
         raise FileNotFoundError(f"{modele_inp} : colonnes turbsim.* dans la LCT mais pas de turbsim.inp "
                                 "dans le modèle")
@@ -203,7 +217,7 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
         ancien.unlink(missing_ok=True)
     rel = Path(os.path.relpath(modele.resolve(), dossier.resolve())).as_posix()
 
-    modifs = {fich: {} for fich in (*FICHIERS, TURBSIM)}
+    modifs = {fich: {} for fich in (*FICHIERS, TURBSIM, SEASTATE)}
     for col, val in ligne_lct.items():
         if col == "cas" or val == "":
             continue
@@ -220,6 +234,10 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
         if fich == "fst":
             for cle in CLES_FICHIERS_PARTAGES:
                 valeur = _valeur_de(lignes, cle)
+                if cle == "SeaStFile" and modifs[SEASTATE]:   # l'état de mer est propre au cas : fichier local
+                    remplacer_valeur(lignes, cle, f'"{Path(_sans_guillemets(valeur)).name}"')
+                    journal["chemins_reecrits"].append(cle + " (local)")
+                    continue
                 if _sans_guillemets(valeur) != "unused":
                     remplacer_valeur(lignes, cle, f'"{rel}/{_sans_guillemets(valeur)}"')
                     journal["chemins_reecrits"].append(cle)
@@ -229,6 +247,15 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
                                              "avant": _sans_guillemets(ancien), "apres": val})
         _ecrire_lignes(dossier / nom, lignes, fin)
         _controler_relecture(dossier / nom, modifs[fich])
+    if modifs[SEASTATE]:
+        modele_sea = _fichier_modele(modele, "SeaStFile")
+        lignes, fin = _lire_lignes(modele_sea)
+        for cle, val in modifs[SEASTATE].items():
+            ancien = remplacer_valeur(lignes, cle, val)
+            journal["modifications"].append({"fichier": modele_sea.name, "cle": cle,
+                                             "avant": _sans_guillemets(ancien), "apres": val})
+        _ecrire_lignes(dossier / modele_sea.name, lignes, fin)
+        _controler_relecture(dossier / modele_sea.name, modifs[SEASTATE])
     if modifs[TURBSIM]:
         res = generer_vent(dossier, modele, modifs[TURBSIM], executer=executer_turbsim)
         journal["turbsim"] = {"entree": res["entree"].relative_to(dossier).as_posix(),
