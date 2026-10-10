@@ -5,6 +5,8 @@ simuler une éolienne flottante (NREL 5 MW sur plateforme semi-submersible OC4-D
 **OpenFAST v5.0.0**, du modèle le plus simple (tour seule) jusqu'au modèle complet couplé, avant
 de qualifier sa tenue en fatigue et aux états limites.
 
+Droits : ENSM, publié avec l'accord de l'École.
+
 ## Lundi — séance 0a : commencez ici → [`seances/0a/`](seances/0a/README.md)
 
 L'énoncé complet du projet est dans [`ENONCE.md`](ENONCE.md). L'installation (pas à pas, avec
