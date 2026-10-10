@@ -11,6 +11,8 @@ redirection vers un domaine `nlr.gov` qui n'est PAS le domaine officiel (`nrel.g
 non suivie par prudence. **Texte intégral non lu** ; cette fiche ne porte donc que ce que l'abstract
 et les documents dérivés (OC5 definition, ci-dessous) rapportent explicitement.
 
+> **Mise à jour du 10/10/2026.** Le PDF complet de ce rapport (43 p.) est **disponible sur le poste de l'enseignant** (copie locale, hors dépôt). La mention « inaccessible depuis cette session » ci-dessus décrit l'état du 02-03/10 et n'est plus vraie ; **cette fiche n'a pas été réécrite d'après le PDF** et reste non auditée : le contenu ci-dessous est celui d'avant. Seul le §3.3 (repère et conventions, p. 10) a été relu, pour une fiche d'un autre dépôt.
+
 ## Question posée
 Documenter les spécifications du système flottant semi-submersible (conception DeepCwind) nécessaires
 aux participants du projet OC4 Phase II pour construire des modèles aéro-hydro-servo-élastiques
