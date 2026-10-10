@@ -7,6 +7,8 @@ de qualifier sa tenue en fatigue et aux états limites.
 
 Droits : ENSM, publié avec l'accord de l'École.
 
+Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [models/iea15_monopile/LICENSE](models/iea15_monopile/LICENSE) et [tutorials/lheea/LICENSE](tutorials/lheea/LICENSE) (exceptions, non modifiées).
+
 ## Lundi — séance 0a : commencez ici → [`seances/0a/`](seances/0a/README.md)
 
 L'énoncé complet du projet est dans [`ENONCE.md`](ENONCE.md). L'installation (pas à pas, avec
