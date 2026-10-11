@@ -27,7 +27,8 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    de la série n'est pas dans la liste vérifiée sur `modele_fixe` (`visu.MAILLAGES_VERIFIES` : pales,
    moyeu, nacelle, tour, Morison, surface libre, plans statiques). Avec `N = 1` (défaut), rien n'est
    modifié ni contrôlé. **Domaine de validité** : maillages `.vtp` d'OpenFAST, surfaces (`VTK_type = 1`) ou
-   lignes (`VTK_type = 2`, repli, noms `ED_Tower…`), nommés `<racine>.<maillage>.<NNN>.vtp` ; un seul rotor ; le maillage de
+   lignes (`VTK_type = 2`, repli, noms `ED_Tower…` ; rendus à `N = 1` seulement, ces noms
+   n'étant pas dans la liste vérifiée), nommés `<racine>.<maillage>.<NNN>.vtp` ; un seul rotor ; le maillage de
    tour sert de référence cinématique (son anneau le plus haut).
 3. **Ordre de grandeur attendu** — la méthode : avant de lancer, calculer l'angle que le rotor
    parcourt entre deux images, `Ω / VTK_fps` (Ω en rad/s, lu dans `RotSpeed` du cas ou prévu par
