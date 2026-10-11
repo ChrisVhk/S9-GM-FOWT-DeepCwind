@@ -118,18 +118,6 @@ def pixels_provenance(a):
     return int((((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 200)).sum())
 
 
-def sans_provenance(a):
-    """Copie de l'image où le texte de provenance est recouvert de la couleur de fond (blanc) : on
-    recouvre le rectangle englobant les pixels gris de la bande basse, rien d'autre."""
-    a = np.array(a)
-    h = a.shape[0]
-    bande = a[int(0.93 * h):].astype(int)
-    gris = ((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 255)
-    ys, xs = np.nonzero(gris)
-    a[int(0.93 * h) + ys.min(): int(0.93 * h) + ys.max() + 1, xs.min(): xs.max() + 1] = 255
-    return a
-
-
 def image_rgb(chemin):
     return np.asarray(Image.open(chemin).convert("RGB"))
 
@@ -585,16 +573,30 @@ def test_l_horloge_suit_la_cadence_vtk_pas_la_lecture(tmp_path, monkeypatch):
 @pytest.mark.slow
 @requiert_openfast
 @requiert_rendu
-def test_fa4bis_le_detecteur_de_provenance_refuse_une_image_sans_provenance(rendu_complet):
-    """FA-4bis : sur des images réellement rendues par pvbatch (première, médiane, dernière), le détecteur
-    passe sur l'image d'origine et échoue quand on recouvre la ligne de provenance de la couleur de fond."""
-    _, pngs = rendu_complet
-    for p in (pngs[0], pngs[len(pngs) // 2], pngs[-1]):
-        a = image_rgb(p)
-        avec, sans = pixels_provenance(a), pixels_provenance(sans_provenance(a))
-        print(f"FA-4bis {p.name} : avec provenance {avec} px, sans {sans} px")
-        assert avec > 50, f"{p.name} : l'image d'origine doit passer ({avec} px)"
-        assert not sans > 50, f"{p.name} : image sans provenance acceptée ({sans} px comptés)"
+def test_fa4bis_le_detecteur_de_provenance_refuse_un_rendu_sans_provenance(cas_vtk, tmp_path):
+    """FA-4bis : même scène, même caméra, même pvbatch, mais le texte de provenance est vide
+    (`_rendu_vtk.py --provenance " "`, aucune incrustation) : le détecteur doit échouer sur ces images
+    et passer sur les mêmes images rendues avec leur provenance. Le contrôle ne recouvre rien après coup :
+    c'est le rendu qui diffère, donc ce que le détecteur compte vient bien de la ligne de provenance
+    (et non d'une arête ou d'un objet gris de la scène)."""
+    def rendre_avec(provenance, sortie):
+        cmd = [shutil.which("pvbatch"), str(visu.RENDU_VTK), "--vtk", str(cas_vtk / "vtk"), "--sortie",
+               str(sortie), "--provenance", provenance, "--fps", str(FPS), "--pas", "25"]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr[-400:]
+        return sorted(Path(sortie).glob("image_*.png"))
+
+    avec = rendre_avec(visu.ligne_provenance(**PROV), tmp_path / "avec")
+    sans = rendre_avec(" ", tmp_path / "sans")
+    assert len(avec) == len(sans) >= 3
+    for pa, ps in zip(avec, sans):
+        n_avec, n_sans = pixels_provenance(image_rgb(pa)), pixels_provenance(image_rgb(ps))
+        print(f"FA-4bis {pa.name} : avec provenance {n_avec} px, rendu sans provenance {n_sans} px")
+        assert n_avec > 50, f"{pa.name} : l'image avec provenance doit passer ({n_avec} px)"
+        assert not n_sans > 50, f"{ps.name} : image sans provenance acceptée ({n_sans} px comptés)"
+        # le reste de la scène est identique : seule la bande de provenance change
+        h = image_rgb(pa).shape[0]
+        assert (image_rgb(pa)[: int(0.93 * h)] == image_rgb(ps)[: int(0.93 * h)]).all()
 
 
 # --------------------------------------------------------------------------------------------
