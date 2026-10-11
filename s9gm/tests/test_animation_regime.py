@@ -524,3 +524,20 @@ def test_commande_transmet_la_fenetre_a_animer(monkeypatch):
     assert vus["fenetre"] == (2.5, 7.0)
     visu._commande(["animer", "d", "o.mp4", "--cas", "a", "--modele", "b", "--etat", "c"])
     assert vus["fenetre"] is None
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_repli_lignes_tour_et_nacelle_restent_visibles_sur_fond_blanc(prefixe, tmp_path_factory, tmp_path):
+    """VTK_type = 2 (lignes) : pas de contour de silhouette ; la tour et la nacelle ne doivent donc pas être PALE
+    (invisible sur fond blanc) mais MARINE (relevé de la relecture)."""
+    from .test_animation import _fabriquer
+    d = _fabriquer(f"{prefixe}_ln2b", 2, tmp_path_factory)
+    visu.preparer_animation(d, vtk_type=2, vtk_fps=FPS)
+    assert lancer.lancer_cas(d)["statut"] == "termine"
+    pngs = visu.rendre(d / "vtk", tmp_path / "png", **PROV, pas=5)
+    for p in pngs:
+        a = image_rgb(p)
+        assert _masque(a, PALE_RVB).sum() == 0, "PALE sans contour : invisible sur fond blanc"
+        assert _masque(a, MARINE_RVB).sum() > 30, "tour et nacelle en lignes MARINE attendues"
