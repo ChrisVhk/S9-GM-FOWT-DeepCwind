@@ -21,7 +21,9 @@
    produit dans `Wind/<cas>.bts` et `inflow.WindType`/`inflow.FileName_BTS` y sont pointés, sauf si la
    LCT les fixe elle-même. TurbSim est déterministe : même graine, même entrée → même `.bts`. Le préfixe
    `seastate.Clé` édite de même une copie locale de `SeaState.dat` (hauteur significative, période de pic,
-   graine de la houle…) et pointe `SeaStFile` dessus ; l'entrée TurbSim peut aussi être l'unique `*.inp` du
+   graine de la houle…) et pointe `SeaStFile` dessus ; le préfixe `elastodyn.Clé` fait de même pour une COPIE d'ElastoDyn propre au cas
+   (une condition initiale comme `RotSpeed`) : `EDFile` pointe la copie, dont les chemins de pales et de tour sont
+   réécrits, et le fichier partagé du modèle n'est jamais modifié ; l'entrée TurbSim peut aussi être l'unique `*.inp` du
    dossier `Wind/` du modèle.
 3. **Ordre de grandeur attendu** — la méthode : un cas que vous fabriquez à la main (F01 du
    tutoriel) doit être reproduit *à l'identique* (comparaison `diff`) par une ligne de LCT. Si la
@@ -55,6 +57,9 @@ from . import __version__
 CLES_FICHIERS_PARTAGES = ("EDFile", "AeroFile", "ServoFile", "SeaStFile", "HydroFile", "SubFile",
                           "MooringFile")
 FICHIERS = {"fst": "main.fst", "inflow": "config_inflow.dat"}
+ELASTODYN = "elastodyn"   # préfixe de colonne : édite une COPIE de config_elastodyn.dat propre au cas (conditions initiales)
+# Clés d'ElastoDyn qui désignent un fichier relatif au dossier de ce fichier : réécrites quand on le copie.
+CLES_FICHIERS_ELASTODYN = ("BldFile(1)", "BldFile(2)", "BldFile(3)", "TwrFile")
 TURBSIM = "turbsim"   # préfixe de colonne : édite `turbsim.inp` du modèle, voir `generer_vent`
 SEASTATE = "seastate"  # préfixe de colonne : édite `SeaState.dat` du modèle (état de mer de chaque cas)
 _COMMENTAIRE_MIGRE = re.compile(r"\s*\[migre[^\]]*\]\s*$")
@@ -76,9 +81,9 @@ def lire_lct(chemin_csv):
     if len(set(noms)) != len(noms):
         raise ValueError("noms de cas en double dans la LCT")
     for col in lignes[0]:
-        if col != "cas" and col.split(".", 1)[0] not in (*FICHIERS, TURBSIM, SEASTATE):
+        if col != "cas" and col.split(".", 1)[0] not in (*FICHIERS, TURBSIM, SEASTATE, ELASTODYN):
             raise ValueError(f"colonne « {col} » : le préfixe doit être l'un de "
-                             f"{sorted((*FICHIERS, TURBSIM, SEASTATE))}")
+                             f"{sorted((*FICHIERS, TURBSIM, SEASTATE, ELASTODYN))}")
     return [{k.strip(): v.strip() for k, v in l.items()} for l in lignes]
 
 
@@ -217,7 +222,7 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
         ancien.unlink(missing_ok=True)
     rel = Path(os.path.relpath(modele.resolve(), dossier.resolve())).as_posix()
 
-    modifs = {fich: {} for fich in (*FICHIERS, TURBSIM, SEASTATE)}
+    modifs = {fich: {} for fich in (*FICHIERS, TURBSIM, SEASTATE, ELASTODYN)}
     for col, val in ligne_lct.items():
         if col == "cas" or val == "":
             continue
@@ -235,6 +240,10 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
             for cle in CLES_FICHIERS_PARTAGES:
                 valeur = _valeur_de(lignes, cle)
                 if cle == "SeaStFile" and modifs[SEASTATE]:   # l'état de mer est propre au cas : fichier local
+                    remplacer_valeur(lignes, cle, f'"{Path(_sans_guillemets(valeur)).name}"')
+                    journal["chemins_reecrits"].append(cle + " (local)")
+                    continue
+                if cle == "EDFile" and modifs[ELASTODYN]:   # conditions initiales propres au cas : copie locale
                     remplacer_valeur(lignes, cle, f'"{Path(_sans_guillemets(valeur)).name}"')
                     journal["chemins_reecrits"].append(cle + " (local)")
                     continue
@@ -256,6 +265,24 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
                                              "avant": _sans_guillemets(ancien), "apres": val})
         _ecrire_lignes(dossier / modele_sea.name, lignes, fin)
         _controler_relecture(dossier / modele_sea.name, modifs[SEASTATE])
+    if modifs[ELASTODYN]:
+        modele_ed = _fichier_modele(modele, "EDFile")
+        lignes, fin = _lire_lignes(modele_ed)
+        for cle, val in modifs[ELASTODYN].items():
+            ancien = remplacer_valeur(lignes, cle, val)
+            journal["modifications"].append({"fichier": modele_ed.name, "cle": cle,
+                                             "avant": _sans_guillemets(ancien), "apres": val})
+        for cle in CLES_FICHIERS_ELASTODYN:   # fichiers lus par ElastoDyn : relatifs à SON dossier, qui change
+            try:
+                valeur = _sans_guillemets(_valeur_de(lignes, cle))
+            except KeyError:
+                continue
+            if valeur != "unused":
+                nouveau = Path(os.path.relpath((modele_ed.parent / valeur).resolve(), dossier.resolve())).as_posix()
+                remplacer_valeur(lignes, cle, f'"{nouveau}"')
+                journal["chemins_reecrits"].append(cle)
+        _ecrire_lignes(dossier / modele_ed.name, lignes, fin)
+        _controler_relecture(dossier / modele_ed.name, modifs[ELASTODYN])
     if modifs[TURBSIM]:
         res = generer_vent(dossier, modele, modifs[TURBSIM], executer=executer_turbsim)
         journal["turbsim"] = {"entree": res["entree"].relative_to(dossier).as_posix(),

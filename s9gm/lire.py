@@ -5,7 +5,8 @@
 1. **Question physique** — Un calcul rend des milliers de valeurs par canal. Quelles statistiques
    (moyenne, dispersion, extrêmes) en retenir — et sur quelle partie du signal ? Le début d'une
    simulation n'est pas de la physique : la machine part de conditions initiales arbitraires
-   (rotor à l'arrêt) et met du temps à atteindre son régime.
+   (rotor à l'arrêt) et met du temps à atteindre son régime. `debut_regime` applique un critère explicite
+   (vitesse au nominal, pas stable) pour proposer ce début ; le critère s'écrit avant de regarder la courbe.
 2. **Modèle** — pour un canal échantillonné `y(tᵢ)`, avec `t₀` la durée de transitoire écartée :
    moyenne `ȳ = (1/N) Σ yᵢ`, écart-type `σ = √((1/N) Σ (yᵢ − ȳ)²)` (population, dénominateur N),
    minimum et maximum, calculés sur les `N` points tels que `tᵢ ≥ t₀`. Garder le transitoire
@@ -46,6 +47,26 @@ def lire(chemin):
     if "Time" not in df.columns:
         raise ValueError(f"{chemin} : pas de colonne Time")
     return df, unites
+
+
+def debut_regime(df, *, nominal, tol_rel, stab_pas, duree, canal_vitesse="RotSpeed", canal_pas="BldPitch1"):
+    """Premier instant `t` à partir duquel le régime est établi, selon un critère à écrire AVANT de regarder
+    le calcul : la vitesse est à `nominal` à `tol_rel` près (relatif) **et** le pas varie de moins de
+    `stab_pas` (degrés, amplitude max − min) sur les `duree` secondes qui suivent. Renvoie `t` (s), ou `None`
+    si aucun instant ne convient — y compris quand le calcul est trop court pour couvrir `duree` après `t`.
+    C'est un choix possible de `t_transitoire` pour `statistiques`, ou de début de fenêtre d'animation
+    (`visu.animer(fenetre=...)`) ; il ne dit pas que le régime est « le bon » : il applique le critère donné."""
+    t = df["Time"].to_numpy()
+    v, p = df[canal_vitesse].to_numpy(), df[canal_pas].to_numpy()
+    for i in range(len(t)):
+        if t[i] + duree > t[-1] + 1e-9:
+            return None
+        if abs(v[i] - nominal) > tol_rel * abs(nominal):
+            continue
+        m = (t >= t[i]) & (t <= t[i] + duree)
+        if np.ptp(p[m]) <= stab_pas:
+            return float(t[i])
+    return None
 
 
 def statistiques(df, canaux, *, t_transitoire):

@@ -41,7 +41,7 @@ def test_cle_inconnue_echoue(pref):
 
 def test_prefixe_de_colonne_invalide(tmp_path):
     p = tmp_path / "lct.csv"
-    p.write_text("cas,elastodyn.Foo\nX,1\n", encoding="utf-8")
+    p.write_text("cas,hydrodyn.Foo\nX,1\n", encoding="utf-8")
     with pytest.raises(ValueError, match="préfixe"):
         cas.lire_lct(p)
 
