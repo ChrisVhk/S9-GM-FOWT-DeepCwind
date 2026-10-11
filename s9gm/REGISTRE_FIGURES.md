@@ -12,6 +12,7 @@ Identifiants `FIG:S9GM-VISU-NNN`. Aucune valeur-réponse dans ce registre (dép�
 | FIG:S9GM-VISU-004 | `tracer_series` | Mise en régime de Ω, β, P à vent stationnaire, transitoire teinté (notebook 0b, §5) | sortie OpenFAST lue par `s9gm.lire` ; ligne `cas · modèle · état` incrustée | ✅ livrée |
 | FIG:S9GM-VISU-005 | `tracer_courbes` | Ω, β, P, T en fonction du vent : à la main, publié, OpenFAST (notebook 0b, §5) | §4 du notebook, classeur publié, `s9gm.lire` ; ligne `cas · modèle · état` incrustée | ✅ livrée |
 | FIG:S9GM-VISU-006 | `tracer_courbes` | Spectre d'une sortie OpenFAST avec repères 1P et 3P (notebook 0b, §6) | `s9gm.lire`, FFT du régime établi ; ligne `cas · modèle · état` incrustée | ✅ livrée |
+| FIG:S9GM-VISU-007 | `animer` | Animation d'un cas OpenFAST : rotor, nacelle, tour, plateforme ou sous-structure et surface libre, une image par pas `VTK_fps` ; amplification des déplacements ×1 sauf mention | série VTK d'un cas lancé avec `WrVTK = 2` (`preparer_animation`), rendue par `pvbatch`, montée par `ffmpeg` ; ligne `cas · modèle · état` (et `déplacements ×N` si N ≠ 1) incrustée dans chaque image | 🟡 code livré, exemple dans `tutorials/animer.md` |
 
 ## Portes pédagogiques
 
@@ -47,3 +48,13 @@ pales…) plutôt qu'il ne se constate.
 Que les fréquences 1P et 3P, calculées avec la seule vitesse de rotation, sont bien celles où le calcul complet
 excite la structure : le spectre d'une charge de rotor a des pics aux repères tracés. Une fréquence propre qui
 tomberait sur l'un d'eux serait à craindre ; c'est pourquoi on les calcule avant de dimensionner.
+
+**FIG:S9GM-VISU-007** — *Qu'est-ce que cette animation apprend à un étudiant qui ne connaît pas le cas ?*
+Qu'un calcul de structure est un mouvement d'ensemble avant d'être des courbes : le rotor tourne, la tour
+fléchit à une fréquence propre qui n'est pas celle du rotor, la surface libre passe, et ces mouvements ont
+chacun leur rythme et leur déphasage. L'animation sert à repérer un mouvement incohérent (une pale qui
+traverse la tour, une dérive qui ne se stabilise pas, un rotor qui semble arrêté) avant de lire un canal.
+Elle montre une cinématique calculée, pas une validation : un mouvement vraisemblable ne prouve pas que les
+efforts le soient. Si un facteur d'amplification est écrit sur l'image, les déplacements sont exagérés et
+les proportions fausses ; et le pas entre deux images peut faire paraître lent ou immobile un mouvement
+rapide, c'est pourquoi on calcule d'abord l'angle que le rotor tourne entre deux images.

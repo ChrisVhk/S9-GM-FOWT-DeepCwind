@@ -81,6 +81,30 @@ Pour la séance 0a, allez dans `tutorials/prise_en_main/` et suivez son propre `
 là que se trouvent les cas **F01, F02** (éolienne fixe) demandés pour cette séance — voir aussi
 `seances/0a/README.md` pour le déroulé complet de la séance.
 
+## 5. Animation (facultatif) : ParaView et ffmpeg
+
+Seule fonction de ce dépôt qui sorte de l'environnement `s9gm-fowt` : l'animation d'un calcul
+(`s9gm.visu.animer`, voir `tutorials/animer.md`) appelle deux programmes **du système**, `pvbatch`
+(ParaView) et `ffmpeg`. Rien n'est à installer dans l'environnement Python. Ces deux paquets
+s'installent avec `apt`, donc **avec les droits administrateur** : sur votre machine personnelle,
+ou en demandant à l'administrateur de la salle. Sans eux, tout le reste du dépôt fonctionne.
+
+Ubuntu 24.04 et 26.04 (mêmes commandes ; 24.04 livre ParaView 5.11, 26.04 livre ParaView 6.0) :
+
+```bash
+sudo apt update
+sudo apt install paraview ffmpeg
+```
+
+Vérification (les trois commandes doivent répondre, sans message d'erreur) :
+
+```bash
+pvbatch --version && ffmpeg -version | head -1 && ffprobe -version | head -1
+```
+
+Doit afficher une ligne `paraview version 5.11…` ou `6.0…`, puis deux lignes `ffmpeg version …` et
+`ffprobe version …`. Si l'une manque, `s9gm.visu.animer` s'arrête avec un message qui renvoie ici.
+
 ## En cas d'échec
 
 - **`openfast: command not found`** après `micromamba activate s9gm-fowt` : l'environnement n'a
@@ -91,8 +115,9 @@ là que se trouvent les cas **F01, F02** (éolienne fixe) demandés pour cette s
   `which openfast` : le chemin doit contenir `micromamba/envs/s9gm-fowt`.
 - **Le contrôleur ne charge pas** (« could not be loaded ») : avez-vous bien lancé
   `bash scripts/build_discon.sh` depuis la racine du dépôt, avec l'environnement activé ?
-- **Toute demande de mot de passe / `sudo`** : c'est anormal pour ce dépôt — arrêtez-vous et
-  signalez-le, rien ici ne doit nécessiter les droits administrateur.
+- **Toute demande de mot de passe / `sudo`** : c'est anormal pour les sections 1 à 4 — arrêtez-vous et
+  signalez-le, rien ici ne doit nécessiter les droits administrateur. Seule exception : la
+  section 5 (animation, facultative), qui installe deux paquets du système.
 - Si rien ne fonctionne avant la séance 0b : terminez l'installation en salle C09, et notez
   l'erreur exacte dans votre rendu R0 (point de contrôle de la phase 0).
 
