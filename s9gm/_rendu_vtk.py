@@ -66,7 +66,7 @@ import json
 import os
 import re
 
-from paraview.simple import (CreateView, Delete, Render, SaveScreenshot, Show, Text, XMLPolyDataReader,
+from paraview.simple import (CreateView, Delete, Render, SaveScreenshot, Show, Text, Transform, XMLPolyDataReader,
                              ProgrammableFilter)
 from paraview import servermanager
 
@@ -78,14 +78,16 @@ def _rgb(h):
 
 MARINE, TEALD, TEAL = _rgb("#1A346D"), _rgb("#147A6D"), _rgb("#1A9988")
 GREY, LIGHT, BLANC = _rgb("#595959"), _rgb("#A9D5E2"), _rgb("#FFFFFF")
+PALE = _rgb("#E8F4F2")   # tour et nacelle : « acier peint clair », bordées d'un contour MARINE
 CORAIL = _rgb("#EB5600")   # accent unique de la charte : ici, « maillage non répertorié »
 
 # Maillage → (couleur, rôle). Rôles : "structure" (amplifiée par p0 + N(p - p0)), "rotor" (translaté),
 # "eau" (jamais amplifié). Un maillage inconnu est dessiné en CORAIL, comme « rotor » (GREY est réservé
 # à la provenance et aux crédits : un maillage gris serait pris pour du texte de provenance).
-COULEURS = {"Blade": (TEAL, "rotor"), "Hub": (MARINE, "rotor"), "Nacelle": (TEALD, "rotor"),
-            "Tower": (MARINE, "structure"), "Morison": (TEALD, "structure"),
+COULEURS = {"Blade": (TEAL, "rotor"), "Hub": (MARINE, "rotor"), "Nacelle": (PALE, "rotor"),
+            "Tower": (PALE, "structure"), "Morison": (TEALD, "structure"),
             "Wave": (LIGHT, "eau")}
+EPS_CONTOUR = 0.3   # le contour est une copie agrandie de (1 + EPS) autour de l'axe/du centre, décalée vers l'arrière
 IGNORES = ("Seabed", "StillWater")   # plans statiques sans numéro : hors cadre, inutiles à la lecture
 
 SCRIPT_STRUCTURE = """
@@ -158,6 +160,29 @@ def anneau_haut(fichier):
     return [i for i, v in enumerate(z) if v > zmax - 1e-4]
 
 
+def a_un_contour(nom):
+    """Surfaces de tour et de nacelle (VTK_type 1) ; les maillages de lignes (VTK_type 2) n'ont pas de contour."""
+    return "Surface" in nom and ("Tower" in nom or "Nacelle" in nom)
+
+
+def contour(source, nom, vers_camera):
+    """Silhouette MARINE d'une surface : copie agrandie (tour : radialement autour de son axe vertical, ×(1 + EPS) en
+    x et y ; nacelle : autour de son centre, dans les trois axes), décalée vers l'ARRIÈRE le long de la direction de vue
+    pour passer derrière la surface. Seul le bord agrandi dépasse : c'est un contour de silhouette, sans normales,
+    sans culling ni dépendance au sens des polygones, avec le seul filtre `Transform`. L'épaisseur est
+    proportionnelle à la taille de l'objet."""
+    source.UpdatePipeline()
+    b = source.GetDataInformation().GetBounds()
+    c = [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2]
+    s = [1 + EPS_CONTOUR, 1 + EPS_CONTOUR, 1.0 if "Tower" in nom else 1 + EPS_CONTOUR]   # tour : pas d'allongement vertical
+    recul = 2.5 * EPS_CONTOUR * max(b[1] - b[0], b[3] - b[2]) / 2
+    t = Transform(Input=source)
+    t.Transform = "Transform"
+    t.Transform.Scale = s
+    t.Transform.Translate = [c[i] * (1 - s[i]) - recul * vers_camera[i] for i in range(3)]
+    return t
+
+
 def fixer_eclairage(rep, mode):
     if mode == "plat":
         rep.Ambient, rep.Diffuse, rep.Specular = 1.0, 0.0, 0.0
@@ -196,6 +221,7 @@ def principal():
     ap.add_argument("--resolution", default="1280x720")
     ap.add_argument("--pas", type=int, default=1)
     ap.add_argument("--trace")
+    ap.add_argument("--sans-contour", action="store_true")   # falsificateur FT-4 : sans silhouette MARINE
     ap.add_argument("--k-debut", type=int, default=0)     # fenêtre : indices des images VTK (inclus)
     ap.add_argument("--k-fin", type=int)
     a = ap.parse_args()
@@ -273,6 +299,12 @@ def principal():
             colorer(rep, couleur)
             fixer_eclairage(rep, a.eclairage)
             sources += [lec] + ([amont] if amont is not lec else [])
+            if not a.sans_contour and a_un_contour(nom):
+                coque = contour(amont, nom, [v / n for v in direction])
+                rep_c = Show(coque, vue)
+                colorer(rep_c, MARINE)
+                fixer_eclairage(rep_c, a.eclairage)
+                sources.append(coque)
             if nom == tours[0]:
                 trace["images"].append(k)
                 trace["sommet"].append(lire_points(amont, anneau))
