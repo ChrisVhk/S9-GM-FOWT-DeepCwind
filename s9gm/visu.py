@@ -42,6 +42,7 @@
    existante, qui donne `Ω = λ·V/R` pour prévoir l'angle par image ; voir le bloc de `_rendu_vtk.py`.
 """
 import argparse
+import math
 import re
 import shutil
 import subprocess
@@ -273,13 +274,45 @@ def verifier_amplification(dossier_vtk, amplification):
             "N = 1 reste possible.")
 
 
+def _nb_pas_vtk(dossier_vtk):
+    """Nombre d'images VTK de la série : le plus petit nombre de fichiers numérotés d'un maillage."""
+    n = {}
+    for f in Path(dossier_vtk).glob("*.vtp"):
+        m = re.fullmatch(r"[^.]+\.(.+?)\.\d+\.vtp", f.name)
+        if m and not m[1].endswith("_Reference"):
+            n[m[1]] = n.get(m[1], 0) + 1
+    return min(n.values()) if n else 0
+
+
+def _indices_fenetre(dossier_vtk, fenetre, fps):
+    """`(k_debut, k_fin)` : indices des images VTK dont l'instant `k / fps` est dans `fenetre` = `(t_debut,
+    t_fin)` en secondes de TEMPS DE CALCUL. Refuse une fenêtre mal formée, vide ou hors de la série."""
+    if not (isinstance(fenetre, (tuple, list)) and len(fenetre) == 2):
+        raise ValueError("fenêtre : un couple (t_debut, t_fin) en secondes est attendu")
+    t0, t1 = fenetre
+    if not t1 >= t0:
+        raise ValueError(f"fenêtre ({t0:g}, {t1:g}) : t_fin doit être >= t_debut")
+    if not fps or fps <= 0:
+        raise ValueError("fenêtre : la cadence VTK_fps du cas est nécessaire (argument fps, ou main.fst à côté de vtk/)")
+    nb = _nb_pas_vtk(dossier_vtk)
+    if nb == 0:
+        raise ValueError(f"fenêtre : aucune série VTK dans {dossier_vtk}")
+    k0, k1 = math.ceil(t0 * fps - 1e-9), math.floor(t1 * fps + 1e-9)
+    if t0 < 0 or k1 > nb - 1 or k1 < k0:
+        raise ValueError(f"fenêtre ({t0:g}, {t1:g}) s hors de la série ({0:g} à {(nb - 1) / fps:g} s, "
+                         f"{nb} images à {fps:g} images/s)")
+    return k0, k1
+
+
 def rendre(dossier_vtk, dossier_png, *, cas, modele, etat, amplification=1, eclairage="plat",
-           resolution=(1280, 720), pas=1, trace=None, fps=None):
+           resolution=(1280, 720), pas=1, trace=None, fps=None, fenetre=None):
     """`pvbatch` lit la série VTK de `dossier_vtk` et écrit `dossier_png/image_NNNN.png`, une image par
     pas (`pas > 1` : une image sur `pas`, pour un essai). `cas`, `modele`, `etat` sont obligatoires : la
     ligne de provenance est incrustée dans chaque image. `eclairage` : "plat" (charte) ou "relief"
     (ombrage, réservé au falsificateur de charte). `trace` : chemin d'un JSON qui reçoit la position du
-    sommet de tour réellement dessinée, image par image. `amplification` ≠ 1 : voir
+    sommet de tour réellement dessinée, image par image. `fenetre=(t_debut, t_fin)` (s, temps de calcul) ne rend
+    que les images VTK dans cet intervalle ; absente, toute la série (comportement inchangé). L'horloge
+    incrustée est le temps du calcul, jamais le temps depuis le début de la fenêtre. `amplification` ≠ 1 : voir
     `verifier_amplification`. `fps` : cadence VTK du cas (horloge `t = k/fps`
     incrustée) ; par défaut lue dans le `.fst`. Renvoie la liste des PNG."""
     provenance = ligne_provenance(cas, modele, etat, amplification)
@@ -288,22 +321,24 @@ def rendre(dossier_vtk, dossier_png, *, cas, modele, etat, amplification=1, ecla
     if pas < 1:
         raise ValueError("pas >= 1")
     verifier_amplification(dossier_vtk, amplification)   # avant tout outil, tout dossier, tout rendu
-    pvbatch = _outil("pvbatch", "paraview")
     dossier_vtk, dossier_png = Path(dossier_vtk), Path(dossier_png)
-    if not dossier_vtk.is_dir():
-        raise FileNotFoundError(f"{dossier_vtk} : pas de série VTK (WrVTK = 2 dans le .fst, calcul lancé ?)")
     if fps is None:
         try:
             fps = _fps_du_cas(dossier_vtk.parent)
         except (OSError, KeyError):
             fps = 0.0
+    indices = _indices_fenetre(dossier_vtk, fenetre, fps) if fenetre is not None else None
+    pvbatch = _outil("pvbatch", "paraview")
+    if not dossier_vtk.is_dir():
+        raise FileNotFoundError(f"{dossier_vtk} : pas de série VTK (WrVTK = 2 dans le .fst, calcul lancé ?)")
     dossier_png.mkdir(parents=True, exist_ok=True)
     for ancien in dossier_png.glob("image_*.png"):   # pas d'image d'un rendu précédent dans la série
         ancien.unlink()
     cmd = [pvbatch, str(RENDU_VTK), "--vtk", str(dossier_vtk), "--sortie", str(dossier_png),
            "--provenance", provenance, "--fps", f"{fps:g}", "--amplification", f"{amplification:g}",
            "--eclairage", eclairage, "--resolution", f"{resolution[0]}x{resolution[1]}",
-           "--pas", str(pas)] + (["--trace", str(trace)] if trace else [])
+           "--pas", str(pas)] + (["--trace", str(trace)] if trace else []) \
+          + (["--k-debut", str(indices[0]), "--k-fin", str(indices[1])] if indices else [])
     r = subprocess.run(cmd, capture_output=True, text=True)
     pngs = sorted(dossier_png.glob("image_*.png"))
     if r.returncode != 0 or not pngs:
@@ -351,11 +386,13 @@ def monter(dossier_png, mp4, *, fps, id_figure=ID_ANIMATION, registre=REGISTRE):
 
 
 def animer(*, cas, modele, etat, dossier_cas, sortie, amplification=1, fps=None, eclairage="plat",
-           resolution=(1280, 720), id_figure=ID_ANIMATION, registre=REGISTRE):
+           resolution=(1280, 720), id_figure=ID_ANIMATION, registre=REGISTRE, fenetre=None):
     """Rendre puis monter l'animation d'un cas déjà calculé avec `WrVTK = 2` (voir `preparer_animation`) :
     `dossier_cas/vtk/` → images dans `<sortie sans suffixe>_images/` → mp4 `sortie`, lu à `VTK_fps`
     images par seconde (temps réel, si la cadence VTK est bien `VTK_fps`) sauf `fps` donné, qui ne
-    change que la vitesse de lecture : l'horloge incrustée reste celle du calcul. Les gardes passent avant tout calcul : provenance
+    change que la vitesse de lecture : l'horloge incrustée reste celle du calcul. `fenetre=(t_debut, t_fin)` :
+    n'animer que cet intervalle du temps de calcul (par exemple après le transitoire, voir
+    `lire.debut_regime`). Les gardes passent avant tout calcul : provenance
     complète, porte pédagogique de `id_figure`, outils présents. Renvoie le chemin du mp4."""
     ligne_provenance(cas, modele, etat, amplification)
     _exiger_porte(id_figure, registre)
@@ -366,9 +403,14 @@ def animer(*, cas, modele, etat, dossier_cas, sortie, amplification=1, fps=None,
     fps = fps_vtk if fps is None else fps
     images = sortie.with_name(sortie.stem + "_images")
     pngs = rendre(dossier_cas / "vtk", images, cas=cas, modele=modele, etat=etat,
-                  amplification=amplification, eclairage=eclairage, resolution=resolution, fps=fps_vtk)
-    n_vtk = len([f for f in (dossier_cas / "vtk").glob("*.vtp")
-                 if re.fullmatch(r".+Tower[^.]*\.\d+\.vtp", f.name)])
+                  amplification=amplification, eclairage=eclairage, resolution=resolution, fps=fps_vtk,
+                  fenetre=fenetre)
+    if fenetre is None:
+        n_vtk = len([f for f in (dossier_cas / "vtk").glob("*.vtp")
+                     if re.fullmatch(r".+Tower[^.]*\.\d+\.vtp", f.name)])
+    else:
+        k0, k1 = _indices_fenetre(dossier_cas / "vtk", fenetre, fps_vtk)
+        n_vtk = k1 - k0 + 1
     verifier_images(images, n_vtk)
     return monter(images, sortie, fps=fps, id_figure=id_figure, registre=registre)
 

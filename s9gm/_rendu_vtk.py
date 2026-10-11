@@ -196,6 +196,8 @@ def principal():
     ap.add_argument("--resolution", default="1280x720")
     ap.add_argument("--pas", type=int, default=1)
     ap.add_argument("--trace")
+    ap.add_argument("--k-debut", type=int, default=0)     # fenêtre : indices des images VTK (inclus)
+    ap.add_argument("--k-fin", type=int)
     a = ap.parse_args()
     largeur, hauteur = (int(v) for v in a.resolution.split("x"))
     N = a.amplification
@@ -243,8 +245,9 @@ def principal():
     vue.CameraViewAngle = 30
 
     os.makedirs(a.sortie, exist_ok=True)
-    trace = {"images": [], "sommet": [], "sommet_ref": c0, "amplification": N, "fps": a.fps}
-    for k in range(0, nb, a.pas):
+    trace = {"images": [], "sommet": [], "sommet_ref": c0, "amplification": N, "fps": a.fps, "horloges": []}
+    k_fin = nb - 1 if a.k_fin is None else min(a.k_fin, nb - 1)
+    for k in range(a.k_debut, k_fin + 1, a.pas):
         sources = []
         # déplacement du sommet de tour à l'image k, lu dans le VTK (avant toute amplification)
         rt = XMLPolyDataReader(FileName=[series[tours[0]][k]])
@@ -274,8 +277,10 @@ def principal():
                 trace["images"].append(k)
                 trace["sommet"].append(lire_points(amont, anneau))
         textes = [texte(vue, a.provenance, GREY, 11, "Lower Center")]
+        horloge = f"t = {k / a.fps:.2f} s" if a.fps > 0 else ""   # temps de CALCUL, pas depuis la fenêtre
+        trace["horloges"].append(horloge)
         if a.fps > 0:
-            textes.append(texte(vue, f"t = {k / a.fps:.2f} s", MARINE, 14, "Upper Left Corner"))
+            textes.append(texte(vue, horloge, MARINE, 14, "Upper Left Corner"))
         Render(vue)
         SaveScreenshot(os.path.join(a.sortie, f"image_{k:04d}.png"), vue,
                        ImageResolution=[largeur, hauteur], TransparentBackground=0)
