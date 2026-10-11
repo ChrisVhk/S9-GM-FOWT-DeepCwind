@@ -355,3 +355,134 @@ def test_fa8c_animer_avec_fenetre_de_bout_en_bout(cas_r3, tmp_path):
     s = ffprobe(mp4)
     assert int(s["nb_read_frames"]) == round(2.0 * FPS) + 1
     assert s["codec_name"] == "h264" and s["pix_fmt"] == "yuv420p"
+
+
+# --------------------------------------------------------------------------------------------
+# AVENANT — FT-4 : tour et nacelle en PALE `#E8F4F2` bordées d'un contour MARINE `#1A346D`
+# --------------------------------------------------------------------------------------------
+PALE_RVB, MARINE_RVB, BLANC_RVB, TEAL_RVB = (0xE8, 0xF4, 0xF2), (0x1A, 0x34, 0x6D), (255, 255, 255), (0x1A, 0x99, 0x88)
+
+
+def _masque(a, couleur, tol=0):
+    return (np.abs(np.asarray(a).astype(int) - np.array(couleur)).sum(axis=-1) <= tol)
+
+
+def mesure_contour_tour(a):
+    """Mesure sur une image rendue (éclairage plat, fond blanc) : renvoie un dict.
+
+    Lignes de la tour = lignes dont tous les pixels PALE sont dans la bande horizontale de la tour (mesurée sur
+    le tiers inférieur de l'objet PALE, où il n'y a que le pied de tour) : la nacelle, qui déborde vers l'aval,
+    en est exclue. Pour chaque ligne et chaque côté : « bordé » s'il y a du MARINE (au moins ~60 % de MARINE dans le pixel) dans les 6 pixels hors
+    du dernier pixel PALE ; « masqué » s'il y a du TEAL (pale devant la tour) ; sinon « manquant ». La hauteur
+    visible exclut les côtés masqués."""
+    pale = _masque(a, PALE_RVB)
+    marine, teal = _masque(a, MARINE_RVB, tol=100), _masque(a, TEAL_RVB, tol=30)   # MARINE ou mélange majoritairement MARINE
+    lignes = np.where(pale.any(axis=1))[0]
+    h0, h1 = lignes.min(), lignes.max()
+    bas = pale[h0 + int(0.66 * (h1 - h0)): h1 + 1]
+    cols = np.where(bas.any(axis=0))[0]
+    bx0, bx1 = cols.min() - 2, cols.max() + 2
+    res = {"gauche": [0, 0, 0], "droite": [0, 0, 0], "lignes_tour": 0, "pixels_tour": 0, "pale_tour": 0,
+           "blanc_dans_la_tour": 0}   # [bordé, masqué, manquant]
+    for y in lignes:
+        xs = np.where(pale[y])[0]
+        if xs.min() < bx0 or xs.max() > bx1:
+            continue   # ligne de nacelle
+        xl, xr = xs.min(), xs.max()
+        res["lignes_tour"] += 1
+        interieur = np.asarray(a)[y, xl:xr + 1]
+        res["pixels_tour"] += len(interieur)
+        res["pale_tour"] += int(pale[y, xl:xr + 1].sum())
+        res["blanc_dans_la_tour"] += int((interieur == 255).all(axis=-1).sum())
+        for cote, zone in (("gauche", slice(max(xl - 6, 0), xl)), ("droite", slice(xr + 1, xr + 7))):
+            k = 0 if marine[y, zone].any() else (1 if teal[y, zone].any() else 2)
+            res[cote][k] += 1
+    return res
+
+
+def fraction_bordee(res, cote):
+    bord, masque, manque = res[cote]
+    return bord / (bord + manque) if bord + manque else 0.0, bord + manque
+
+
+def pale_au_contact_du_blanc(a):
+    """Part des pixels PALE (tour et nacelle) qui touchent du blanc pur dans leur voisinage 3×3 : ~0 si un contour
+    sépare l'objet du fond."""
+    pale, blanc = _masque(a, PALE_RVB), _masque(a, BLANC_RVB)
+    voisin = np.zeros_like(blanc)
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            voisin |= np.roll(np.roll(blanc, dy, axis=0), dx, axis=1)
+    return float((pale & voisin).sum() / max(pale.sum(), 1))
+
+
+@pytest.fixture(scope="module")
+def rendus_tour(cas_r3, tmp_path_factory):
+    """Rendu réel de modele_fixe (5 images de la fenêtre, le rotor y tourne : une pale ne masque pas toujours le même
+    côté de la tour), éclairage plat : avec contour (défaut) et sans (`--sans-contour`)."""
+    d = tmp_path_factory.mktemp("ft4")
+    cas_dir, _ = cas_r3
+    out = {}
+    for nom, extra in (("avec", []), ("sans", ["--sans-contour"])):
+        r = subprocess.run([shutil.which("pvbatch"), str(visu.RENDU_VTK), "--vtk", str(cas_dir / "vtk"), "--sortie",
+                            str(d / nom), "--provenance", visu.ligne_provenance(**PROV), "--fps", str(FPS),
+                            "--pas", "15", "--k-debut", str(round(T_DEBUT * FPS)), "--k-fin", str(round(T_FIN * FPS)),
+                            *extra], capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr[-400:]
+        out[nom] = [image_rgb(p) for p in sorted((d / nom).glob("image_*.png"))]
+        assert len(out[nom]) == 5
+    return out
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft4_tour_pale_et_contour_marine_sur_90_pour_cent_de_la_hauteur_visible(rendus_tour):
+    mesures = [mesure_contour_tour(a) for a in rendus_tour["avec"]]
+    for i, m in enumerate(mesures):
+        print(f"FT-4 image {i} : {m['lignes_tour']} lignes de tour, gauche {m['gauche']}, droite {m['droite']}, "
+              f"PALE {m['pale_tour']}/{m['pixels_tour']} px, blanc dans la tour {m['blanc_dans_la_tour']}")
+        assert m["lignes_tour"] > 150, "tour introuvable"
+        assert m["pale_tour"] >= 0.7 * m["pixels_tour"], "les pixels de la tour doivent être PALE"
+        assert m["blanc_dans_la_tour"] == 0, "aucun pixel de la tour n'est confondu avec le fond blanc"
+        for cote in ("gauche", "droite"):
+            f, n = fraction_bordee(m, cote)
+            if n >= 20:   # un côté entièrement masqué par une pale n'est pas évaluable sur cette image
+                assert f >= 0.9, f"image {i}, côté {cote} : contour sur {f:.0%} de la hauteur visible ({n} lignes)"
+    for cote in ("gauche", "droite"):
+        assert max(fraction_bordee(m, cote)[1] for m in mesures) >= 100, f"côté {cote} jamais assez visible"
+    assert all(pale_au_contact_du_blanc(a) < 0.05 for a in rendus_tour["avec"]), "PALE touche le fond : contour manquant"
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft4_falsification_sans_contour_le_detecteur_echoue(rendus_tour):
+    """Même scène sans contour : la tour est PALE sur fond blanc, aucune bordure MARINE ; le détecteur doit
+    refuser (fraction bordée ≈ 0, PALE au contact du blanc)."""
+    for i, a in enumerate(rendus_tour["sans"]):
+        m = mesure_contour_tour(a)
+        fg, ng = fraction_bordee(m, "gauche")
+        fd, nd = fraction_bordee(m, "droite")
+        print(f"FT-4 sans contour, image {i} : fraction bordée gauche {fg:.0%} ({ng} lignes), droite {fd:.0%} ({nd}), "
+              f"PALE au contact du blanc {pale_au_contact_du_blanc(a):.0%}")
+        assert m["pale_tour"] >= 0.7 * m["pixels_tour"], "la tour est PALE aussi sans contour"
+        assert m["blanc_dans_la_tour"] == 0
+        assert fd < 0.1 and fg < 0.1, "le détecteur de contour doit échouer sans contour"
+        assert pale_au_contact_du_blanc(a) > 0.05
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft4_nacelle_pale_contour_marine_et_charte(rendus_tour):
+    """La nacelle (au-dessus de la tour) est PALE et ne touche pas le blanc ; le rendu reste dans la charte
+    (PALE et MARINE sont dans la palette) et FT-1 à FT-3, FA-5, FA-4bis ne sont pas affectés (testés ailleurs)."""
+    from .test_animation import PALETTE_ANIMATION
+    from .test_visu import _hors_charte_rgb
+    for a in rendus_tour["avec"]:
+        pale = _masque(a, PALE_RVB)
+        lignes = np.where(pale.any(axis=1))[0]
+        haut = pale[lignes.min(): lignes.min() + 30]
+        assert haut.sum() > 150, "nacelle PALE attendue en haut de l'objet"
+        assert _hors_charte_rgb(a, None, PALETTE_ANIMATION)[0] == 0
