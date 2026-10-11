@@ -20,7 +20,8 @@
    `preparer_animation` (3 clés du `.fst`), `rendre` (`pvbatch` en sous-processus, une image par pas),
    `monter` (`ffmpeg`, H.264 `yuv420p`). La provenance est incrustée dans **chaque image** ; éclairage
    plat, couleurs de la charte, fond blanc ; amplification des déplacements ×1 par défaut, écrite dans
-   la provenance dès qu'elle diffère de 1 (« déplacements ×N ») ; vidéo livrée seulement si
+   la provenance dès qu'elle diffère de 1 (« déplacements ×N ») ; `fenetre=(t_debut, t_fin)` n'anime que cet
+   intervalle du temps de calcul (voir `lire.debut_regime`) ; vidéo livrée seulement si
    `FIG:S9GM-VISU-007` a sa porte pédagogique.
 3. **Ordre de grandeur attendu** — la méthode : avant de tracer, écrire la question à laquelle le
    graphique répond ; après, vérifier qu'un lecteur qui n'a jamais vu le cas peut la retrouver sans
@@ -426,10 +427,13 @@ def _commande(argv=None):
         a.add_argument(f"--{o}", required=True)
     a.add_argument("--amplification", type=float, default=1.0)
     a.add_argument("--fps", type=float)
+    a.add_argument("--fenetre", type=float, nargs=2, metavar=("T_DEBUT", "T_FIN"),
+                   help="n'animer que cet intervalle du temps de calcul (s)")
     args = ap.parse_args(argv)
     try:
         mp4 = animer(cas=args.cas, modele=args.modele, etat=args.etat, dossier_cas=args.dossier_cas,
-                     sortie=args.sortie, amplification=args.amplification, fps=args.fps)
+                     sortie=args.sortie, amplification=args.amplification, fps=args.fps,
+                     fenetre=tuple(args.fenetre) if args.fenetre else None)
     except (OutilAbsent, PermissionError, ValueError, FileNotFoundError, KeyError, RuntimeError) as e:
         print(f"ERREUR : {e}", file=sys.stderr)
         return 2

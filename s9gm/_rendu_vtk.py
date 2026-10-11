@@ -16,9 +16,14 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    position des nœuds de chaque maillage (pales, moyeu, nacelle, tour, sous-structure, surface libre) :
    un fichier `.vtp` par maillage et par image. Le rendu ne calcule rien de physique : il lit ces
    positions et les dessine, caméra fixe (calée sur l'image 0), **éclairage plat** (ambiant 1, diffus 0, pas de spéculaire)
-   pour que chaque objet garde exactement sa couleur de la charte, sur fond blanc ; une pièce en
-   **CORAIL** (l'accent de la charte) est un maillage non répertorié, à regarder avec prudence (le
-   gris est réservé à la provenance). Facteur
+   pour que chaque objet garde exactement sa couleur de la charte, sur fond blanc. **Légende des couleurs** :
+   pales TEAL, moyeu MARINE, tour et nacelle PALE bordées d'un contour MARINE (silhouette), sous-structure
+   (Morison) TEALD, surface libre LIGHT, ligne de provenance GREY ; une pièce en **CORAIL** (l'accent de la
+   charte) est un maillage non répertorié, à regarder avec prudence. Le contour est une copie de la tour
+   (agrandie autour de son axe vertical) ou de la nacelle (autour de son centre), de 30 % de plus, décalée
+   vers l'arrière le long de la direction de vue : il ne dépasse que sur les bords et ne dessine pas le
+   maillage. `fenetre = (t_debut, t_fin)` (secondes de temps de calcul) ne rend que les images VTK de
+   l'intervalle ; l'horloge incrustée est le temps du calcul, jamais le temps depuis le début de la fenêtre. Facteur
    d'amplification `N` : la structure (tour, sous-structure) est dessinée à `p₀ + N·(p − p₀)` où `p₀`
    est sa position à l'image 0 — seul le déplacement **depuis l'image 0** est amplifié, un décalage
    déjà présent à l'image 0 ne l'est pas, et une rotation de corps rigide (plateforme) est étirée
@@ -33,7 +38,7 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    n'étant pas dans la liste vérifiée), nommés `<racine>.<maillage>.<NNN>.vtp` ; un seul rotor ; le maillage de
    tour sert de référence cinématique (son anneau le plus haut).
 3. **Ordre de grandeur attendu** — la méthode : avant de lancer, calculer l'angle que le rotor
-   parcourt entre deux images, `Ω / VTK_fps` (Ω en rad/s, lu dans `RotSpeed` du cas ou prévu par
+   parcourt entre deux images, `Ω / VTK_fps` (Ω en rad/s : `RotSpeed` du cas, en tr/min, × 2π/60, ou prévu par
    `λ·V/R`, fiche F1), et le comparer à **60°** : trois pales identiques redonnent la même image tous
    les 120°, donc la limite de Shannon est 120°/2 ; au-delà de 60° par image le rotor paraît déjà
    tourner à l'envers, et il paraît immobile à 120° ; puis estimer le volume : (nombre de
@@ -52,7 +57,11 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    l'effet « roue de chariot » : pour un rotor à trois pales identiques, dès que la rotation par
    image dépasse 60°.
    Une animation lisse n'est donc pas la preuve qu'il n'y a pas de mouvement rapide. (d) Une image
-   unique ne dit ni l'amplitude ni la fréquence : on lit les courbes pour cela.
+   unique ne dit ni l'amplitude ni la fréquence : on lit les courbes pour cela. (e) Le contour est un
+   artifice de rendu : il épaissit visuellement la tour et la nacelle d'environ un tiers de leur rayon
+   de chaque côté, il ne dit rien de la géométrie. (f) Une fenêtre prise « après le transitoire » dépend
+   d'un critère (voir `lire.debut_regime`), pas d'une propriété du calcul : un autre critère donne une
+   autre fenêtre ; et un mouvement lent (le calage des pales varie peu en régime) ne se voit pas.
 5. **Renvois** — fiche F1 (seule fiche existante à ce jour ; choisie parce qu'elle donne `Ω = λ·V/R`
    et la lecture de `RotSpeed`, qui permettent de prévoir l'angle tourné par image et de détecter le
    repliement avant de regarder la vidéo ; les fiches de dynamique de structure, quand elles existeront,
@@ -61,6 +70,7 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    OpenFAST v5.0.0, section « Visualization » ; `INSTALLATION.md` (ParaView, ffmpeg).
 """
 import argparse
+import builtins
 import glob
 import json
 import os
@@ -175,7 +185,8 @@ def contour(source, nom, vers_camera):
     b = source.GetDataInformation().GetBounds()
     c = [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2]
     s = [1 + EPS_CONTOUR, 1 + EPS_CONTOUR, 1.0 if "Tower" in nom else 1 + EPS_CONTOUR]   # tour : pas d'allongement vertical
-    recul = 2.5 * EPS_CONTOUR * max(b[1] - b[0], b[3] - b[2]) / 2
+    # builtins.max : le filtre programmable de ParaView remplace `max` par sa version numpy_interface dans __main__
+    recul = 2.5 * EPS_CONTOUR * builtins.max(b[1] - b[0], b[3] - b[2]) / 2
     t = Transform(Input=source)
     t.Transform = "Transform"
     t.Transform.Scale = s

@@ -1,26 +1,36 @@
 <!-- destinations: github -->
 # Animer un calcul — `s9gm.visu.animer`
 
-Une animation montre ce que la structure *fait* pendant un calcul : le rotor tourne, la tour fléchit,
-la surface libre passe. Elle sert à repérer un mouvement incohérent avant de lire un canal. Ce
-n'est **pas** une validation du modèle : c'est une cinématique calculée (voir le bloc Théorie de
-`s9gm/_rendu_vtk.py`, rubrique 4).
+Une animation montre ce que la structure *fait* pendant un calcul : le rotor tourne, les pales sont calées par le
+régulateur, la tour se déplace. Elle sert à repérer un mouvement incohérent avant de lire un canal. Ce n'est **pas**
+une validation du modèle : c'est une cinématique calculée (voir le bloc Théorie de `s9gm/_rendu_vtk.py`, rubrique 4).
 
-L'exemple ci-dessous est un cas à vent uniforme (`modele_fixe`, sans turbulence), sur 10 s, avec
-un vent choisi pour l'exemple, qui n'est pas celui d'un cas du tutoriel : il ne montre que la mise en
-route d'un calcul et ne répond à aucune question notée.
+**Ce que l'exemple ci-dessous montre, et seulement cela** (chaque point est mesuré contre un canal du même calcul
+par les tests `FA-3`, `FA-8a`, `FA-8b` de `s9gm/tests/`) :
+- le **rotor tourne** : l'azimut de la pale 1, lu dans la série VTK, égale le canal `Azimuth` ;
+- les **pales sont calées** : leur angle de calage, lu dans la série VTK, égale `BldPitch1` ; en régime ce calage
+  varie peu, on le voit surtout en comparant avec une pale à pas nul, pas en le regardant pivoter ;
+- la **tour se déplace** : le déplacement du sommet de tour, lu dans la série VTK, égale celui des canaux.
+
+L'exemple est un cas à vent uniforme dans la région de fonctionnement où le régulateur limite la puissance
+(Region 3, fiche F1), sur le `modele_fixe`. Il ne répond à aucune question notée et n'en donne aucune valeur.
 
 **Prérequis** : `pvbatch` et `ffmpeg` installés — voir `INSTALLATION.md`, section 5. Sans eux, `animer`
 s'arrête avec un message qui y renvoie. Environnement `s9gm-fowt` activé, contrôleur compilé
 (`bash scripts/build_discon.sh`).
 
-## 1. Un cas court avec sortie VTK
+## 1. Un cas où le rotor tourne, avec sortie VTK
+
+Le `modele_fixe` démarre rotor à l'arrêt : en 10 s il ne tournerait presque pas, et l'animation ne montrerait qu'une
+mise en charge de la tour. On part donc du **régime nominal publié** (`ENONCE.md`, §4 : 12,1 tr/min), par une copie
+d'ElastoDyn propre au cas — le fichier partagé du tutoriel n'est jamais modifié —, avec un vent de 15,4 m/s ; le pas
+initial reste à 0 : c'est le régulateur qui trouve le sien.
 
 Depuis la racine du dépôt :
 
 ```bash
 mkdir -p results/animation
-printf 'cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp\nANIM,10,1,8.2,0.11\n' \
+printf 'cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp,elastodyn.RotSpeed\nREGIME3,31.2,1,15.4,0,12.1\n' \
   > results/animation/lct.csv
 python - <<'PY'
 from s9gm import cas, lancer, visu
@@ -31,43 +41,68 @@ lancer.lancer_cas(d)
 PY
 ```
 
-`preparer_animation` ne change que trois lignes du `main.fst` du cas : `WrVTK`, `VTK_type`, `VTK_fps`.
-`VTK_type = 1` dessine des surfaces ; `2` (lignes et points, `Ln2Mesh`) est le repli si les surfaces échouent.
+`cas` écrit `RotSpeed` dans une copie `config_elastodyn.dat` du dossier du cas (colonne `elastodyn.RotSpeed`) et
+relit le fichier produit. `preparer_animation` ne change que trois lignes du `main.fst` : `WrVTK`, `VTK_type`,
+`VTK_fps`. `VTK_type = 1` dessine des surfaces ; `2` (lignes et points) est le repli si les surfaces échouent.
 
-**Volume — à mesurer avant de lancer plus long.** Les fichiers VTK sont volumineux : une dizaine de
-maillages, un fichier par maillage et par image. Après le calcul : `du -sh results/animation/ANIM/vtk`.
-Sur ce cas (10 s, 5 images par seconde), on est de l'ordre de la centaine de Mo ; le volume est
-proportionnel à la durée simulée et à `VTK_fps`.
+**Volume — à mesurer avant de lancer plus long.** OpenFAST écrit la série VTK **depuis t = 0** : on ne peut pas ne
+l'écrire que sur la fenêtre. À 5 images par seconde, une dizaine de maillages et ≈ 1 Mo par fichier de pale, on
+compte de l'ordre de 17 Mo par seconde simulée : choisissez un `TMax` juste suffisant (début de fenêtre + durée voulue).
+Après le calcul : `du -sh results/animation/REGIME3/vtk`.
 
-## 2. Une commande : images puis vidéo
+## 2. Choisir la fenêtre : après le transitoire
+
+Au début du calcul, le régulateur amène la machine vers son régime : ce n'est pas la fenêtre à animer. Comme pour
+`t_transitoire` dans `s9gm.lire.statistiques`, le début se choisit par un **critère écrit avant de regarder la
+courbe** ; `lire.debut_regime` l'applique : vitesse à 2 % du nominal **et** calage stable à 0,5° près sur les
+5 s suivantes. On arrondit à l'image VTK suivante.
 
 ```bash
-python -m s9gm.visu animer results/animation/ANIM results/animation/ANIM.mp4 \
-  --cas ANIM --modele modele_fixe --etat "rejoué le JJ/MM"
+python - <<'PY'
+import math
+from s9gm import lire
+df, _ = lire.lire("results/animation/REGIME3/main.outb")
+t = lire.debut_regime(df, nominal=12.1, tol_rel=0.02, stab_pas=0.5, duree=5.0)
+print("début de fenêtre :", math.ceil(t * 5) / 5, "s ; fin :", df["Time"].iloc[-1], "s")
+PY
 ```
 
-`--cas`, `--modele` et `--etat` sont obligatoires : ils composent la ligne de provenance incrustée
-dans **chaque image**. Les images sont dans `results/animation/ANIM_images/`, la vidéo
-(`H.264`, `yuv420p`, lisible par PowerPoint et VLC) dans `results/animation/ANIM.mp4`. La vidéo dure
-`images / VTK_fps` secondes : temps réel.
+## 3. Une commande : images puis vidéo
 
-Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, `visu.monter`.
+Avec les deux instants affichés ci-dessus :
 
-## 3. Ce qu'il faut regarder, et ce qu'il ne faut pas conclure
+```bash
+python -m s9gm.visu animer results/animation/REGIME3 results/animation/REGIME3.mp4 \
+  --cas REGIME3 --modele modele_fixe --etat "rejoué le JJ/MM" --fenetre T_DEBUT T_FIN
+```
 
+`--cas`, `--modele` et `--etat` sont obligatoires : ils composent la ligne de provenance incrustée dans **chaque
+image**. `--fenetre` ne rend que les images de l'intervalle ; sans lui, toute la série. L'horloge `t = …` en haut à
+gauche est le **temps du calcul**, jamais le temps depuis le début de la fenêtre. Les images sont dans
+`results/animation/REGIME3_images/`, la vidéo (`H.264`, `yuv420p`, lisible par PowerPoint et VLC) dans
+`results/animation/REGIME3.mp4`, et dure `images / VTK_fps` secondes : temps réel.
+
+Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, `visu.monter` ; en Python,
+`visu.animer(..., fenetre=(t_debut, t_fin))`.
+
+## 4. Légende des couleurs, et ce qu'il ne faut pas conclure
+
+- **Couleurs** : pales TEAL (vert), moyeu MARINE (bleu foncé), **tour et nacelle PALE (gris-bleu très clair)
+  bordées d'un contour MARINE**, sous-structure TEALD, surface libre LIGHT (bleu clair). Une pièce en **CORAIL**
+  (orange) est un maillage que `s9gm` ne connaît pas (ligne d'ancrage, plateforme, autre) : il est dessiné tel que
+  calculé, sans rien supposer de lui ; regardez-le avec prudence. Le gris est réservé à la ligne de provenance. Le
+  contour est un artifice de rendu : il épaissit la tour et la nacelle d'un tiers de leur rayon, il ne dit rien de
+  la géométrie.
 - **Avant** de regarder : de combien de degrés le rotor tourne-t-il entre deux images ? C'est `Ω / VTK_fps`
-  (`Ω` en rad/s, lu dans `RotSpeed` du cas, ou prévu par la fiche F1). Trois pales identiques redonnent la
+  (`Ω` en rad/s : `RotSpeed` du cas, en tr/min, × 2π/60 ; ou prévu par la fiche F1). Trois pales identiques redonnent la
   même image tous les 120° : au-delà de **60°** par image le rotor paraît déjà tourner à l'envers, et à
   120° il paraît immobile. C'est un repliement de l'échantillonnage (Shannon), pas un défaut du
   calcul. Augmentez `VTK_fps`, en gardant `1 / (VTK_fps·DT)` entier (OpenFAST arrondit à un multiple de `DT`).
-- **Une pièce en CORAIL** (orange) est un maillage que `s9gm` ne connaît pas (ligne d'ancrage, plateforme,
-  autre) : il est dessiné tel que calculé, sans rien supposer de lui ; regardez-le avec prudence. Le gris
-  est réservé à la ligne de provenance.
 - **Amplification** : `amplification=N` (`--amplification N` en ligne de commande) exagère les déplacements
   de la tour et de la sous-structure, **depuis l'image 0** (un décalage déjà présent à l'image 0 n'est pas
   amplifié). Elle n'est acceptée que si tous les maillages de la série sont ceux vérifiés sur
   `modele_fixe` (pales, moyeu, nacelle, tour, Morison, surface libre) : avec un maillage d'ancrage,
   de plateforme ou de lignes (`VTK_type = 2`), `animer` s'arrête avant tout rendu et nomme les
-  maillages en cause ; `N = 1` reste toujours possible. Elle est écrite sur chaque image (« déplacements ×N ») : une
-  animation amplifiée donne une idée fausse des proportions.
+  maillages en cause ; `N = 1` reste toujours possible. Elle est écrite sur chaque image
+  (« déplacements ×N ») : une animation amplifiée donne une idée fausse des proportions.
 - Ni la vidéo ni les fichiers VTK ne sont versionnés : `results/` est ignoré par git. Ne les ajoutez pas.
