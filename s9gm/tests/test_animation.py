@@ -379,10 +379,11 @@ def test_fa4_provenance_dans_chaque_image(rendu_complet, cas_vtk, tmp_path):
     """La bande basse de chaque image porte du gris (couleur GREY de la provenance) ; avec une autre
     provenance, la bande change (le détecteur voit le texte, pas un liseré fixe)."""
     _, pngs = rendu_complet
-    gris = np.array([0x59, 0x59, 0x59])
     for p in pngs:
-        bande = image_rgb(p)[int(0.93 * 720):]
-        assert (np.abs(bande.astype(int) - gris).sum(axis=-1) < 90).sum() > 50, f"{p.name} : provenance absente"
+        bande = image_rgb(p)[int(0.93 * 720):].astype(int)
+        # texte antialiasé gris : pixels sans teinte (écart entre canaux < 10), plus sombres que 200
+        gris = ((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 200)
+        assert gris.sum() > 50, f"{p.name} : provenance absente"
     autre = visu.rendre(cas_vtk / "vtk", tmp_path / "autre", cas="AUTRE", modele="modele_fixe",
                         etat="autre état", pas=50)
     assert (image_rgb(autre[0])[int(0.93 * 720):] != image_rgb(pngs[0])[int(0.93 * 720):]).any()
@@ -524,3 +525,42 @@ def test_fa7_identifiant_et_porte_du_registre():
     assert len(visu.porte_pedagogique(visu.ID_ANIMATION) or "") >= 40
     texte = visu.REGISTRE.read_text(encoding="utf-8")
     assert re.search(r"^\| FIG:S9GM-VISU-007 \|", texte, re.M)
+
+
+# --------------------------------------------------------------------------------------------
+# Ajouts après la relecture (relecteur-invariants, 11/10) : repli VTK_type = 2, horloge, scène vide
+# --------------------------------------------------------------------------------------------
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_repli_vtk_type_2_se_rend(prefixe, tmp_path_factory, tmp_path):
+    """Le repli annoncé (lignes et points, maillages `ED_Tower…`) doit produire une image par pas."""
+    d = _fabriquer(f"{prefixe}_ln2", 2, tmp_path_factory)
+    visu.preparer_animation(d, vtk_type=2, vtk_fps=FPS)
+    assert lancer.lancer_cas(d)["statut"] == "termine"
+    pngs = visu.rendre(d / "vtk", tmp_path / "png", **PROV)
+    n = max(compter_series_vtk(d / "vtk").values())
+    assert len(pngs) == n == 2 * FPS + 1
+    visu.verifier_images(tmp_path / "png", n)
+
+
+def test_fa4_scene_vide_avec_seule_l_horloge_refusee(tmp_path):
+    a = np.full((720, 1280, 3), 255, np.uint8)
+    a[10:40, 10:140] = (26, 52, 109)   # « t = … s » en haut à gauche, rien d'autre
+    Image.fromarray(a).save(tmp_path / "image_0000.png")
+    with pytest.raises(ValueError, match="uniforme"):
+        visu.verifier_images(tmp_path, 1)
+
+
+def test_l_horloge_suit_la_cadence_vtk_pas_la_lecture(tmp_path, monkeypatch):
+    """`animer(fps=10)` sur un cas à VTK_fps = 5 : la vidéo est lue à 10, l'horloge reste à 5."""
+    vus = {}
+    (tmp_path / "vtk").mkdir()
+    (tmp_path / "vtk" / "main.TowerSurface1.000.vtp").write_text("x")
+    (tmp_path / "main.fst").write_text("         5    VTK_fps - x\n")
+    monkeypatch.setattr(visu, "_outil", lambda *a: "/bin/true")
+    monkeypatch.setattr(visu, "rendre", lambda *a, fps=None, **k: vus.update(horloge=fps) or [])
+    monkeypatch.setattr(visu, "verifier_images", lambda *a, **k: 1)
+    monkeypatch.setattr(visu, "monter", lambda *a, fps=None, **k: vus.update(lecture=fps))
+    visu.animer(**PROV, dossier_cas=tmp_path, sortie=tmp_path / "o.mp4", fps=10)
+    assert vus == {"horloge": 5.0, "lecture": 10}
