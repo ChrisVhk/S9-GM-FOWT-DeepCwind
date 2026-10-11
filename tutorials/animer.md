@@ -55,29 +55,27 @@ Après le calcul : `du -sh results/animation/REGIME3/vtk`.
 Au début du calcul, le régulateur amène la machine vers son régime : ce n'est pas la fenêtre à animer. Comme pour
 `t_transitoire` dans `s9gm.lire.statistiques`, le début se choisit par un **critère écrit avant de regarder la
 courbe** ; `lire.debut_regime` l'applique : vitesse à 2 % du nominal **et** calage stable à 0,5° près sur les
-5 s suivantes. On arrondit à l'image VTK suivante.
+5 s suivantes. `animer` arrondit ce début à l'image VTK suivante. Rien n'est à lire ni à recopier : le début est
+passé tel quel à `fenetre=`.
+
+## 3. Images puis vidéo
 
 ```bash
 python - <<'PY'
-import math
-from s9gm import lire
-df, _ = lire.lire("results/animation/REGIME3/main.outb")
-t = lire.debut_regime(df, nominal=12.1, tol_rel=0.02, stab_pas=0.5, duree=5.0)
-print("début de fenêtre :", math.ceil(t * 5) / 5, "s ; fin :", df["Time"].iloc[-1], "s")
+from s9gm import lire, visu
+d = "results/animation/REGIME3"
+df, _ = lire.lire(d + "/main.outb")
+debut = lire.debut_regime(df, nominal=12.1, tol_rel=0.02, stab_pas=0.5, duree=5.0)
+visu.animer(cas="REGIME3", modele="modele_fixe", etat="rejoué le JJ/MM", dossier_cas=d,
+            sortie=d + ".mp4", fenetre=(debut, df["Time"].iloc[-1]))
 PY
 ```
 
-## 3. Une commande : images puis vidéo
+Le même appel existe en ligne de commande, avec l'option `--fenetre` suivie des deux instants si vous les connaissez déjà :
+`python -m s9gm.visu animer DOSSIER_CAS SORTIE.mp4 --cas … --modele … --etat … --fenetre …`.
 
-Avec les deux instants affichés ci-dessus :
-
-```bash
-python -m s9gm.visu animer results/animation/REGIME3 results/animation/REGIME3.mp4 \
-  --cas REGIME3 --modele modele_fixe --etat "rejoué le JJ/MM" --fenetre T_DEBUT T_FIN
-```
-
-`--cas`, `--modele` et `--etat` sont obligatoires : ils composent la ligne de provenance incrustée dans **chaque
-image**. `--fenetre` ne rend que les images de l'intervalle ; sans lui, toute la série. L'horloge `t = …` en haut à
+`cas`, `modele` et `etat` sont obligatoires : ils composent la ligne de provenance incrustée dans **chaque
+image**. `fenetre` ne rend que les images de l'intervalle ; sans lui, toute la série. L'horloge `t = …` en haut à
 gauche est le **temps du calcul**, jamais le temps depuis le début de la fenêtre. Les images sont dans
 `results/animation/REGIME3_images/`, la vidéo (`H.264`, `yuv420p`, lisible par PowerPoint et VLC) dans
 `results/animation/REGIME3.mp4`, et dure `images / VTK_fps` secondes : temps réel.
