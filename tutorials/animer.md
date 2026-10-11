@@ -62,6 +62,9 @@ Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, 
   calcul. Augmentez `VTK_fps`, en gardant `1 / (VTK_fps·DT)` entier (OpenFAST arrondit à un multiple de `DT`).
 - **Amplification** : `amplification=N` (`--amplification N` en ligne de commande) exagère les déplacements
   de la tour et de la sous-structure, **depuis l'image 0** (un décalage déjà présent à l'image 0 n'est pas
-  amplifié). Elle est écrite sur chaque image (« déplacements ×N ») : une
+  amplifié). Elle n'est acceptée que si tous les maillages de la série sont ceux vérifiés sur
+  `modele_fixe` (pales, moyeu, nacelle, tour, Morison, surface libre) : avec un maillage d'ancrage,
+  de plateforme ou de lignes (`VTK_type = 2`), `animer` s'arrête avant tout rendu et nomme les
+  maillages en cause ; `N = 1` reste toujours possible. Elle est écrite sur chaque image (« déplacements ×N ») : une
   animation amplifiée donne une idée fausse des proportions.
 - Ni la vidéo ni les fichiers VTK ne sont versionnés : `results/` est ignoré par git. Ne les ajoutez pas.

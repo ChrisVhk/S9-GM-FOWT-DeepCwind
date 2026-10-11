@@ -247,19 +247,47 @@ def _fps_du_cas(dossier_cas, fst="main.fst"):
     return float(_cas._sans_guillemets(_cas._valeur_de(lignes, "VTK_fps")))
 
 
+# Maillages vus et vérifiés sur `modele_fixe` (VTK_type = 1) : seuls ceux-là peuvent être amplifiés.
+# Noms exacts, sans sous-chaîne : « TowerSurface2 » n'est pas « TowerSurface1 ».
+MAILLAGES_VERIFIES = (r"Blade_R1B[123]Surface", r"HubSurface1", r"NacelleSurface1", r"TowerSurface1",
+                      r"MorisonSurface", r"WaveSurface", r"SeabedSurface", r"StillWaterSurface")
+
+
+def verifier_amplification(dossier_vtk, amplification):
+    """À `amplification` ≠ 1, refuse (ValueError) toute série où un maillage n'est pas dans
+    `MAILLAGES_VERIFIES` : un maillage inconnu (ancrage, plateforme flottante…) serait translaté comme un
+    rotor, ce qui est faux. À `amplification` = 1, ne contrôle rien. Ne lit que les noms de fichiers."""
+    if amplification == 1:
+        return
+    noms = {m[1] for f in Path(dossier_vtk).glob("*.vtp")
+            if (m := re.fullmatch(r"[^.]+\.(.+?)(?:\.\d+)?\.vtp", f.name))}
+    if not noms:
+        raise ValueError(f"{dossier_vtk} : aucune série VTK reconnue, amplification ×{amplification:g} refusée "
+                         "(N = 1 reste possible)")
+    inconnus = sorted(n for n in noms if not any(re.fullmatch(p, n) for p in MAILLAGES_VERIFIES))
+    if inconnus:
+        raise ValueError(
+            f"amplification ×{amplification:g} refusée : maillage(s) non vérifié(s) {', '.join(inconnus)} "
+            "(ancrage, plateforme, ou autre : l'amplification de leur mouvement n'est validée que pour les "
+            "pales, le moyeu, la nacelle, la tour, Morison et la surface libre de modele_fixe). "
+            "N = 1 reste possible.")
+
+
 def rendre(dossier_vtk, dossier_png, *, cas, modele, etat, amplification=1, eclairage="plat",
            resolution=(1280, 720), pas=1, trace=None, fps=None):
     """`pvbatch` lit la série VTK de `dossier_vtk` et écrit `dossier_png/image_NNNN.png`, une image par
     pas (`pas > 1` : une image sur `pas`, pour un essai). `cas`, `modele`, `etat` sont obligatoires : la
     ligne de provenance est incrustée dans chaque image. `eclairage` : "plat" (charte) ou "relief"
     (ombrage, réservé au falsificateur de charte). `trace` : chemin d'un JSON qui reçoit la position du
-    sommet de tour réellement dessinée, image par image. `fps` : cadence VTK du cas (horloge `t = k/fps`
+    sommet de tour réellement dessinée, image par image. `amplification` ≠ 1 : voir
+    `verifier_amplification`. `fps` : cadence VTK du cas (horloge `t = k/fps`
     incrustée) ; par défaut lue dans le `.fst`. Renvoie la liste des PNG."""
     provenance = ligne_provenance(cas, modele, etat, amplification)
     if eclairage not in ("plat", "relief"):
         raise ValueError("eclairage : 'plat' ou 'relief'")
     if pas < 1:
         raise ValueError("pas >= 1")
+    verifier_amplification(dossier_vtk, amplification)   # avant tout outil, tout dossier, tout rendu
     pvbatch = _outil("pvbatch", "paraview")
     dossier_vtk, dossier_png = Path(dossier_vtk), Path(dossier_png)
     if not dossier_vtk.is_dir():

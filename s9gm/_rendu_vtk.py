@@ -22,8 +22,11 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    déjà présent à l'image 0 ne l'est pas, et une rotation de corps rigide (plateforme) est étirée
    au lieu d'être tournée ; rotor et nacelle sont translatés de `(N − 1)` fois le déplacement du
    sommet de tour (leur rotation propre n'est pas amplifiée) ; la surface libre ne l'est pas. Un maillage
-   de nom inconnu est traité comme rotor (translaté), ce qui serait faux pour une ligne d'ancrage
-   (modèle flottant : non rendu à ce jour). Avec `N = 1` (défaut), rien n'est modifié. **Domaine de validité** : maillages `.vtp` d'OpenFAST, surfaces (`VTK_type = 1`) ou
+   de nom inconnu serait traité comme rotor (translaté), ce qui est faux pour une ligne d'ancrage ou
+   une plateforme flottante : `N ≠ 1` est donc **refusé** (`ValueError`, avant tout rendu) si un maillage
+   de la série n'est pas dans la liste vérifiée sur `modele_fixe` (`visu.MAILLAGES_VERIFIES` : pales,
+   moyeu, nacelle, tour, Morison, surface libre, plans statiques). Avec `N = 1` (défaut), rien n'est
+   modifié ni contrôlé. **Domaine de validité** : maillages `.vtp` d'OpenFAST, surfaces (`VTK_type = 1`) ou
    lignes (`VTK_type = 2`, repli, noms `ED_Tower…`), nommés `<racine>.<maillage>.<NNN>.vtp` ; un seul rotor ; le maillage de
    tour sert de référence cinématique (son anneau le plus haut).
 3. **Ordre de grandeur attendu** — la méthode : avant de lancer, calculer l'angle que le rotor
