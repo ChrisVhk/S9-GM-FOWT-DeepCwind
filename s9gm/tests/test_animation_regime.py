@@ -486,3 +486,31 @@ def test_ft4_nacelle_pale_contour_marine_et_charte(rendus_tour):
         haut = pale[lignes.min(): lignes.min() + 30]
         assert haut.sum() > 150, "nacelle PALE attendue en haut de l'objet"
         assert _hors_charte_rgb(a, None, PALETTE_ANIMATION)[0] == 0
+
+
+# --------------------------------------------------------------------------------------------
+# FA-3 sur l'exemple lui-même (FA-8d : la porte et le tutoriel ne promettent que ce qui est mesuré)
+# --------------------------------------------------------------------------------------------
+@pytest.mark.slow
+@requiert_openfast
+def test_fa3_sur_l_exemple_le_sommet_de_tour_du_vtk_egale_les_canaux_dans_la_fenetre(cas_r3):
+    from .test_animation import deplacement_canaux, ecart_cinematique, hauteur_tour, tolerance
+    d, df = cas_r3
+    v = d / "vtk"
+
+    def sommet(k):
+        p = points(fichier_vtk(v, "TowerSurface1", k))
+        return p[p[:, 2] > p[:, 2].max() - 1e-4].mean(axis=0)
+
+    # même anneau (les points du sommet à l'image 0) : la lecture ne dépend pas de la déformation
+    p0 = points(fichier_vtk(v, "TowerSurface1", 0))
+    anneau = np.where(p0[:, 2] > p0[:, 2].max() - 1e-4)[0]
+    ref = p0[anneau].mean(axis=0)
+    h = hauteur_tour()
+    ks = list(_fenetre_k())
+    vtk = np.array([points(fichier_vtk(v, "TowerSurface1", k))[anneau].mean(axis=0)[0] - ref[0] for k in ks])
+    canal = np.array([deplacement_canaux(df, canal_a(df, k), h) for k in ks])
+    ecart = ecart_cinematique(vtk, canal)
+    print(f"FA-3 sur l'exemple : {len(ks)} images, écart max {ecart * 1e3:.3f} mm, tolérance {tolerance(canal) * 1e3:.2f} mm")
+    assert ecart <= tolerance(canal)
+    assert np.ptp(canal) > 5e-3, "la tour doit bouger dans la fenêtre (sinon le test ne discrimine rien)"
