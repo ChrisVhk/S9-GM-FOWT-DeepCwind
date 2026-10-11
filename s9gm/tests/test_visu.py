@@ -18,20 +18,29 @@ def _rgb(h):
 
 
 def _hors_charte(fig):
-    """Pixels de la figure qui ne sont pas un mélange convexe de couleurs de la charte (le crénelage
-    et le chevauchement de deux traits produisent des mélanges, jamais une teinte nouvelle).
-    Distance de chaque pixel à l'enveloppe convexe de la palette, par moindres carrés non négatifs
-    avec somme des poids = 1 ; fautif si distance > TOL. Renvoie (nb de pixels fautifs, exemple)."""
-    from scipy.optimize import nnls
+    """Figure matplotlib : voir `_hors_charte_rgb`."""
     fig.canvas.draw()
-    px = np.unique(np.asarray(fig.canvas.buffer_rgba())[..., :3].reshape(-1, 3).astype(float),
-                   axis=0)
+    return _hors_charte_rgb(np.asarray(fig.canvas.buffer_rgba())[..., :3])
+
+
+def _hors_charte_rgb(rgb, cache=None):
+    """Pixels d'un tableau (h, l, 3) qui ne sont pas un mélange convexe de couleurs de la charte (le
+    crénelage et le chevauchement de deux traits produisent des mélanges, jamais une teinte nouvelle).
+    Distance de chaque pixel à l'enveloppe convexe de la palette, par moindres carrés non négatifs
+    avec somme des poids = 1 ; fautif si distance > TOL. `cache` (dict) évite de recalculer les
+    couleurs déjà vues d'une image à l'autre. Renvoie (nb de pixels fautifs, exemple)."""
+    from scipy.optimize import nnls
+    px = np.unique(np.asarray(rgb).reshape(-1, 3).astype(float), axis=0)
     pal = np.array([_rgb(h) for h in visu.CHARTE.values()])
     A = np.vstack([pal.T, 1000 * np.ones(len(pal))])  # dernière ligne : somme des poids = 1
+    cache = {} if cache is None else cache
     fautifs = []
     for c in px:
-        w, _ = nnls(A, np.append(c, 1000.0))
-        if np.linalg.norm(pal.T @ w - c) > TOL:
+        cle = tuple(c)
+        if cle not in cache:
+            w, _ = nnls(A, np.append(c, 1000.0))
+            cache[cle] = np.linalg.norm(pal.T @ w - c) <= TOL
+        if not cache[cle]:
             fautifs.append(c)
     return len(fautifs), (fautifs[0] if fautifs else None)
 

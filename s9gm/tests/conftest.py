@@ -40,3 +40,7 @@ def openfast_disponible():
 requiert_openfast = pytest.mark.skipif(
     not openfast_disponible(),
     reason="openfast absent du PATH ou DISCON.so non compilé (bash scripts/build_discon.sh)")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "slow: calcul OpenFAST ou rendu pvbatch réel (minutes)")
