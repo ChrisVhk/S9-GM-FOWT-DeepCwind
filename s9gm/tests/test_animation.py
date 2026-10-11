@@ -595,3 +595,89 @@ def test_fa4bis_le_detecteur_de_provenance_refuse_une_image_sans_provenance(rend
         print(f"FA-4bis {p.name} : avec provenance {avec} px, sans {sans} px")
         assert avec > 50, f"{p.name} : l'image d'origine doit passer ({avec} px)"
         assert not sans > 50, f"{p.name} : image sans provenance acceptée ({sans} px comptés)"
+
+
+# --------------------------------------------------------------------------------------------
+# AN-bis point 2 — garde-fou sur l'amplification : N ≠ 1 seulement si tous les maillages sont connus
+# --------------------------------------------------------------------------------------------
+MAILLAGES_MODELE_FIXE = ["Blade_R1B1Surface", "Blade_R1B2Surface", "Blade_R1B3Surface", "HubSurface1",
+                         "NacelleSurface1", "TowerSurface1", "MorisonSurface", "WaveSurface"]
+STATIQUES_MODELE_FIXE = ["SeabedSurface", "StillWaterSurface"]
+
+
+def _serie_factice(dossier, supplementaires=()):
+    """Dossier VTK factice : noms de `modele_fixe` (+ éventuellement d'autres), contenu vide — le garde-fou
+    ne lit que les noms, et doit refuser avant que pvbatch ne lise quoi que ce soit."""
+    dossier.mkdir(parents=True, exist_ok=True)
+    for m in MAILLAGES_MODELE_FIXE + list(supplementaires):
+        for k in range(3):
+            (dossier / f"main.{m}.{k:03d}.vtp").write_text("")
+    for m in STATIQUES_MODELE_FIXE:
+        (dossier / f"main.{m}.vtp").write_text("")
+    return dossier
+
+
+@pytest.mark.parametrize("intrus", [["MD_Line1", "MD_Line2"], ["PlatformSurface"], ["ED_Platform_motion_R1"]])
+def test_garde_fou_refuse_un_maillage_inconnu_avec_amplification(tmp_path, intrus):
+    vtk = _serie_factice(tmp_path / "vtk", intrus)
+    avant = sorted(p.name for p in tmp_path.rglob("*"))
+    with pytest.raises(ValueError) as e:
+        visu.rendre(vtk, tmp_path / "png", **PROV, amplification=3)
+    for m in intrus:
+        assert m in str(e.value), "le message doit nommer chaque maillage en cause"
+    assert "N = 1" in str(e.value), "le message doit dire que N = 1 reste possible"
+    assert sorted(p.name for p in tmp_path.rglob("*")) == avant, "aucun fichier écrit, aucun dossier créé"
+    assert not (tmp_path / "png").exists()
+
+
+def test_garde_fou_refuse_avant_de_chercher_pvbatch(tmp_path, monkeypatch):
+    """Le refus ne dépend pas des outils : PATH vide, c'est bien le ValueError qui sort, pas OutilAbsent."""
+    monkeypatch.setenv("PATH", str(tmp_path))
+    vtk = _serie_factice(tmp_path / "vtk", ["MD_Line1"])
+    with pytest.raises(ValueError, match="MD_Line1"):
+        visu.rendre(vtk, tmp_path / "png", **PROV, amplification=3)
+
+
+def test_garde_fou_n_egal_un_rien_ne_change(tmp_path, monkeypatch):
+    """Même série avec ancrage, N = 1 : acceptée, pvbatch est bien lancé (ici simulé)."""
+    vtk = _serie_factice(tmp_path / "vtk", ["MD_Line1", "PlatformSurface"])
+    appels = []
+
+    def faux(cmd, **kw):
+        appels.append(cmd)
+        Path(cmd[cmd.index("--sortie") + 1], "image_0000.png").write_bytes(b"x")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(visu, "_outil", lambda nom, paquet: f"/bin/{nom}")
+    monkeypatch.setattr(visu.subprocess, "run", faux)
+    assert len(visu.rendre(vtk, tmp_path / "png", **PROV, amplification=1)) == 1
+    assert len(appels) == 1
+
+
+def test_garde_fou_accepte_les_maillages_de_modele_fixe(tmp_path):
+    vtk = _serie_factice(tmp_path / "vtk")
+    visu.verifier_amplification(vtk, 3)   # ne lève pas
+    visu.verifier_amplification(vtk, 1)
+
+
+def test_garde_fou_liste_blanche_exacte_pas_de_sous_chaine(tmp_path):
+    """« TowerSurface2 » ou « WaveSurfaceX » contiennent un nom connu mais n'en sont pas : refusés."""
+    for nom in ("TowerSurface2", "WaveSurfaceX", "Blade_R1B4Surface"):
+        vtk = _serie_factice(tmp_path / nom / "vtk", [nom])
+        with pytest.raises(ValueError, match=nom):
+            visu.verifier_amplification(vtk, 2)
+
+
+def test_garde_fou_dossier_vide_ou_sans_serie_refuse_n_different_de_un(tmp_path):
+    (tmp_path / "vtk").mkdir()
+    with pytest.raises(ValueError):
+        visu.verifier_amplification(tmp_path / "vtk", 3)
+
+
+@pytest.mark.slow
+@requiert_openfast
+def test_garde_fou_serie_reelle_de_modele_fixe_acceptee(cas_vtk):
+    """La série réelle (surfaces) passe à N = 3 ; le test FA-3 de la chaîne de rendu (×3) reste vert."""
+    visu.verifier_amplification(cas_vtk / "vtk", 3)
+    noms = {re.sub(r"^[^.]+\.|(\.\d+)?\.vtp$", "", f.name) for f in (cas_vtk / "vtk").glob("*.vtp")}
+    assert noms == set(MAILLAGES_MODELE_FIXE + STATIQUES_MODELE_FIXE)
