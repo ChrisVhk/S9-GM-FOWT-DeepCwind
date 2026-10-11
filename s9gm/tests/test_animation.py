@@ -712,8 +712,8 @@ def _rectangle(x0, x1, z0, z1, y=0.0):
 def serie_avec_maillage_inconnu(dest, vtk_reel, images):
     """Série à 2 images : les maillages réels de `modele_fixe` (image 0 du calcul, répétée) + un maillage
     de nom inconnu de type MoorDyn (`MD_Line1`) dont la géométrie est `images` = [image 0, image 1]. La
-    caméra étant calée sur l'image 0, un maillage qui bouge peut sortir du cadrage : c'est le cas réel
-    d'un ancrage ou d'une plateforme."""
+    caméra étant calée sur l'image 0, un maillage qui bouge peut sortir du cadrage : c'est le mécanisme
+    qui, sur un calcul réel, fait sortir un ancrage ou une plateforme du cadrage (ici de façon extrême)."""
     dest = Path(dest)
     dest.mkdir(parents=True)
     for f in Path(vtk_reel).glob("*.000.vtp"):
@@ -771,7 +771,11 @@ def test_ft2_un_maillage_inconnu_dans_la_bande_ne_trompe_pas_le_detecteur_de_pro
     sans = rendre_direct(vtk, tmp_path / "sans", " ")
     avec = rendre_direct(vtk, tmp_path / "avec", visu.ligne_provenance(**PROV))
     h = sans[1].shape[0]
-    dans_la_bande = int((sans[1][int(0.93 * h):] != 255).any(axis=-1).sum())
+    # le maillage est-il bien dans la bande ? différence avec la même série sans lui (indépendant de sa couleur
+    # et de la surface libre, qui remplit peut-être le bas de l'image dans les deux rendus)
+    vide = serie_avec_maillage_inconnu(tmp_path / "vtk_sans_maillage", cas_vtk / "vtk", [])
+    sans_maillage = rendre_direct(vide, tmp_path / "sans_maillage", " ")
+    dans_la_bande = int((sans[1][int(0.93 * h):] != sans_maillage[1][int(0.93 * h):]).any(axis=-1).sum())
     print(f"FT-2 : {dans_la_bande} px non blancs du maillage dans la bande ; détecteur sans provenance "
           f"{[pixels_provenance(a) for a in sans]}, avec {[pixels_provenance(a) for a in avec]}")
     assert dans_la_bande > 1000, "scénario non reproduit : le maillage ne traverse pas la bande"
