@@ -224,8 +224,10 @@ def test_fa8a_falsification_l_ancien_cas_ne_fait_pas_un_tour(cas_vtk):
 def test_fa8a_falsification_decalage_d_une_image_detecte(cas_r3, azimuts, decalage):
     ks, vtk, _ = azimuts
     _, df = cas_r3
-    decale = np.array([df["Azimuth"][canal_a(df, k + decalage)] - df["Azimuth"][0] for k in ks])
-    assert np.abs(difference_angulaire(vtk, decale)).max() > 1.0
+    n_images = round(TMAX_R3 * FPS) + 1
+    ok = [i for i, k in enumerate(ks) if 0 <= k + decalage < n_images]   # la valeur décalée doit exister
+    decale = np.array([df["Azimuth"][canal_a(df, ks[i] + decalage)] - df["Azimuth"][0] for i in ok])
+    assert np.abs(difference_angulaire(vtk[ok], decale)).max() > 1.0
 
 
 # --------------------------------------------------------------------------------------------
@@ -270,8 +272,9 @@ def test_fa8b_limite_connue_un_decalage_d_une_image_n_est_pas_detectable_a_0_5_d
     (plusieurs secondes) est, lui, détecté. `BldPitch2` n'est pas un canal de ce modèle."""
     _, df = cas_r3
     ks, vtk, canal = calages
-    un = np.array([df["BldPitch1"][canal_a(df, k + 1)] for k in ks])
-    assert np.abs(un - canal).max() < 0.5, "décalage d'une image : indétectable à cette tolérance"
+    un = np.array([df["BldPitch1"][canal_a(df, k + 1)] for k in ks[:-1]])   # la dernière image n'a pas de suivante
+    assert np.abs(un - canal[:-1]).max() < 0.5, "décalage d'une image : indétectable à cette tolérance"
+    print(f"FA-8b : pas max par image {np.abs(np.diff(canal)).max():.3f}°")
     loin = np.array([df["BldPitch1"][canal_a(df, k - 40)] for k in ks])   # 8 s plus tôt
     assert np.abs(vtk - loin).max() > 0.5, "décalage de 8 s : détecté"
 
