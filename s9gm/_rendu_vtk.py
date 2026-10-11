@@ -15,8 +15,10 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
 2. **Modèle** — OpenFAST (`WrVTK = 2`) écrit, tous les `1/VTK_fps` secondes de temps simulé, la
    position des nœuds de chaque maillage (pales, moyeu, nacelle, tour, sous-structure, surface libre) :
    un fichier `.vtp` par maillage et par image. Le rendu ne calcule rien de physique : il lit ces
-   positions et les dessine, caméra fixe, **éclairage plat** (ambiant 1, diffus 0, pas de spéculaire)
-   pour que chaque objet garde exactement sa couleur de la charte, sur fond blanc. Facteur
+   positions et les dessine, caméra fixe (calée sur l'image 0), **éclairage plat** (ambiant 1, diffus 0, pas de spéculaire)
+   pour que chaque objet garde exactement sa couleur de la charte, sur fond blanc ; une pièce en
+   **CORAIL** (l'accent de la charte) est un maillage non répertorié, à regarder avec prudence (le
+   gris est réservé à la provenance). Facteur
    d'amplification `N` : la structure (tour, sous-structure) est dessinée à `p₀ + N·(p − p₀)` où `p₀`
    est sa position à l'image 0 — seul le déplacement **depuis l'image 0** est amplifié, un décalage
    déjà présent à l'image 0 ne l'est pas, et une rotation de corps rigide (plateforme) est étirée
@@ -76,9 +78,11 @@ def _rgb(h):
 
 MARINE, TEALD, TEAL = _rgb("#1A346D"), _rgb("#147A6D"), _rgb("#1A9988")
 GREY, LIGHT, BLANC = _rgb("#595959"), _rgb("#A9D5E2"), _rgb("#FFFFFF")
+CORAIL = _rgb("#EB5600")   # accent unique de la charte : ici, « maillage non répertorié »
 
 # Maillage → (couleur, rôle). Rôles : "structure" (amplifiée par p0 + N(p - p0)), "rotor" (translaté),
-# "eau" (jamais amplifié). Un maillage inconnu est dessiné en GREY, comme « rotor ».
+# "eau" (jamais amplifié). Un maillage inconnu est dessiné en CORAIL, comme « rotor » (GREY est réservé
+# à la provenance et aux crédits : un maillage gris serait pris pour du texte de provenance).
 COULEURS = {"Blade": (TEAL, "rotor"), "Hub": (MARINE, "rotor"), "Nacelle": (TEALD, "rotor"),
             "Tower": (MARINE, "structure"), "Morison": (TEALD, "structure"),
             "Wave": (LIGHT, "eau")}
@@ -129,7 +133,7 @@ def style(nom):
     for motif, (couleur, role) in COULEURS.items():
         if motif in nom:
             return couleur, role
-    return GREY, "rotor"
+    return CORAIL, "rotor"
 
 
 def lire_points(proxy, indices):

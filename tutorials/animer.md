@@ -60,6 +60,9 @@ Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, 
   même image tous les 120° : au-delà de **60°** par image le rotor paraît déjà tourner à l'envers, et à
   120° il paraît immobile. C'est un repliement de l'échantillonnage (Shannon), pas un défaut du
   calcul. Augmentez `VTK_fps`, en gardant `1 / (VTK_fps·DT)` entier (OpenFAST arrondit à un multiple de `DT`).
+- **Une pièce en CORAIL** (orange) est un maillage que `s9gm` ne connaît pas (ligne d'ancrage, plateforme,
+  autre) : il est dessiné tel que calculé, sans rien supposer de lui ; regardez-le avec prudence. Le gris
+  est réservé à la ligne de provenance.
 - **Amplification** : `amplification=N` (`--amplification N` en ligne de commande) exagère les déplacements
   de la tour et de la sous-structure, **depuis l'image 0** (un décalage déjà présent à l'image 0 n'est pas
   amplifié). Elle n'est acceptée que si tous les maillages de la série sont ceux vérifiés sur
