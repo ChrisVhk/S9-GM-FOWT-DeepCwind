@@ -23,15 +23,16 @@ def _hors_charte(fig):
     return _hors_charte_rgb(np.asarray(fig.canvas.buffer_rgba())[..., :3])
 
 
-def _hors_charte_rgb(rgb, cache=None):
+def _hors_charte_rgb(rgb, cache=None, palette=None):
     """Pixels d'un tableau (h, l, 3) qui ne sont pas un mélange convexe de couleurs de la charte (le
     crénelage et le chevauchement de deux traits produisent des mélanges, jamais une teinte nouvelle).
     Distance de chaque pixel à l'enveloppe convexe de la palette, par moindres carrés non négatifs
     avec somme des poids = 1 ; fautif si distance > TOL. `cache` (dict) évite de recalculer les
-    couleurs déjà vues d'une image à l'autre. Renvoie (nb de pixels fautifs, exemple)."""
+    couleurs déjà vues d'une image à l'autre ; `palette` (liste de #RRGGBB) remplace la charte des graphiques
+    (les animations y ajoutent CORAIL). Renvoie (nb de pixels fautifs, exemple)."""
     from scipy.optimize import nnls
     px = np.unique(np.asarray(rgb).reshape(-1, 3).astype(float), axis=0)
-    pal = np.array([_rgb(h) for h in visu.CHARTE.values()])
+    pal = np.array([_rgb(h) for h in (visu.CHARTE.values() if palette is None else palette)])
     A = np.vstack([pal.T, 1000 * np.ones(len(pal))])  # dernière ligne : somme des poids = 1
     cache = {} if cache is None else cache
     fautifs = []

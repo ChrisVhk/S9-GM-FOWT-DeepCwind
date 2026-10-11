@@ -26,6 +26,8 @@ from .test_visu import _hors_charte_rgb
 PROV = dict(cas="V10", modele="modele_fixe", etat="rejoué le 11/10")
 TMAX, FPS = 10, 5
 CLES_ANIMATION = ("WrVTK", "VTK_type", "VTK_fps")
+CORAIL = "#EB5600"   # maillage non répertorié (AN-ter) ; GREY #595959 est réservé à la provenance
+PALETTE_ANIMATION = [*visu.CHARTE.values(), CORAIL]   # la charte des graphiques + l'accent, animations seulement
 requiert_rendu = pytest.mark.skipif(
     shutil.which("pvbatch") is None or shutil.which("ffmpeg") is None or shutil.which("ffprobe") is None,
     reason="pvbatch, ffmpeg ou ffprobe absent du PATH (voir INSTALLATION.md)")
@@ -403,7 +405,7 @@ def test_fa5_chaque_image_dans_la_charte(rendu_complet):
     _, pngs = rendu_complet
     cache = {}
     for p in pngs:
-        n, ex = _hors_charte_rgb(image_rgb(p), cache)
+        n, ex = _hors_charte_rgb(image_rgb(p), cache, PALETTE_ANIMATION)
         assert n == 0, f"{p.name} : {n} couleurs hors charte, par ex. {ex}"
 
 
@@ -413,7 +415,7 @@ def test_fa5_chaque_image_dans_la_charte(rendu_complet):
 def test_fa5_falsification_l_eclairage_en_relief_est_refuse(cas_vtk, tmp_path):
     """Falsifie le falsificateur : avec ombrage, les teintes sortent de l'enveloppe de la palette."""
     pngs = visu.rendre(cas_vtk / "vtk", tmp_path, **PROV, eclairage="relief", pas=25)
-    assert max(_hors_charte_rgb(image_rgb(p))[0] for p in pngs) > 0
+    assert max(_hors_charte_rgb(image_rgb(p), None, PALETTE_ANIMATION)[0] for p in pngs) > 0
 
 
 # --------------------------------------------------------------------------------------------
@@ -683,3 +685,112 @@ def test_garde_fou_serie_reelle_de_modele_fixe_acceptee(cas_vtk):
     visu.verifier_amplification(cas_vtk / "vtk", 3)
     noms = {re.sub(r"^[^.]+\.|(\.\d+)?\.vtp$", "", f.name) for f in (cas_vtk / "vtk").glob("*.vtp")}
     assert noms == set(MAILLAGES_MODELE_FIXE + STATIQUES_MODELE_FIXE)
+
+
+# --------------------------------------------------------------------------------------------
+# AN-ter — maillage inconnu : CORAIL (pas GREY, réservé à la provenance)
+# --------------------------------------------------------------------------------------------
+def _vtp(chemin, pts, tris):
+    """Maillage de surface VTP ASCII minimal (triangles)."""
+    p = "\n".join(" ".join(f"{c:.4f}" for c in q) for q in pts)
+    c = " ".join(str(i) for t in tris for i in t)
+    o = " ".join(str(3 * (k + 1)) for k in range(len(tris)))
+    Path(chemin).write_text(
+        '<?xml version="1.0"?>\n<VTKFile type="PolyData" version="1.0" byte_order="LittleEndian" '
+        f'header_type="UInt64"><PolyData><Piece NumberOfPoints="{len(pts)}" NumberOfVerts="0" '
+        f'NumberOfLines="0" NumberOfStrips="0" NumberOfPolys="{len(tris)}"><Points>'
+        f'<DataArray type="Float32" NumberOfComponents="3" format="ascii">{p}</DataArray></Points><Polys>'
+        f'<DataArray type="Int64" Name="connectivity" format="ascii">{c}</DataArray>'
+        f'<DataArray type="Int64" Name="offsets" format="ascii">{o}</DataArray></Polys></Piece>'
+        '</PolyData></VTKFile>')
+
+
+def _rectangle(x0, x1, z0, z1, y=0.0):
+    return [(x0, y, z0), (x1, y, z0), (x1, y, z1), (x0, y, z1)], [(0, 1, 2), (0, 2, 3)]
+
+
+def serie_avec_maillage_inconnu(dest, vtk_reel, images):
+    """Série à 2 images : les maillages réels de `modele_fixe` (image 0 du calcul, répétée) + un maillage
+    de nom inconnu de type MoorDyn (`MD_Line1`) dont la géométrie est `images` = [image 0, image 1]. La
+    caméra étant calée sur l'image 0, un maillage qui bouge peut sortir du cadrage : c'est le cas réel
+    d'un ancrage ou d'une plateforme."""
+    dest = Path(dest)
+    dest.mkdir(parents=True)
+    for f in Path(vtk_reel).glob("*.000.vtp"):
+        (dest / f.name).symlink_to(f.resolve())
+        (dest / f.name.replace(".000.", ".001.")).symlink_to(f.resolve())
+    for k, geo in enumerate(images):
+        _vtp(dest / f"main.MD_Line1.{k:03d}.vtp", *geo)
+    return dest
+
+
+def rendre_direct(vtk, sortie, provenance, fps=0):
+    """pvbatch sur `_rendu_vtk.py`, provenance au choix (`" "` : aucune), sans horloge si fps = 0."""
+    r = subprocess.run([shutil.which("pvbatch"), str(visu.RENDU_VTK), "--vtk", str(vtk), "--sortie", str(sortie),
+                        "--provenance", provenance, "--fps", str(fps)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-400:]
+    return [image_rgb(p) for p in sorted(Path(sortie).glob("image_*.png"))]
+
+
+def compter(a, couleur):
+    return int((np.asarray(a) == np.array(couleur)).all(axis=-1).sum())
+
+
+GREY_RVB, CORAIL_RVB = (0x59, 0x59, 0x59), (0xEB, 0x56, 0x00)
+VISIBLE = _rectangle(-130, -80, 20, 120)          # à gauche de la tour, dans le cadrage de l'image 0
+LIGNE_LONGUE = _rectangle(-130, -80, -600, 120)   # même ancrage, plongeant sous le cadre à l'image 1
+
+
+@pytest.fixture(scope="module")
+def rendu_inconnu(cas_vtk, tmp_path_factory):
+    """Maillage inconnu visible, N = 1, sans provenance ni horloge : tout pixel GREY serait le maillage."""
+    d = tmp_path_factory.mktemp("inconnu")
+    vtk = serie_avec_maillage_inconnu(d / "vtk", cas_vtk / "vtk", [VISIBLE, VISIBLE])
+    return rendre_direct(vtk, d / "png", " ")
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft1_le_maillage_inconnu_est_corail_et_jamais_grey(rendu_inconnu):
+    for a in rendu_inconnu:
+        n_corail, n_grey = compter(a, CORAIL_RVB), compter(a, GREY_RVB)
+        print(f"FT-1 : {n_corail} px CORAIL, {n_grey} px GREY")
+        assert n_corail > 500, f"maillage inconnu pas en CORAIL ({n_corail} px)"
+        assert n_grey == 0, f"{n_grey} px GREY : GREY est réservé à la provenance"
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft2_un_maillage_inconnu_dans_la_bande_ne_trompe_pas_le_detecteur_de_provenance(cas_vtk, tmp_path):
+    """Le maillage inconnu, immobile à l'image 0, plonge à l'image 1 sous le cadrage (calé sur l'image 0) :
+    il traverse la bande basse où s'écrit la provenance. Sans provenance, le détecteur doit compter 0 pixel ;
+    avec, plus de 0."""
+    vtk = serie_avec_maillage_inconnu(tmp_path / "vtk", cas_vtk / "vtk", [VISIBLE, LIGNE_LONGUE])
+    sans = rendre_direct(vtk, tmp_path / "sans", " ")
+    avec = rendre_direct(vtk, tmp_path / "avec", visu.ligne_provenance(**PROV))
+    h = sans[1].shape[0]
+    dans_la_bande = int((sans[1][int(0.93 * h):] != 255).any(axis=-1).sum())
+    print(f"FT-2 : {dans_la_bande} px non blancs du maillage dans la bande ; détecteur sans provenance "
+          f"{[pixels_provenance(a) for a in sans]}, avec {[pixels_provenance(a) for a in avec]}")
+    assert dans_la_bande > 1000, "scénario non reproduit : le maillage ne traverse pas la bande"
+    assert [pixels_provenance(a) for a in sans] == [0, 0], "le maillage inconnu a été pris pour de la provenance"
+    assert all(pixels_provenance(a) > 0 for a in avec), "la provenance doit être comptée"
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_ft3_charte_corail_accepte_rouge_pur_refuse(rendu_inconnu):
+    """Palette des animations = charte + CORAIL. Le rendu au maillage CORAIL y est accepté mais pas dans la
+    charte des graphiques (on a bien élargi l'enveloppe, seulement ici) ; un rendu où l'on peint du rouge
+    pur #FF0000 reste refusé, même avec la palette élargie."""
+    a = rendu_inconnu[0]
+    assert _hors_charte_rgb(a, None, PALETTE_ANIMATION)[0] == 0
+    assert _hors_charte_rgb(a)[0] > 0, "la charte des graphiques ne doit pas accepter CORAIL"
+    rouge = np.array(a)
+    rouge[100:200, 100:300] = (255, 0, 0)
+    n, ex = _hors_charte_rgb(rouge, None, PALETTE_ANIMATION)
+    print(f"FT-3 : rouge pur, {n} couleurs hors charte (exemple {ex})")
+    assert n > 0
