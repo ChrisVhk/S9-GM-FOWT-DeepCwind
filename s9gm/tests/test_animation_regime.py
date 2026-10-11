@@ -3,10 +3,11 @@ au régime nominal), animé sur une fenêtre prise après le transitoire. FA-8a 
 voit), FA-8c (la fenêtre) et `lire.debut_regime`. Écrits avant le code.
 
 Cas réel : `modele_fixe`, vent uniforme de 15,4 m/s, `RotSpeed` initial 12,1 tr/min (donnée publiée, ENONCE §4),
-pas initial 0 (le régulateur le trouve seul), TMax = 31,2 s, VTK à 5 images/s. Fenêtre animée : de 19,2 s à
-31,2 s, début fixé par le critère écrit AVANT le calcul : |RotSpeed − 12,1| ≤ 2 % et amplitude de BldPitch1 ≤ 0,5°
-sur les 5 s suivantes (arrondi à l'image VTK supérieure). Aucune valeur de pas, de puissance ni de flèche n'est
-écrite dans ce fichier : les tests comparent le VTK aux canaux du même calcul.
+pas initial 0 (le régulateur le trouve seul), TMax = 31,2 s, VTK à 5 images/s. Fenêtre animée : du début du régime
+à la fin du calcul ; le début est CALCULÉ par `lire.debut_regime` à partir de la sortie du cas, selon un critère écrit
+AVANT le calcul (|RotSpeed − 12,1| ≤ 2 % et amplitude de BldPitch1 ≤ 0,5° sur les 5 s suivantes), puis arrondi à
+l'image VTK suivante : aucun instant de mise en régime n'est écrit dans ce fichier. Aucune valeur de pas, de
+puissance ni de flèche non plus : les tests comparent le VTK aux canaux du même calcul.
 
 Mesures dans le VTK (ASCII), sans ParaView :
 - maillage de pale : 19 sections de 399 points ; la section 0 est la bague de racine, circulaire ;
@@ -36,7 +37,7 @@ from .conftest import MODELE, PRISE_EN_MAIN, requiert_openfast
 from .test_animation import (PROV, FPS, cas_vtk, ffprobe, image_rgb, lent, prefixe,  # noqa: F401 (fixtures)
                              requiert_rendu)
 
-T_DEBUT, T_FIN, TMAX_R3 = 19.2, 31.2, 31.2
+T_FIN, TMAX_R3 = 31.2, 31.2   # cadrage du calcul, pas un résultat ; le DÉBUT de fenêtre est calculé (fixture `t_debut`)
 VENT, ROT_NOMINAL = 15.4, 12.1
 NPTS = 399
 STATION_AZIMUT, STATION_CALAGE = 2, 6
@@ -124,6 +125,15 @@ def cas_r3(prefixe, tmp_path_factory):
     return d, df
 
 
+@pytest.fixture(scope="module")
+def t_debut(cas_r3):
+    """Début de la fenêtre : `lire.debut_regime` sur la sortie du cas, arrondi à l'image VTK suivante. Jamais écrit."""
+    _, df = cas_r3
+    debut = lire.debut_regime(df, nominal=ROT_NOMINAL, tol_rel=0.02, stab_pas=0.5, duree=5.0)
+    assert debut is not None, "le critère de régime n'est jamais satisfait"
+    return math.ceil(debut * FPS - 1e-9) / FPS
+
+
 # --------------------------------------------------------------------------------------------
 # Début du régime : lire.debut_regime (critère écrit avant le calcul)
 # --------------------------------------------------------------------------------------------
@@ -157,13 +167,13 @@ def test_debut_regime_demande_la_duree_complete():
 
 @pytest.mark.slow
 @requiert_openfast
-def test_debut_regime_sur_le_cas_reel_la_fenetre_commence_apres_le_critere(cas_r3):
+def test_debut_regime_sur_le_cas_reel_la_fenetre_commence_apres_le_critere(cas_r3, t_debut):
     _, df = cas_r3
     debut = lire.debut_regime(df, nominal=ROT_NOMINAL, tol_rel=0.02, stab_pas=0.5, duree=5.0)
-    assert debut is not None
-    assert 10.0 < debut <= T_DEBUT, f"critère satisfait à {debut:.2f} s : la fenêtre retenue ({T_DEBUT} s) est après"
-    assert abs(math.ceil(debut * FPS) / FPS - T_DEBUT) < 1e-9, "T_DEBUT = début du critère arrondi à l'image VTK"
+    assert debut is not None and debut > 0, "le cas ne démarre pas déjà en régime stable (pas initial 0)"
+    assert debut <= t_debut < debut + 1.0 / FPS, "début de fenêtre = début du critère arrondi à l'image VTK suivante"
     assert df["Time"].iloc[-1] >= T_FIN - 1e-6
+    assert T_FIN - t_debut >= 10.0, "la fenêtre doit couvrir plusieurs tours (cadrage du TMax)"
 
 
 @pytest.mark.slow
@@ -176,16 +186,16 @@ def test_debut_regime_falsification_l_ancien_cas_n_atteint_jamais_le_regime(cas_
 # --------------------------------------------------------------------------------------------
 # FA-8a — le rotor tourne : azimut VTK = canal Azimuth, à 1° près, à chaque image de la fenêtre
 # --------------------------------------------------------------------------------------------
-def _fenetre_k():
-    return range(round(T_DEBUT * FPS), round(T_FIN * FPS) + 1)
+def _fenetre_k(t_debut):
+    return range(round(t_debut * FPS), round(T_FIN * FPS) + 1)
 
 
 @pytest.fixture(scope="module")
-def azimuts(cas_r3):
+def azimuts(cas_r3, t_debut):
     d, df = cas_r3
     v = d / "vtk"
     psi0 = azimut_vtk(v, 0)
-    ks = list(_fenetre_k())
+    ks = list(_fenetre_k(t_debut))
     vtk = np.array([azimut_vtk(v, k) - psi0 for k in ks])
     canal = np.array([df["Azimuth"][canal_a(df, k)] - df["Azimuth"][0] for k in ks])
     return ks, vtk, canal
@@ -236,12 +246,12 @@ def test_fa8a_falsification_decalage_d_une_image_detecte(cas_r3, azimuts, decala
 # FA-8b — le pas se voit : calage de la pale 1 dans le VTK = BldPitch1, à 0,5° près
 # --------------------------------------------------------------------------------------------
 @pytest.fixture(scope="module")
-def calages(cas_r3):
+def calages(cas_r3, t_debut):
     d, df = cas_r3
     v = d / "vtk"
     assert abs(df["BldPitch1"][0]) < 1e-9, "image de référence : pas nul"
     phi0 = angle_corde_vtk(v, 0)
-    ks = list(_fenetre_k())
+    ks = list(_fenetre_k(t_debut))
     vtk = np.array([-(angle_corde_vtk(v, k) - phi0) for k in ks])   # signe : voir l'en-tête du fichier
     canal = np.array([df["BldPitch1"][canal_a(df, k)] for k in ks])
     return ks, vtk, canal
@@ -259,11 +269,23 @@ def test_fa8b_le_calage_du_vtk_egale_bldpitch1(calages):
 
 @pytest.mark.slow
 @requiert_openfast
-def test_fa8b_falsification_signe_oppose_pas_nul_et_pas_constant_detectes(calages):
+def test_fa8b_falsification_signe_oppose_et_pas_constant_detectes(calages):
     ks, vtk, canal = calages
-    assert np.abs(-vtk - canal).max() > 0.5, "signe opposé"
-    assert np.abs(vtk - 0.0).max() > 0.5, "pas constant nul (pas de pivotement)"
-    assert np.abs(vtk - canal[0]).max() > 0.5, "pas constant égal à sa valeur au début de la fenêtre"
+    assert np.abs(-vtk - canal).max() > 0.5, "signe opposé (impliqué par le test principal : voir l'en-tête)"
+    assert np.abs(vtk - canal[0]).max() > 0.5, "pas constant égal à sa valeur au début de la fenêtre : peut échouer, conservé"
+
+
+@pytest.mark.slow
+@requiert_openfast
+def test_fa8b_falsification_pas_nul_le_calage_mesure_ne_peut_pas_etre_pris_pour_zero(calages):
+    """Falsification par le pas NUL : comparé à 0°, le calage mesuré dans le VTK doit échouer à 0,5° à CHAQUE
+    instant (et non seulement à l'un d'eux). L'écart est imprimé pour le rapport, jamais écrit dans un texte public."""
+    ks, vtk, canal = calages
+    ecart = np.abs(vtk - 0.0)
+    print(f"FA-8b pas nul : écart au pas nul min {ecart.min():.2f}°, max {ecart.max():.2f}° sur {len(ks)} images "
+          f"(tolérance 0,5°)")
+    assert (ecart > 0.5).all(), "le calage mesuré est confondu avec un pas nul à au moins un instant"
+    assert np.abs(vtk - canal).max() <= 0.5, "…alors qu'il égale BldPitch1 à la même tolérance"
 
 
 @pytest.mark.slow
@@ -334,26 +356,26 @@ def test_fa8c_sans_fenetre_le_resultat_ne_change_pas_et_fenetre_pleine_est_ident
 @pytest.mark.slow
 @requiert_openfast
 @requiert_rendu
-def test_fa8c_fenetre_donnee_nombre_d_images_et_horloge_du_temps_reel(cas_r3, tmp_path):
+def test_fa8c_fenetre_donnee_nombre_d_images_et_horloge_du_temps_reel(cas_r3, tmp_path, t_debut):
     d, _ = cas_r3
     trace = tmp_path / "trace.json"
-    pngs = visu.rendre(d / "vtk", tmp_path / "png", **PROV, fenetre=(T_DEBUT, T_DEBUT + 2.0), trace=trace)
+    pngs = visu.rendre(d / "vtk", tmp_path / "png", **PROV, fenetre=(t_debut, t_debut + 2.0), trace=trace)
     attendu = round(2.0 * FPS) + 1
     assert abs(len(pngs) - attendu) <= 1 and len(pngs) == attendu
     t = json.loads(trace.read_text())
     print(f"FA-8c : {len(pngs)} images, première horloge « {t['horloges'][0]} », dernière « {t['horloges'][-1]} »")
-    assert t["horloges"][0] == f"t = {T_DEBUT:.2f} s", "l'horloge affiche le temps du calcul, non le temps depuis le début de la fenêtre"
-    assert t["horloges"][-1] == f"t = {T_DEBUT + 2.0:.2f} s"
-    assert t["images"][0] == round(T_DEBUT * FPS)
-    assert pngs[0].name == f"image_{round(T_DEBUT * FPS):04d}.png"
+    assert t["horloges"][0] == f"t = {t_debut:.2f} s", "l'horloge affiche le temps du calcul, non le temps depuis le début de la fenêtre"
+    assert t["horloges"][-1] == f"t = {t_debut + 2.0:.2f} s"
+    assert t["images"][0] == round(t_debut * FPS)
+    assert pngs[0].name == f"image_{round(t_debut * FPS):04d}.png"
 
 
 @pytest.mark.slow
 @requiert_openfast
 @requiert_rendu
-def test_fa8c_animer_avec_fenetre_de_bout_en_bout(cas_r3, tmp_path):
+def test_fa8c_animer_avec_fenetre_de_bout_en_bout(cas_r3, tmp_path, t_debut):
     d, _ = cas_r3
-    mp4 = visu.animer(**PROV, dossier_cas=d, sortie=tmp_path / "w.mp4", fenetre=(T_DEBUT, T_DEBUT + 2.0))
+    mp4 = visu.animer(**PROV, dossier_cas=d, sortie=tmp_path / "w.mp4", fenetre=(t_debut, t_debut + 2.0))
     s = ffprobe(mp4)
     assert int(s["nb_read_frames"]) == round(2.0 * FPS) + 1
     assert s["codec_name"] == "h264" and s["pix_fmt"] == "yuv420p"
@@ -419,7 +441,7 @@ def pale_au_contact_du_blanc(a):
 
 
 @pytest.fixture(scope="module")
-def rendus_tour(cas_r3, tmp_path_factory):
+def rendus_tour(cas_r3, t_debut, tmp_path_factory):
     """Rendu réel de modele_fixe (5 images de la fenêtre, le rotor y tourne : une pale ne masque pas toujours le même
     côté de la tour), éclairage plat : avec contour (défaut) et sans (`--sans-contour`)."""
     d = tmp_path_factory.mktemp("ft4")
@@ -428,7 +450,7 @@ def rendus_tour(cas_r3, tmp_path_factory):
     for nom, extra in (("avec", []), ("sans", ["--sans-contour"])):
         r = subprocess.run([shutil.which("pvbatch"), str(visu.RENDU_VTK), "--vtk", str(cas_dir / "vtk"), "--sortie",
                             str(d / nom), "--provenance", visu.ligne_provenance(**PROV), "--fps", str(FPS),
-                            "--pas", "15", "--k-debut", str(round(T_DEBUT * FPS)), "--k-fin", str(round(T_FIN * FPS)),
+                            "--pas", "15", "--k-debut", str(round(t_debut * FPS)), "--k-fin", str(round(T_FIN * FPS)),
                             *extra], capture_output=True, text=True)
         assert r.returncode == 0, r.stderr[-400:]
         out[nom] = [image_rgb(p) for p in sorted((d / nom).glob("image_*.png"))]
@@ -495,7 +517,7 @@ def test_ft4_nacelle_pale_contour_marine_et_charte(rendus_tour):
 # --------------------------------------------------------------------------------------------
 @pytest.mark.slow
 @requiert_openfast
-def test_fa3_sur_l_exemple_le_sommet_de_tour_du_vtk_egale_les_canaux_dans_la_fenetre(cas_r3):
+def test_fa3_sur_l_exemple_le_sommet_de_tour_du_vtk_egale_les_canaux_dans_la_fenetre(cas_r3, t_debut):
     from .test_animation import deplacement_canaux, ecart_cinematique, hauteur_tour, tolerance
     d, df = cas_r3
     v = d / "vtk"
@@ -509,7 +531,7 @@ def test_fa3_sur_l_exemple_le_sommet_de_tour_du_vtk_egale_les_canaux_dans_la_fen
     anneau = np.where(p0[:, 2] > p0[:, 2].max() - 1e-4)[0]
     ref = p0[anneau].mean(axis=0)
     h = hauteur_tour()
-    ks = list(_fenetre_k())
+    ks = list(_fenetre_k(t_debut))
     vtk = np.array([points(fichier_vtk(v, "TowerSurface1", k))[anneau].mean(axis=0)[0] - ref[0] for k in ks])
     canal = np.array([deplacement_canaux(df, canal_a(df, k), h) for k in ks])
     ecart = ecart_cinematique(vtk, canal)
@@ -543,3 +565,42 @@ def test_repli_lignes_tour_et_nacelle_restent_visibles_sur_fond_blanc(prefixe, t
         a = image_rgb(p)
         assert _masque(a, PALE_RVB).sum() == 0, "PALE sans contour : invisible sur fond blanc"
         assert _masque(a, MARINE_RVB).sum() > 30, "tour et nacelle en lignes MARINE attendues"
+
+
+# --------------------------------------------------------------------------------------------
+# AN-quinquies — aucun instant de mise en régime chiffré dans les fichiers suivis (F02, Q0.1)
+# --------------------------------------------------------------------------------------------
+RACINE_DEPOT = Path(__file__).resolve().parents[2]
+
+
+def _motif_instant():
+    """Motif du début du régime de l'exemple et de sa valeur arrondie à l'image VTK, graphies anglaise et française,
+    avec ou sans zéro final, plus toute constante `T_DEBUT`. Construit par morceaux pour que ce fichier ne contienne
+    jamais le motif en clair (sinon `git grep` se reconnaîtrait lui-même et il faudrait filtrer)."""
+    deux_chiffres = "1" + "9"
+    return ("(^|[^0-9.,])" + deux_chiffres + "[.,]([12]|[12]0)([^0-9]|$)" + "|T_" + "DEBUT *=")
+
+
+def test_aucun_instant_de_mise_en_regime_dans_les_fichiers_suivis():
+    """`git grep` sur tout le dépôt, sans aucun filtre : aucun fichier suivi n'écrit l'instant de mise en régime."""
+    r = subprocess.run(["git", "grep", "-n", "-E", _motif_instant()], cwd=RACINE_DEPOT, capture_output=True, text=True)
+    assert r.returncode == 1 and not r.stdout, "instant de mise en régime écrit dans un fichier suivi :\n" + r.stdout
+
+
+def test_le_garde_git_grep_detecte_bien_un_instant_ecrit(tmp_path):
+    """Falsifie le garde : le même motif attrape les graphies visées dans un fichier d'essai."""
+    import re as _re
+    motif = _re.compile(_motif_instant(), _re.M)
+    for graphie in ("de 19." + "2 s", "19," + "1 s", "19." + "20", "T_" + "DEBUT = 1"):
+        assert motif.search(graphie), graphie
+    for innocent in ("119.2", "19.25", "0.19", "x19,3"):
+        assert not motif.search(innocent), innocent
+
+
+def test_tutoriel_ne_chiffre_ni_n_affiche_l_instant_de_debut_et_le_passe_a_fenetre():
+    texte = (RACINE_DEPOT / "tutorials" / "animer.md").read_text(encoding="utf-8")
+    assert "print(" not in texte, "le tutoriel ne doit rien afficher du début de fenêtre"
+    assert "math.ceil" not in texte, "l'arrondi est fait par `fenetre` : pas de calcul d'instant à afficher"
+    assert "debut_regime(" in texte
+    assert re.search(r"fenetre=\(\s*debut", texte), "debut_regime(...) est passé directement à fenetre="
+    assert "--fenetre T_DEBUT T_FIN" not in texte
