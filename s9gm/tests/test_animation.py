@@ -111,6 +111,25 @@ def tolerance(deplacements_canal):
     return max(0.01 * float(np.max(np.abs(deplacements_canal))), 1e-3)
 
 
+def pixels_provenance(a):
+    """Nombre de pixels de la bande basse (7 %) qui sont du texte gris de provenance : sans teinte (écart
+    entre canaux < 10) et plus sombres que 200. Le test FA-4 exige plus de 50."""
+    bande = np.asarray(a)[int(0.93 * a.shape[0]):].astype(int)
+    return int((((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 200)).sum())
+
+
+def sans_provenance(a):
+    """Copie de l'image où le texte de provenance est recouvert de la couleur de fond (blanc) : on
+    recouvre le rectangle englobant les pixels gris de la bande basse, rien d'autre."""
+    a = np.array(a)
+    h = a.shape[0]
+    bande = a[int(0.93 * h):].astype(int)
+    gris = ((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 255)
+    ys, xs = np.nonzero(gris)
+    a[int(0.93 * h) + ys.min(): int(0.93 * h) + ys.max() + 1, xs.min(): xs.max() + 1] = 255
+    return a
+
+
 def image_rgb(chemin):
     return np.asarray(Image.open(chemin).convert("RGB"))
 
@@ -380,10 +399,7 @@ def test_fa4_provenance_dans_chaque_image(rendu_complet, cas_vtk, tmp_path):
     provenance, la bande change (le détecteur voit le texte, pas un liseré fixe)."""
     _, pngs = rendu_complet
     for p in pngs:
-        bande = image_rgb(p)[int(0.93 * 720):].astype(int)
-        # texte antialiasé gris : pixels sans teinte (écart entre canaux < 10), plus sombres que 200
-        gris = ((bande.max(axis=-1) - bande.min(axis=-1)) < 10) & (bande.max(axis=-1) < 200)
-        assert gris.sum() > 50, f"{p.name} : provenance absente"
+        assert pixels_provenance(image_rgb(p)) > 50, f"{p.name} : provenance absente"
     autre = visu.rendre(cas_vtk / "vtk", tmp_path / "autre", cas="AUTRE", modele="modele_fixe",
                         etat="autre état", pas=50)
     assert (image_rgb(autre[0])[int(0.93 * 720):] != image_rgb(pngs[0])[int(0.93 * 720):]).any()
@@ -564,3 +580,18 @@ def test_l_horloge_suit_la_cadence_vtk_pas_la_lecture(tmp_path, monkeypatch):
     monkeypatch.setattr(visu, "monter", lambda *a, fps=None, **k: vus.update(lecture=fps))
     visu.animer(**PROV, dossier_cas=tmp_path, sortie=tmp_path / "o.mp4", fps=10)
     assert vus == {"horloge": 5.0, "lecture": 10}
+
+
+@pytest.mark.slow
+@requiert_openfast
+@requiert_rendu
+def test_fa4bis_le_detecteur_de_provenance_refuse_une_image_sans_provenance(rendu_complet):
+    """FA-4bis : sur des images réellement rendues par pvbatch (première, médiane, dernière), le détecteur
+    passe sur l'image d'origine et échoue quand on recouvre la ligne de provenance de la couleur de fond."""
+    _, pngs = rendu_complet
+    for p in (pngs[0], pngs[len(pngs) // 2], pngs[-1]):
+        a = image_rgb(p)
+        avec, sans = pixels_provenance(a), pixels_provenance(sans_provenance(a))
+        print(f"FA-4bis {p.name} : avec provenance {avec} px, sans {sans} px")
+        assert avec > 50, f"{p.name} : l'image d'origine doit passer ({avec} px)"
+        assert not sans > 50, f"{p.name} : image sans provenance acceptée ({sans} px comptés)"
