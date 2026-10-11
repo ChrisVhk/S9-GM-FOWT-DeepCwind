@@ -514,3 +514,13 @@ def test_fa3_sur_l_exemple_le_sommet_de_tour_du_vtk_egale_les_canaux_dans_la_fen
     print(f"FA-3 sur l'exemple : {len(ks)} images, écart max {ecart * 1e3:.3f} mm, tolérance {tolerance(canal) * 1e3:.2f} mm")
     assert ecart <= tolerance(canal)
     assert np.ptp(canal) > 5e-3, "la tour doit bouger dans la fenêtre (sinon le test ne discrimine rien)"
+
+
+def test_commande_transmet_la_fenetre_a_animer(monkeypatch):
+    vus = {}
+    monkeypatch.setattr(visu, "animer", lambda **kw: vus.update(kw) or kw["sortie"])
+    assert visu._commande(["animer", "d", "o.mp4", "--cas", "a", "--modele", "b", "--etat", "c",
+                           "--fenetre", "2.5", "7"]) == 0
+    assert vus["fenetre"] == (2.5, 7.0)
+    visu._commande(["animer", "d", "o.mp4", "--cas", "a", "--modele", "b", "--etat", "c"])
+    assert vus["fenetre"] is None
