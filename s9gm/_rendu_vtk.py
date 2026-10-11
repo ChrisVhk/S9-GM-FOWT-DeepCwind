@@ -17,10 +17,10 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    un fichier `.vtp` par maillage et par image. Le rendu ne calcule rien de physique : il lit ces
    positions et les dessine, caméra fixe (calée sur l'image 0), **éclairage plat** (ambiant 1, diffus 0, pas de spéculaire)
    pour que chaque objet garde exactement sa couleur de la charte, sur fond blanc. **Légende des couleurs** :
-   pales TEAL, moyeu MARINE, tour et nacelle PALE bordées d'un contour MARINE (silhouette), sous-structure
+   pales TEAL, moyeu MARINE, tour et nacelle PALE bordées d'un contour MARINE (silhouette ; en mode lignes, MARINE sans contour), sous-structure
    (Morison) TEALD, surface libre LIGHT, ligne de provenance GREY ; une pièce en **CORAIL** (l'accent de la
    charte) est un maillage non répertorié, à regarder avec prudence. Le contour est une copie de la tour
-   (agrandie autour de son axe vertical) ou de la nacelle (autour de son centre), de 30 % de plus, décalée
+   (agrandie autour de l'axe vertical du centre de sa boîte englobante) ou de la nacelle (autour de son centre), de 30 % de plus, décalée
    vers l'arrière le long de la direction de vue : il ne dépasse que sur les bords et ne dessine pas le
    maillage. `fenetre = (t_debut, t_fin)` (secondes de temps de calcul) ne rend que les images VTK de
    l'intervalle ; l'horloge incrustée est le temps du calcul, jamais le temps depuis le début de la fenêtre. Facteur
@@ -59,7 +59,8 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    Une animation lisse n'est donc pas la preuve qu'il n'y a pas de mouvement rapide. (d) Une image
    unique ne dit ni l'amplitude ni la fréquence : on lit les courbes pour cela. (e) Le contour est un
    artifice de rendu : il épaissit visuellement la tour et la nacelle d'environ un tiers de leur rayon
-   de chaque côté, il ne dit rien de la géométrie. (f) Une fenêtre prise « après le transitoire » dépend
+   de chaque côté (30 % du rayon pour la tour, de sa boîte englobante), il ne dit rien de la géométrie ; en mode
+   lignes (`VTK_type = 2`) il n'y a pas de contour et la tour et la nacelle sont dessinées en MARINE. (f) Une fenêtre prise « après le transitoire » dépend
    d'un critère (voir `lire.debut_regime`), pas d'une propriété du calcul : un autre critère donne une
    autre fenêtre ; et un mouvement lent (le calage des pales varie peu en régime) ne se voit pas.
 5. **Renvois** — fiche F1 (seule fiche existante à ce jour ; choisie parce qu'elle donne `Ω = λ·V/R`
@@ -144,6 +145,8 @@ def style(nom):
     « ED_TowerLn2Mesh_motion_R1 » (VTK_type 2) contiennent « Tower »."""
     for motif, (couleur, role) in COULEURS.items():
         if motif in nom:
+            if couleur == PALE and not a_un_contour(nom):   # lignes (VTK_type 2) : pas de contour, PALE serait invisible
+                return MARINE, role
             return couleur, role
     return CORAIL, "rotor"
 

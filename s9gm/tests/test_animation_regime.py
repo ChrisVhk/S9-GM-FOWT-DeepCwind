@@ -16,7 +16,9 @@ Mesures dans le VTK (ASCII), sans ParaView :
   absolu est décalé d'environ 7° ; on compare donc la VARIATION depuis l'image 0 (comme FA-3 pour les flèches) ;
 - calage : angle de la corde (axe principal des 399 points) de la section 6 de la pale 1 dans le plan normal à
   l'axe de pale, mesuré depuis l'image 0 (pas nul). Convention de signe : un pas positif fait tourner la corde
-  dans le sens négatif de ce repère (fixé une fois, vérifié par la falsification en signe opposé)."""
+  dans le sens négatif de ce repère ; ce signe est un paramètre binaire AJUSTÉ sur les données (le signe opposé
+  donne 28° d'écart), non une convention déduite : les falsifications en signe opposé et en pas nul sont donc
+  impliquées par le test principal ; la seule falsification indépendante est « pas constant »."""
 import json
 import math
 import re

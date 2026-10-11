@@ -1,16 +1,16 @@
 <!-- destinations: github -->
 # Animer un calcul — `s9gm.visu.animer`
 
-Une animation montre ce que la structure *fait* pendant un calcul : le rotor tourne, les pales sont calées par le
-régulateur, la tour se déplace. Elle sert à repérer un mouvement incohérent avant de lire un canal. Ce n'est **pas**
+Une animation montre ce que la structure *fait* pendant un calcul, surtout ce qui bouge assez pour se voir : le
+rotor qui tourne. Elle sert à repérer un mouvement incohérent avant de lire un canal. Ce n'est **pas**
 une validation du modèle : c'est une cinématique calculée (voir le bloc Théorie de `s9gm/_rendu_vtk.py`, rubrique 4).
 
-**Ce que l'exemple ci-dessous montre, et seulement cela** (chaque point est mesuré contre un canal du même calcul
-par les tests `FA-3`, `FA-8a`, `FA-8b` de `s9gm/tests/`) :
-- le **rotor tourne** : l'azimut de la pale 1, lu dans la série VTK, égale le canal `Azimuth` ;
-- les **pales sont calées** : leur angle de calage, lu dans la série VTK, égale `BldPitch1` ; en régime ce calage
-  varie peu, on le voit surtout en comparant avec une pale à pas nul, pas en le regardant pivoter ;
-- la **tour se déplace** : le déplacement du sommet de tour, lu dans la série VTK, égale celui des canaux.
+**Ce que l'exemple ci-dessous montre, et ce qu'il ne fait que contenir.** La vidéo **montre** le **rotor qui tourne**
+(l'azimut de la pale 1, lu dans la série VTK, égale le canal `Azimuth`). Deux autres grandeurs sont **justes dans le
+fichier VTK** (mesurées contre les canaux du même calcul par les tests `FA-3` et `FA-8b` de `s9gm/tests/`) mais ne sont
+**pas lisibles à l'écran** : le calage des pales (égal à `BldPitch1`, il varie à peine pendant la fenêtre, et la pale à
+pas nul de référence n'est pas dans la fenêtre) et le déplacement du sommet de tour (égal à celui des canaux, de
+l'ordre de quelques pixels à l'échelle 1 : à lire sur les courbes, ou à exagérer avec `amplification`).
 
 L'exemple est un cas à vent uniforme dans la région de fonctionnement où le régulateur limite la puissance
 (Region 3, fiche F1), sur le `modele_fixe`. Il ne répond à aucune question notée et n'en donne aucune valeur.
@@ -88,10 +88,10 @@ Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, 
 ## 4. Légende des couleurs, et ce qu'il ne faut pas conclure
 
 - **Couleurs** : pales TEAL (vert), moyeu MARINE (bleu foncé), **tour et nacelle PALE (gris-bleu très clair)
-  bordées d'un contour MARINE**, sous-structure TEALD, surface libre LIGHT (bleu clair). Une pièce en **CORAIL**
+  bordées d'un contour MARINE** (en mode lignes, `VTK_type = 2` : MARINE, sans contour), sous-structure TEALD, surface libre LIGHT (bleu clair). Une pièce en **CORAIL**
   (orange) est un maillage que `s9gm` ne connaît pas (ligne d'ancrage, plateforme, autre) : il est dessiné tel que
   calculé, sans rien supposer de lui ; regardez-le avec prudence. Le gris est réservé à la ligne de provenance. Le
-  contour est un artifice de rendu : il épaissit la tour et la nacelle d'un tiers de leur rayon, il ne dit rien de
+  contour est un artifice de rendu : il épaissit la tour et la nacelle de 30 % de leur rayon environ, il ne dit rien de
   la géométrie.
 - **Avant** de regarder : de combien de degrés le rotor tourne-t-il entre deux images ? C'est `Ω / VTK_fps`
   (`Ω` en rad/s : `RotSpeed` du cas, en tr/min, × 2π/60 ; ou prévu par la fiche F1). Trois pales identiques redonnent la
