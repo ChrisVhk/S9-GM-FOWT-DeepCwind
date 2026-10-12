@@ -5,6 +5,9 @@
   chemins     R-1b chemins entre guillemets des fichiers d'entrée OpenFAST (.dat .fst .inp) : relatifs au fichier qui les cite, comme
                OpenFAST les lit ; un binaire généré localement (.so, .bts) n'a besoin que de son dossier ; les fixtures
                s9gm/tests/data/ sont exemptées. Les non-résolus restants sont une LISTE DE RÉFÉRENCE (voir CARTE) : elle ne doit pas grandir
+  edition     R-7  aucune consigne (seances/**/*.md, cas/README.md, INSTALLATION.md) ne demande d'éditer un fichier SUIVI par git :
+               pas de verbe d'édition à côté d'un chemin suivi (sauf copie sous results/ ou mention « lecture seule »), pas d'éditeur
+               ni de `sed -i` lancé sur un fichier suivi. L'étudiant ne modifie que des dossiers ignorés par git.
   anciens     R-2  aucun ancien chemin cité hors annexes/, hors TRANSITION.md et CHANGELOG, hors ce script et son test
   format      R-4  chaque seances/*/README.md porte les 6 titres « ## » du format commun, dans l'ordre, et eux seuls
   porte       R-5  le README.md racine renvoie à chaque séance et à la page de post-traitement ; aucun autre fichier ne se
@@ -12,9 +15,9 @@
   transition  R-6  clone de l'état ANCIEN (par défaut origin/main), travail d'étudiant simulé, `git pull` de l'état NOUVEAU
                (par défaut HEAD) : aucun conflit, aucun fichier d'étudiant perdu, anciens emplacements nommés dans TRANSITION.md
 
-Usage : python scripts/verifier_parcours.py {liens|chemins|anciens|format|porte|transition|tout} [--racine DOSSIER]
+Usage : python scripts/verifier_parcours.py {liens|chemins|edition|anciens|format|porte|transition|tout} [--racine DOSSIER]
         python scripts/verifier_parcours.py --autotest      (chaque contrôle doit voir une faute plantée)
-Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5 (R-6 se lance à part).
+Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5, R-7 (R-6 se lance à part).
 """
 import argparse
 import hashlib
@@ -139,6 +142,57 @@ def chemins(racine):
             if rel not in f_suivis and rel not in dossiers:
                 ecarts.append(f"{f}:{n}: chemin non résolu : {c}")
     return ecarts
+
+
+VERBES_EDITION = re.compile(r"\b(édit\w+|modifi\w+|chang(?:ez|er|ez-le|ez-les)|remplac\w+|compl[ée]t\w+|renseign\w+|corrig\w+|enregistr\w+|ajout\w+|réécri\w+)\b", re.IGNORECASE)
+GARDE_FOUS = re.compile(r"results/|rendus/|\bcopi\w+|lecture seule|sans (?:le |les |l')?(?:modifi|enregistr)\w*|ne (?:le |les |l')?(?:modifi|enregistr)\w*|jamais|n'(?:est|a) pas|à compléter", re.IGNORECASE)
+EDITEUR = re.compile(r"^\s*(?:nano|vim?|code|gedit|emacs|sed\s+-i|tee|cat\s*>)\s+(?:-\S+\s+)*(\S+)")
+
+
+def edition(racine):
+    """R-7 : une consigne ne demande jamais d'éditer un fichier suivi par git."""
+    racine = Path(racine).resolve()
+    f_suivis = set(suivis(racine))
+    noms = {}
+    for f in f_suivis:
+        noms.setdefault(Path(f).name, []).append(f)
+    cibles = [f for f in sorted(f_suivis) if f.endswith(".md") and (f.startswith("seances/") or f in ("cas/README.md", "INSTALLATION.md"))]
+    ecarts = []
+    for f in cibles:
+        dedans = False
+        for n, ligne in enumerate((racine / f).read_text(encoding="utf-8").split("\n"), start=1):
+            if ligne.lstrip().startswith("```"):
+                dedans = not dedans
+                continue
+            if dedans:
+                if EDITEUR.match(ligne):
+                    for jeton in ligne.split():
+                        if _est_suivi(jeton, racine, f, f_suivis):
+                            ecarts.append(f"{f}:{n}: éditeur ou sed -i lancé sur un fichier suivi : {jeton}")
+                            break
+                continue
+            if not VERBES_EDITION.search(ligne) or GARDE_FOUS.search(ligne):
+                continue
+            for jeton in re.findall(r"`([^`\s]+)`", ligne):
+                if _est_suivi(jeton, racine, f, f_suivis):
+                    ecarts.append(f"{f}:{n}: demande d'éditer un fichier suivi ({jeton}) : « {ligne.strip()[:90]} »")
+                    break
+    return ecarts
+
+
+def _est_suivi(jeton, racine, depuis, f_suivis):
+    """Le jeton désigne-t-il un fichier suivi (chemin depuis la racine, ou depuis le .md qui le cite) ?"""
+    jeton = jeton.strip("`'\".,;:()")
+    if not jeton or jeton.endswith("/") or "*" in jeton or "<" in jeton:
+        return False
+    for base in (Path("."), Path(depuis).parent):
+        try:
+            rel = str((racine / base / jeton).resolve().relative_to(racine))
+        except ValueError:
+            continue
+        if rel in f_suivis:
+            return True
+    return False
 
 
 def anciens(racine):
@@ -280,7 +334,7 @@ def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=N
     return ecarts
 
 
-CONTROLES = {"liens": liens, "chemins": chemins, "anciens": anciens, "format": format_seances, "porte": porte_unique}
+CONTROLES = {"liens": liens, "chemins": chemins, "edition": edition, "anciens": anciens, "format": format_seances, "porte": porte_unique}
 
 
 # ---- autotest : chaque contrôle doit voir une faute plantée ------------------------------------------------------------
@@ -330,6 +384,15 @@ def autotest():
         attendre("chemins (fichier absent)", chemins(ko_c), vide=False)
         ko_so = _depot_jouet(d / "c_so", {"m/a.dat": '"../ancien/DISCON.so"   DLL - x\n', "b/x.dat": "x\n"})
         attendre("chemins (dossier du .so absent)", chemins(ko_so), vide=False)
+        # R-7 : édition d'un fichier suivi
+        base7 = {"modeles/fixe/main.fst": "x\n", "results/.gitkeep": ""}
+        for nom, texte, vide in [("modifiez un fichier suivi", "Modifiez `modeles/fixe/main.fst` puis relancez.\n", False),
+                                 ("éditeur sur un fichier suivi", "```bash\nnano modeles/fixe/main.fst\n```\n", False),
+                                 ("sed -i sur un fichier suivi", "```bash\nsed -i 's/a/b/' modeles/fixe/main.fst\n```\n", False),
+                                 ("copie sous results", "Copiez `modeles/fixe/main.fst` sous `results/` puis modifiez la copie.\n", True),
+                                 ("lecture seule", "Ouvrez `modeles/fixe/main.fst` (lecture seule) : ne le modifiez pas.\n", True),
+                                 ("éditer un fichier non suivi", "Éditez `results/lct_0b.csv`.\n", True)]:
+            attendre(f"edition ({nom})", edition(_depot_jouet(d / ("e_" + str(abs(hash(nom)))), {**base7, "seances/0a/README.md": texte})), vide)
         # R-2
         for nom, texte, vide in [("tutorials/ cité", "voir tutorials/lheea/\n", False), ("models/ cité", "models/oc4_rtest\n", False),
                                  ("modeles/ nouveau", "modeles/oc4_rtest\n", True), ("annexes/papers nouveau", "annexes/papers/x.md\n", True),
