@@ -80,7 +80,7 @@ def test_les_commandes_300_s_et_600_s_et_la_question_d_analyse_sans_valeur():
     assert "300" in t and "600" in t
     assert re.search(r"dans le bruit", t) or re.search(r"significatif", t)
     code = "\n".join(c for _, c in parcours.blocs(_texte()))
-    assert re.search(r'\["fst.TMax"\]\s*=\s*300', code) and re.search(r"\b600\b", code)
+    assert re.search(r'\["fst\.TMax"\]\s*=\s*\[300,\s*600\]', code)       # les deux durées, dans la même commande
 
 
 def test_aucune_valeur_de_choix_n_est_ecrite_dans_les_commandes():
