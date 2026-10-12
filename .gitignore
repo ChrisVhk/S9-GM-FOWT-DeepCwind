@@ -41,5 +41,5 @@ ateliers_prives/
 _pytest_*/
 .pytest_cache/
 
-# Calculs du notebook 0b (cases/iea15_stationnaire/_calculs) : sorties regenerables
-cases/iea15_stationnaire/_calculs/
+# Calculs du notebook 0b (cas/iea15_stationnaire/_calculs) : sorties regenerables
+cas/iea15_stationnaire/_calculs/

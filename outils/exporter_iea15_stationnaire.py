@@ -1,4 +1,4 @@
-"""Exporte les six cas IEA 15 MW a vent stationnaire (cases/iea15_stationnaire/_calculs/*/main.outb)
+"""Exporte les six cas IEA 15 MW a vent stationnaire (cas/iea15_stationnaire/_calculs/*/main.outb)
 vers `data/iea15_openfast_stationnaire.csv.gz` : le jeu livre que lit le notebook de la seance 0b quand
 les cas n'ont pas ete relances. Lecture par `s9gm.lire` (aucun traitement : memes valeurs que le .outb).
 
@@ -19,7 +19,7 @@ CANAUX = ["Wind1VelX", "RotSpeed", "BldPitch1", "GenPwr", "RotThrust", "RotTorq"
 
 if __name__ == "__main__":
     morceaux = []
-    for sortie in sorted((RACINE / "cases" / "iea15_stationnaire" / "_calculs").glob("*/main.outb")):
+    for sortie in sorted((RACINE / "cas" / "iea15_stationnaire" / "_calculs").glob("*/main.outb")):
         df, _ = lire.lire(sortie)
         morceaux.append(df[["Time", *CANAUX]].assign(cas=sortie.parent.name)[["cas", "Time", *CANAUX]])
     if not morceaux:
