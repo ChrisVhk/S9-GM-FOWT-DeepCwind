@@ -45,12 +45,15 @@ def cloner(racine, destination):
     return Path(destination)
 
 
-def rejouer(readme, depot, substitutions, delai=3600):
-    """Exécute les blocs de `readme` dans `depot`. Renvoie (code de sortie, sortie, {étape : secondes})."""
+def rejouer(readme, depot, substitutions, delai=3600, etapes=None):
+    """Exécute les blocs de `readme` dans `depot` (seulement ceux dont le numéro est dans `etapes`, si donné ; chaque bloc doit alors être
+    autonome : ses imports et ses définitions). Renvoie (code de sortie, sortie, {étape : secondes})."""
     texte = Path(readme).read_text(encoding="utf-8")
     morceaux, n = [], 0
     for langue, code in blocs(texte):
         n += 1
+        if etapes is not None and n not in etapes:
+            continue
         code = substituer(code, substitutions)
         if langue == "python":
             morceaux.append(f"_t0 = __import__('time').time()\n{code}\nprint('ETAPE {n}', round(__import__('time').time() - _t0, 1), flush=True)\n")

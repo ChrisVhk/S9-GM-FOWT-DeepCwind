@@ -170,7 +170,7 @@ référence IEC est 600 s.
 
 *Théorie : section 6.5 (flotteur) ; fiche F4 (à venir (master)).*
 
-À partir de la géométrie de la DeepCwind (dimensions fournies), compléter le classeur `DeepCwind_ARCHITECTURE.xlsx` : **nœuds**
+À partir de la géométrie de la DeepCwind (dimensions fournies), compléter votre copie (sous `results/`) du classeur `DeepCwind_ARCHITECTURE.xlsx` : **nœuds**
 (coordonnées dans le repère inertiel), **membres** (nœud 1 → nœud 2, jeu de propriétés, discrétisation), **jeux de propriétés**
 (diamètre, épaisseur) et **coefficients hydrodynamiques** (Cd, Ca) par groupe — colonne centrale, colonnes déportées, bases,
 pontons, entretoises. Retrouver ensuite chaque colonne du tableau dans le fichier HydroDyn du modèle. C'est la façon la plus

@@ -23,6 +23,8 @@ PHASE1 = RACINE / "seances" / "phase1" / "README.md"
 ESSAI = {
     "<votre k (diviseur de 18)>": "1",
     "<votre exposant m>": "3",
+    "<votre méthode de lumping>": "dommage",
+    "<votre z0>": "0.001",
     "<votre seuil de probabilité>": "0.005",
     "<votre loi>": "puissance",
     "<votre exposant de vent>": "0.14",
@@ -38,6 +40,11 @@ ESSAI = {
 def _texte():
     assert PHASE1.is_file()
     return PHASE1.read_text(encoding="utf-8")
+
+
+def _plat(texte):
+    """Texte sans gras ni retours à la ligne : pour chercher une phrase coupée par la mise en page."""
+    return re.sub(r"\s+", " ", texte.replace("**", ""))
 
 
 def test_les_donnees_de_courant_et_de_niveaux_d_eau_sont_dites_non_fournies():
@@ -57,7 +64,7 @@ def test_iecturbc_est_un_trou_a_justifier_avec_sa_source_pas_une_valeur_imposee(
     bloc = t[i - 800: i + 1800].lower()
     for mot in ("justif", "iref", "classe de conception", "source"):
         assert mot in bloc, f"« {mot} » absent de la demande de justification de IECturbc"
-    assert "imposé" not in bloc and "impose " not in bloc
+    assert not re.search(r"(?<!pas )impos[ée]", bloc), "IECturbc présenté comme imposé"   # « pas imposés » est permis
     assert "la lettre" in bloc or "pas la lettre" in bloc or "lettre seule" in bloc    # le barème : la justification, pas la lettre
 
 
@@ -72,7 +79,7 @@ def test_aucune_valeur_de_choix_n_est_ecrite_dans_les_commandes():
 
 
 def test_la_lct_est_validee_avant_la_campagne_et_les_extremes_ne_sont_pas_lances():
-    t = _texte().lower()
+    t = _plat(_texte()).lower()
     assert "validée par l'enseignant" in t or "validee par l'enseignant" in t
     assert "somme des occurrences" in t and "100 %" in t
 
