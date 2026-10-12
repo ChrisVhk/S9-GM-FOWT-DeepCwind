@@ -179,7 +179,8 @@ structure tubulaire, et ce tableau resservira en phase 5 (entretoises, β = d/D)
 
 > **À compléter** : le classeur `DeepCwind_ARCHITECTURE.xlsx` n'est pas dans le dépôt ; la géométrie fournie est dans
 > [`../../data/geometrie_deepcwind.md`](../../data/geometrie_deepcwind.md). Le fichier HydroDyn du modèle flottant
-> sera dans `modeles/flottant/` une fois celui-ci construit.
+> est `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat` (voir
+> [`modeles/flottant/README.md`](../../modeles/flottant/README.md)).
 
 ### 3.3 Raideurs hydrostatiques, à la main (environ 30 min)
 
@@ -214,8 +215,8 @@ savez prédire ce qu'il va dire.
 | D02 | échelon de 5 à 20 m/s | régulière, H = 6 m, T = 10 s |
 | D03 à D05 | turbulent 7,5 / 12 / 16 m/s (mêmes champs que F03-F05) | irrégulière JONSWAP, Hs = 6 m, Tp = 10 s |
 
-Même principe qu'en 0a : **une seule chose change à la fois** d'un cas à l'autre — la houle s'ajoute, puis le vent, puis la
-turbulence.
+Même principe qu'en 0a : **on change le moins de choses possible d'un cas à l'autre** — de D00 à D01, le vent s'ajoute ; de D01
+à D02, le vent devient un échelon ; de D02 à D03, le vent devient turbulent (et la houle irrégulière).
 
 Le modèle partagé est [`modeles/flottant/`](../../modeles/flottant/README.md) : la NREL 5 MW sur la plateforme OC4-DeepCwind, dérivée
 du cas r-test OpenFAST, partant **au repos** comme le modèle fixe (rotor à l'arrêt, plateforme sans déplacement initial). Le
@@ -224,13 +225,13 @@ flotteur y est un seul corps rigide à 6 degrés de liberté.
 **D00, D01, D02 sont des cas de référence** (`cas/`) : vous les lancez, sans les modifier.
 
 ```bash
-bash cas/run_cas.sh D00 D01 D02
+for c in D00 D01 D02; do bash cas/run_cas.sh $c & done; wait     # les trois ensemble (un seul `run_cas.sh D00 D01 D02` les enchaînerait)
 ```
 
-**Vous devez voir** : `OK en NN s -> .../results/D0x/main.outb` pour chacun (environ **7 minutes par cas** pour 300 s simulées (mesuré, trois cas en parallèle) ;
-lancez-les ensemble, dans un second terminal, pendant que vous travaillez sur autre chose). Lisez ensuite `results/D0x/main.outb` comme
-au 3.1 : `lire.lire`, choix de `t_transitoire` en regardant la courbe, `lire.statistiques`. D00 n'a **aucun vent** (air au repos, rotor
-non simulé : `CompInflow = 0`, `CompAero = 0`) : le flotteur ne répond qu'à la houle.
+**Vous devez voir** : `OK en NN s -> .../results/D0x/main.outb` pour chacun environ **7 minutes par cas** pour 300 s simulées (mesuré avec les trois lancés ensemble, comme ci-dessus ; enchaînés, comptez la
+somme) ; lancez-les dans un second terminal, pendant que vous travaillez sur autre chose. Lisez ensuite `results/D0x/main.outb` comme
+au 3.1 : `lire.lire`, choix de `t_transitoire` en regardant la courbe, `lire.statistiques`. D00 n'a **aucun vent** (air au repos, sans
+aérodynamique : `CompInflow = 0`, `CompAero = 0`) : le flotteur ne répond qu'à la houle.
 
 **D03, D04, D05 sont à générer par vous**, avec les **mêmes champs de vent que F03, F04, F05** : ils n'existent que dans vos
 dossiers de sortie, puisque la catégorie de turbulence et la graine sont vos choix. Une seconde table de cas, **dans le même

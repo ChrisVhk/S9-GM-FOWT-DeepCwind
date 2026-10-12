@@ -44,7 +44,7 @@ séance.
 | Dossier | Contenu | Vous le… |
 |---|---|---|
 | `seances/` | Une consigne autonome par séance ou par phase | **lisez et suivez** |
-| `modeles/` | Tous les modèles : `fixe/` (monopieu OC3 du tutoriel), `oc4_rtest/` (OC4-DeepCwind, r-test OpenFAST, Apache-2.0), `iea15_monopile/`, `oc5/` (note) | lisez, sans le modifier |
+| `modeles/` | Tous les modèles : `fixe/` (monopieu OC3 du tutoriel), `flottant/` (OC4-DeepCwind du tutoriel), `oc4_rtest/` (OC4-DeepCwind, r-test OpenFAST, Apache-2.0), `iea15_monopile/`, `oc5/` (note) | lisez, sans le modifier |
 | `cas/` | Cas de référence (F01, F02…) et leur lanceur `run_cas.sh` | lancez, sans le modifier |
 | `s9gm/` | Le seul outil de calcul et de post-traitement (Python) | utilisez, sans le modifier |
 | `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) | lisez |

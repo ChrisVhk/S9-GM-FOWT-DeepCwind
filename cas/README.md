@@ -63,7 +63,7 @@ bash cas/run_cas.sh results/F01_essai     # un dossier à vous (qui contient un 
 
 **Où vont les sorties.** `run_cas.sh` copie le cas de référence **sous `results/<cas>/`** (même profondeur que `cas/` : les
 chemins relatifs restent valables) et le lance dans cette copie : `cas/` n'est jamais modifié, `main.outb` et `run.log` sont
-sous `results/<cas>/`.
+sous `results/<cas>/`. Relancer un cas de référence **écrase** son dossier `results/<cas>/` : nommez autrement les copies que vous modifiez (`results/F01_essai`).
 
 ## Cas disponibles
 
@@ -83,7 +83,8 @@ sous `results/<cas>/`.
 changent d'un cas à l'autre dans ce tutoriel : `TMax` (durée), le nom du fichier `InflowFile`
 (éventuellement son contenu), et plus tard (D00+) `CompHydro`/`SeaStFile`/`HydroFile`/
 `MooringFile`. Tout le reste (degrés de liberté, pas de temps, modules actifs, sorties) reste
-identique au modèle de base pour ce tutoriel — c'est volontaire : on apprend d'abord à changer une
+identique au modèle de base pour les cas F et D de ce tutoriel (E01 et E02, cas d'échauffement, éteignent des modules et bloquent
+la plateforme) — c'est volontaire : on apprend d'abord à changer une
 seule chose à la fois.
 
 **Attention — le cas fixe tourne en BEMT, pas en DBEMT** : le modèle v3.2.1 d'origine demandait
@@ -98,8 +99,8 @@ en tête si vous comparez à une documentation qui suppose du DBEMT.
 | F01 | 200 s | 91 s | 2,2 |
 | F02 | 300 s | 127 s | 2,4 |
 
-*À compléter pour F03-F05 et D00-D05 (séance 0b) : si le temps de calcul dépasse ce que permettent
-les 3 h de séance, réduire la durée simulée et le signaler ici.*
+Temps de calcul de F03-F05 et des cas flottants D00-D05 : voir la [séance 0b](../seances/0b/README.md), section 3 (si le temps
+de calcul dépasse ce que permettent les 3 h de séance, réduire la durée simulée et le signaler).
 
 ## Vérifications à la main (F01)
 

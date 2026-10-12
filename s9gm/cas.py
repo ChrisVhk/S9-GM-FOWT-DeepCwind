@@ -67,7 +67,7 @@ _COMMENTAIRE_MIGRE = re.compile(r"\s*\[migre[^\]]*\]\s*$")
 
 def lire_lct(chemin_csv):
     """Lit une LCT au format CSV (séparateur « , » ou « ; »). Colonne `cas` obligatoire ; les autres
-    colonnes sont `fichier.Clé` avec fichier ∈ {fst, inflow, turbsim, seastate}. Renvoie une liste de dicts.
+    colonnes sont `fichier.Clé` avec fichier ∈ {fst, inflow, turbsim, seastate, elastodyn}. Renvoie une liste de dicts.
 
     Un tableur s'exporte en CSV (« enregistrer sous… ») : on évite ainsi une dépendance de plus."""
     with open(chemin_csv, encoding="utf-8-sig", newline="") as f:

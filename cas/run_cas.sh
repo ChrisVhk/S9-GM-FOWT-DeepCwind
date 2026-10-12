@@ -17,7 +17,7 @@ if ! command -v openfast &>/dev/null; then
   exit 1
 fi
 
-if [ ! -f "$RACINE/modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON.so" ]; then
+if [ ! -f "$RACINE/modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON.so" ] || [ ! -f "$RACINE/modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON_OC3Hywind.so" ]; then
   echo "ERREUR : le controleur DISCON n'est pas compile." >&2
   echo "Lancez d'abord, depuis la racine du depot : bash scripts/build_discon.sh" >&2
   exit 1
@@ -40,6 +40,7 @@ for cas in "${CASES[@]}"; do
   if [[ "$cas" == */* ]]; then          # un dossier à vous : lancé sur place
     dir="$(cd "$cas" 2>/dev/null && pwd)" || { echo "Dossier inconnu : $cas" >&2; status=1; continue; }
     [ -f "$dir/main.fst" ] || { echo "Pas de main.fst dans $cas" >&2; status=1; continue; }
+    case "$dir/" in "$HERE"/*|"$RACINE/modeles/"*) echo "Refus : $cas est un dossier de référence suivi par git (cas/ ou modeles/) ; lancez le cas par son nom (bash cas/run_cas.sh F01) : la copie va sous results/." >&2; status=1; continue;; esac
   else                                   # un cas de référence : copie sous results/
     src="$HERE/$cas"
     if [ ! -d "$src" ]; then

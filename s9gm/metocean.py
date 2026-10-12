@@ -131,7 +131,7 @@ voir `data/metocean/floatech_wob.metadata.json` et `PROVENANCE.md`.
 2. **Modèle** — une ligne de LCT par état de mer : numéro de cas, durée, vent moyen **à la hauteur du moyeu**
    (conversion explicite depuis la hauteur de la table, par une loi nommée : puissance avec exposant, ou
    logarithmique avec longueur de rugosité), graine. Hs, Tp, direction et occurrence vont dans un fichier
-   compagnon, parce que `s9gm.cas` n'édite pas le fichier de houle. **Domaine de validité** : la conversion de
+   compagnon de la table exportée (`s9gm.cas` sait ensuite les écrire dans l'état de mer d'un cas par ses colonnes `seastate.*`). **Domaine de validité** : la conversion de
    hauteur est une loi de profil moyen, valable en atmosphère neutre ; le choix de la loi et de son exposant est un
    choix de modélisation que vous devez justifier.
 3. **Ordre de grandeur attendu** — la méthode : vérifier que la vitesse au moyeu dépasse la vitesse à la hauteur
@@ -327,7 +327,7 @@ def exporter_lct(df, chemin_lct, chemin_etats, *, z_table, z_hub, loi, exposant=
                  graine0, prefixe="M", iecturbc=None):
     """Écrit une LCT lisible par `s9gm.cas` (colonnes `cas`, `fst.TMax`, `turbsim.URef`,
     `turbsim.RandSeed1`) et un fichier compagnon (états de mer : U à la table et au moyeu, Hs, Tp, mis, P,
-    O_h, O_pct), car `cas` n'édite pas le fichier de houle. `z_table`, `z_hub`, `loi` (et `exposant` ou `z0`)
+    O_h, O_pct), car l'état de mer d'un cas s'écrit par les colonnes `seastate.*` de `cas`, que ce fichier compagnon alimente. `z_table`, `z_hub`, `loi` (et `exposant` ou `z0`)
     sont **obligatoires** : le changement de hauteur du vent est un choix, jamais un défaut. `iecturbc` : si
     donné, ajoute la colonne `turbsim.IECturbc` ; absent, la catégorie reste à compléter dans le modèle TurbSim."""
     d = occurrences(df)

@@ -56,3 +56,9 @@ def test_cas_de_reference_lance_sur_une_copie_et_cas_reste_intact():
     assert r.returncode == 0, r.stdout + r.stderr
     assert (RACINE / "results" / "F01" / "main.outb").is_file()
     assert _empreinte(CAS / "F01") == avant          # aucun fichier créé ni modifié sous cas/F01
+
+
+@requiert_openfast
+def test_un_dossier_de_reference_n_est_jamais_lance_sur_place():
+    r = _lancer("cas/F01")
+    assert r.returncode != 0 and "Refus" in r.stderr
