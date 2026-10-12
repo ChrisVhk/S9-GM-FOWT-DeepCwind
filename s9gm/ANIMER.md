@@ -13,7 +13,7 @@ pas nul de référence n'est pas dans la fenêtre) et le déplacement du sommet 
 l'ordre de quelques pixels à l'échelle 1 : à lire sur les courbes, ou à exagérer avec `amplification`).
 
 L'exemple est un cas à vent uniforme dans la région de fonctionnement où le régulateur limite la puissance
-(Region 3, fiche F1), sur le `modele_fixe`. Il ne répond à aucune question notée et n'en donne aucune valeur.
+(Region 3, fiche F1), sur le `modeles/fixe`. Il ne répond à aucune question notée et n'en donne aucune valeur.
 
 **Prérequis** : `pvbatch` et `ffmpeg` installés — voir `INSTALLATION.md`, section 5. Sans eux, `animer`
 s'arrête avec un message qui y renvoie. Environnement `s9gm-fowt` activé, contrôleur compilé
@@ -21,7 +21,7 @@ s'arrête avec un message qui y renvoie. Environnement `s9gm-fowt` activé, cont
 
 ## 1. Un cas où le rotor tourne, avec sortie VTK
 
-Le `modele_fixe` démarre rotor à l'arrêt : en 10 s il ne tournerait presque pas, et l'animation ne montrerait qu'une
+Le `modeles/fixe` démarre rotor à l'arrêt : en 10 s il ne tournerait presque pas, et l'animation ne montrerait qu'une
 mise en charge de la tour. On part donc du **régime nominal publié** (`ENONCE.md`, §4 : 12,1 tr/min), par une copie
 d'ElastoDyn propre au cas — le fichier partagé du tutoriel n'est jamais modifié —, avec un vent de 15,4 m/s ; le pas
 initial reste à 0 : c'est le régulateur qui trouve le sien.
@@ -34,7 +34,7 @@ printf 'cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp,elastodyn.Ro
   > results/animation/lct.csv
 python - <<'PY'
 from s9gm import cas, lancer, visu
-d = cas.generer_serie("results/animation/lct.csv", "tutorials/prise_en_main/modele_fixe",
+d = cas.generer_serie("results/animation/lct.csv", "modeles/fixe",
                       "results/animation", executer_turbsim=False)[0]
 visu.preparer_animation(d, vtk_type=1, vtk_fps=5)   # WrVTK = 2, surfaces, 5 images par seconde
 lancer.lancer_cas(d)
@@ -66,7 +66,7 @@ from s9gm import lire, visu
 d = "results/animation/REGIME3"
 df, _ = lire.lire(d + "/main.outb")
 debut = lire.debut_regime(df, nominal=12.1, tol_rel=0.02, stab_pas=0.5, duree=5.0)
-visu.animer(cas="REGIME3", modele="modele_fixe", etat="rejoué le JJ/MM", dossier_cas=d,
+visu.animer(cas="REGIME3", modele="fixe", etat="rejoué le JJ/MM", dossier_cas=d,
             sortie=d + ".mp4", fenetre=(debut, df["Time"].iloc[-1]))
 PY
 ```
@@ -99,7 +99,7 @@ Chaque étape s'appelle aussi seule : `visu.preparer_animation`, `visu.rendre`, 
 - **Amplification** : `amplification=N` (`--amplification N` en ligne de commande) exagère les déplacements
   de la tour et de la sous-structure, **depuis l'image 0** (un décalage déjà présent à l'image 0 n'est pas
   amplifié). Elle n'est acceptée que si tous les maillages de la série sont ceux vérifiés sur
-  `modele_fixe` (pales, moyeu, nacelle, tour, Morison, surface libre) : avec un maillage d'ancrage,
+  `modeles/fixe` (pales, moyeu, nacelle, tour, Morison, surface libre) : avec un maillage d'ancrage,
   de plateforme ou de lignes (`VTK_type = 2`), `animer` s'arrête avant tout rendu et nomme les
   maillages en cause ; `N = 1` reste toujours possible. Elle est écrite sur chaque image
   (« déplacements ×N ») : une animation amplifiée donne une idée fausse des proportions.

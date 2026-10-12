@@ -31,7 +31,7 @@ attend commune à ParaView 5.11 et 6.0 (seul 6.0.1 a été exécuté).
    sommet de tour (leur rotation propre n'est pas amplifiée) ; la surface libre ne l'est pas. Un maillage
    de nom inconnu serait traité comme rotor (translaté), ce qui est faux pour une ligne d'ancrage ou
    une plateforme flottante : `N ≠ 1` est donc **refusé** (`ValueError`, avant tout rendu) si un maillage
-   de la série n'est pas dans la liste vérifiée sur `modele_fixe` (`visu.MAILLAGES_VERIFIES` : pales,
+   de la série n'est pas dans la liste vérifiée sur `modeles/fixe` (`visu.MAILLAGES_VERIFIES` : pales,
    moyeu, nacelle, tour, Morison, surface libre, plans statiques). Avec `N = 1` (défaut), rien n'est
    modifié ni contrôlé. **Domaine de validité** : maillages `.vtp` d'OpenFAST, surfaces (`VTK_type = 1`) ou
    lignes (`VTK_type = 2`, repli, noms `ED_Tower…` ; rendus à `N = 1` seulement, ces noms

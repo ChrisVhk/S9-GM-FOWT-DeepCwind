@@ -2,7 +2,7 @@
 # Pas à pas — construire et lire vos cas F01 à F05
 
 Ce guide remplace, pour la séance 0b, les dossiers `annexes/lheea/*/1_Configuration` : vous
-travaillez uniquement dans `tutorials/prise_en_main/`, avec des commandes Linux et du Python (aucun
+travaillez uniquement dans `cas/`, avec des commandes Linux et du Python (aucun
 script `.m`). Les cas LHEEA restent disponibles en **lecture seule**, comme référence.
 
 Chaque étape donne : **ce que vous faites**, **la commande exacte**, **ce que vous devez voir**, et
@@ -38,7 +38,7 @@ Avant de lancer, **ouvrez `F01/main.fst` dans un éditeur** et repérez `TMax`, 
 fichiers pointés. Puis :
 
 ```bash
-cd tutorials/prise_en_main
+cd cas
 bash run_cas.sh F01
 cd ../..
 ```
@@ -47,7 +47,7 @@ cd ../..
 En cas d'échec, lisez la **fin** de `F01/run.log` : OpenFAST y écrit la ligne fautive.
 
 **Ce qui doit vous interpeller** : le dossier `F01/` ne contient presque rien (`main.fst`,
-`config_inflow.dat`). Tout le reste est dans `../modele_fixe/`. Voir le `README.md` voisin pour la
+`config_inflow.dat`). Tout le reste est dans `../../modeles/fixe/`. Voir le `README.md` voisin pour la
 règle de résolution des chemins.
 
 ---
@@ -61,7 +61,7 @@ avant de calculer une statistique.**
 import matplotlib.pyplot as plt
 from s9gm import lire
 
-df, unites = lire.lire("tutorials/prise_en_main/F01/main.outb")
+df, unites = lire.lire("cas/F01/main.outb")
 print(list(df.columns))                     # les canaux disponibles
 df.plot(x="Time", y="RotSpeed"); plt.show() # 1) regarder
 ```
@@ -88,7 +88,7 @@ mesure de ce que vous évitez en écartant le début.
 ## Étape 3 — Changer UNE chose : F02 (échelon de vent)
 
 ```bash
-cd tutorials/prise_en_main && bash run_cas.sh F02 && cd ../..
+cd cas && bash run_cas.sh F02 && cd ..
 ```
 
 Comparez les deux cas : `diff F01/main.fst F02/main.fst` (seul `TMax` change) puis
@@ -108,7 +108,7 @@ C'est ici que l'on automatise. Trois choses à faire, dans l'ordre.
 ### 4.1 Préparer le fichier d'entrée TurbSim
 
 ```bash
-cp seances/0b/turbsim_gabarit.inp tutorials/prise_en_main/modele_fixe/turbsim.inp
+cp seances/0b/turbsim_gabarit.inp modeles/fixe/turbsim.inp
 ```
 
 Deux champs `A_COMPLETER` sont à **choisir et justifier** (voir `seances/0b/README.md`,
@@ -131,8 +131,8 @@ F05,300,16,<votre catégorie>,<votre graine>
 ```python
 from s9gm import cas, lancer, lire
 
-dossiers = cas.generer_serie("lct_0b.csv", "tutorials/prise_en_main/modele_fixe",
-                             "tutorials/prise_en_main")
+dossiers = cas.generer_serie("lct_0b.csv", "modeles/fixe",
+                             "cas")
 lancer.lancer_serie(dossiers, coeurs=2, journal="journal_lancer.csv")
 ```
 

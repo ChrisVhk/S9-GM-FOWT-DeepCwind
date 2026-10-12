@@ -3,7 +3,7 @@
 
 POURQUOI : Jonkman 2009 ne donne que le point maximal (Cp = 0,482 à λ = 7,55, calage 0°, §7.2 p.19),
 pas la courbe. Pour résoudre à la main l'équilibre des couples en Region 1½ (séance 0a, Q0.1), il faut
-la courbe : on la calcule avec le modèle `modele_fixe` lui-même (AeroDyn v15, BEMT quasi-stationnaire,
+la courbe : on la calcule avec le modèle `modeles/fixe` lui-même (AeroDyn v15, BEMT quasi-stationnaire,
 `Wake_Mod = 1`), pour que la courbe et les cas F01/F02 parlent du même modèle.
 
 MÉTHODE : le rotor est tenu à vitesse imposée (`GenDOF` faux, `RotSpeed` fixe), calage 0°, vent
@@ -30,7 +30,7 @@ RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE))
 from s9gm import cas, lancer, lire  # noqa: E402
 
-MODELE = RACINE / "tutorials" / "prise_en_main" / "modele_fixe"
+MODELE = RACINE / "modeles" / "fixe"
 TRAVAIL = RACINE / "results" / "_cp"
 SORTIE = RACINE / "data" / "cp_lambda_nrel5mw_pitch0.csv"
 R, V = 63.0, 8.0

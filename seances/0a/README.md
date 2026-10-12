@@ -198,7 +198,7 @@ contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **
    d'OpenFAST (`OutListParameters.xlsx`).
 
 ```bash
-cd tutorials/prise_en_main
+cd cas
 bash run_cas.sh F01
 bash run_cas.sh F02
 ```
@@ -208,7 +208,7 @@ bash run_cas.sh F02
 | F01 | constant 7,5 m/s | régime établi, poussée, moment en pied de tour |
 | F02 | échelon de 5 à 20 m/s | passage d'une zone de régulation à l'autre, temps de réaction du calage des pales |
 
-Voir `tutorials/prise_en_main/README.md` pour la méthode de vérification à la main (fréquence 1P,
+Voir `cas/README.md` pour la méthode de vérification à la main (fréquence 1P,
 poussée, `TwrBsMyt`).
 
 ## 7. Rendu R0 (à finir hors séance si besoin)

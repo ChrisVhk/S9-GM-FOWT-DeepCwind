@@ -4,7 +4,7 @@
 le détecteur doit échouer sur une entrée volontairement fausse.
 
 Les tests marqués `slow` lancent OpenFAST et pvbatch pour de vrai (~ 2 à 5 min au total) ; les autres
-n'ont besoin d'aucun calcul. Les cas vivent dans `tutorials/prise_en_main/_pytest_*` (ignoré par git,
+n'ont besoin d'aucun calcul. Les cas vivent dans `cas/_pytest_*` (ignoré par git,
 supprimé en fin de module), comme ceux des autres tests."""
 import json
 import re
@@ -20,10 +20,10 @@ from PIL import Image
 
 from s9gm import cas, lancer, lire, visu
 
-from .conftest import MODELE, PRISE_EN_MAIN, requiert_openfast
+from .conftest import MODELE, CAS, requiert_openfast
 from .test_visu import _hors_charte_rgb
 
-PROV = dict(cas="V10", modele="modele_fixe", etat="rejoué le 11/10")
+PROV = dict(cas="V10", modele="fixe", etat="rejoué le 11/10")
 TMAX, FPS = 10, 5
 CLES_ANIMATION = ("WrVTK", "VTK_type", "VTK_fps")
 CORAIL = "#EB5600"   # maillage non répertorié (AN-ter) ; GREY #595959 est réservé à la provenance
@@ -134,14 +134,14 @@ LCT = ("cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp\n"
 def _fabriquer(nom, tmax, tmp_path_factory):
     lct = tmp_path_factory.mktemp("lct") / "lct.csv"
     lct.write_text(LCT.format(nom=nom, tmax=tmax), encoding="utf-8")
-    return cas.generer_serie(lct, MODELE, PRISE_EN_MAIN, executer_turbsim=False)[0]
+    return cas.generer_serie(lct, MODELE, CAS, executer_turbsim=False)[0]
 
 
 @pytest.fixture(scope="module")
 def prefixe():
     p = f"_pytest_anim_{uuid.uuid4().hex[:6]}"
     yield p
-    for d in PRISE_EN_MAIN.glob(p + "*"):
+    for d in CAS.glob(p + "*"):
         shutil.rmtree(d, ignore_errors=True)
 
 
@@ -179,7 +179,7 @@ def rendu_complet(cas_vtk, tmp_path_factory):
 def cas_prepare(tmp_path, pref):
     lct = tmp_path / "lct.csv"
     lct.write_text(LCT.format(nom=f"{pref}_prep", tmax=10), encoding="utf-8")
-    d = cas.generer_serie(lct, MODELE, PRISE_EN_MAIN, executer_turbsim=False)[0]
+    d = cas.generer_serie(lct, MODELE, CAS, executer_turbsim=False)[0]
     copie = tmp_path / "avant.fst"
     shutil.copy(d / "main.fst", copie)
     return d, copie
@@ -390,7 +390,7 @@ def test_fa4_provenance_dans_chaque_image(rendu_complet, cas_vtk, tmp_path):
     _, pngs = rendu_complet
     for p in pngs:
         assert pixels_provenance(image_rgb(p)) > 50, f"{p.name} : provenance absente"
-    autre = visu.rendre(cas_vtk / "vtk", tmp_path / "autre", cas="AUTRE", modele="modele_fixe",
+    autre = visu.rendre(cas_vtk / "vtk", tmp_path / "autre", cas="AUTRE", modele="fixe",
                         etat="autre état", pas=50)
     assert (image_rgb(autre[0])[int(0.93 * 720):] != image_rgb(pngs[0])[int(0.93 * 720):]).any()
 
@@ -610,7 +610,7 @@ STATIQUES_MODELE_FIXE = ["SeabedSurface", "StillWaterSurface"]
 
 
 def _serie_factice(dossier, supplementaires=()):
-    """Dossier VTK factice : noms de `modele_fixe` (+ éventuellement d'autres), contenu vide — le garde-fou
+    """Dossier VTK factice : noms de `modeles/fixe` (+ éventuellement d'autres), contenu vide — le garde-fou
     ne lit que les noms, et doit refuser avant que pvbatch ne lise quoi que ce soit."""
     dossier.mkdir(parents=True, exist_ok=True)
     for m in MAILLAGES_MODELE_FIXE + list(supplementaires):
@@ -710,7 +710,7 @@ def _rectangle(x0, x1, z0, z1, y=0.0):
 
 
 def serie_avec_maillage_inconnu(dest, vtk_reel, images):
-    """Série à 2 images : les maillages réels de `modele_fixe` (image 0 du calcul, répétée) + un maillage
+    """Série à 2 images : les maillages réels de `modeles/fixe` (image 0 du calcul, répétée) + un maillage
     de nom inconnu de type MoorDyn (`MD_Line1`) dont la géométrie est `images` = [image 0, image 1]. La
     caméra étant calée sur l'image 0, un maillage qui bouge peut sortir du cadrage : c'est le mécanisme
     qui, sur un calcul réel, fait sortir un ancrage ou une plateforme du cadrage (ici de façon extrême)."""

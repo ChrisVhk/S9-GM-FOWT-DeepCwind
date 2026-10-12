@@ -10,10 +10,10 @@ LHEEA et la fiche F1 déjà disponibles.
 
 Cette séance poursuit la progression du tutoriel OpenFAST Quickstart du LHEEA (cas 03 à 05),
 commencée en séance 0a (cas 01-02) : du contrôle réaliste d'une éolienne jusqu'au flotteur ancré.
-Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du tutoriel `prise_en_main/`.
+Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du dossier `cas/`.
 
 **Pour construire et lire vos propres cas, suivez le guide
-[`tutorials/prise_en_main/PAS_A_PAS.md`](../../tutorials/prise_en_main/PAS_A_PAS.md)** : commandes
+[`seances/0b/PAS_A_PAS.md`](../../seances/0b/PAS_A_PAS.md)** : commandes
 exactes, résultat attendu et pièges à chaque étape (Linux et Python, sans `.m`). Les dossiers
 `annexes/lheea/*` ci-dessous servent de référence à lire, pas de support de manipulation.
 
@@ -136,7 +136,7 @@ jupyter notebook seances/0b/theorie_par_les_chiffres.ipynb
 
 Les cas 01-05 du tutoriel LHEEA (ci-dessus et séance 0a) montrent la progression complète fixe →
 flottant sur des exemples déjà construits. Il vous reste à construire les vôtres, dans
-`tutorials/prise_en_main/` (voir son `README.md` pour l'organisation modèle partagé + dossier
+`cas/` (voir son `README.md` pour l'organisation modèle partagé + dossier
 léger par cas) :
 
 | Cas | Vent | Houle |
@@ -171,7 +171,7 @@ source d'erreurs. Le paquet `s9gm` (dossier `s9gm/`, trois modules courts à lir
 commence par son bloc Théorie) automatise exactement ce que vous venez de faire :
 
 1. **`cas`** — une Load Case Table (CSV : une ligne par cas, une colonne `fichier.Clé` par
-   paramètre) → un dossier léger par cas à côté de `modele_fixe/`, plus un `journal_cas.json` des
+   paramètre) → un dossier léger par cas à côté de `modeles/fixe/`, plus un `journal_cas.json` des
    valeurs avant/après. Une clé inconnue est une erreur, jamais un cas silencieusement inchangé.
 2. **`lancer`** — exécute les cas, plusieurs à la fois (`coeurs=`), saute ceux qui sont déjà
    terminés et relance ceux qui ont été interrompus ou ont échoué ; note temps réel et temps simulé de chaque cas.
@@ -195,11 +195,11 @@ F05,300,3,"Wind/F05.bts"
 ```python
 from s9gm import cas, lancer, lire
 
-dossiers = cas.generer_serie("lct_0b.csv", "tutorials/prise_en_main/modele_fixe",
-                             "tutorials/prise_en_main")
+dossiers = cas.generer_serie("lct_0b.csv", "modeles/fixe",
+                             "cas")
 # ... ici : déposer chaque Wind/F0x.bts dans le dossier du cas, puis :
 lancer.lancer_serie(dossiers, coeurs=2, journal="journal_lancer.csv")
-df, unites = lire.lire("tutorials/prise_en_main/F03/main.outb")
+df, unites = lire.lire("cas/F03/main.outb")
 print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<durée à écarter, en s>))
 # à vous de la choisir en regardant la courbe : sans elle, lire refuse de calculer
 ```
@@ -220,7 +220,7 @@ le projet OC3 a retenue pour les champs de vent de cette machine (Jonkman et Mus
 §2.4.1), et la catégorie IEC qui lui correspond dans la norme IEC 61400-1 (édition 3) ; la source et la page comptent
 plus que la lettre choisie. Le vent moyen vient de l'énoncé (7,5 m/s dans le gabarit, pour F03 ; pour F04 et F05
 vous le changez dans votre LCT par `turbsim.URef`). Copiez le gabarit dans
-`tutorials/prise_en_main/modele_fixe/turbsim.inp`, puis remplissez les deux trous soit dans le fichier, soit par
+`modeles/fixe/turbsim.inp`, puis remplissez les deux trous soit dans le fichier, soit par
 des colonnes `turbsim.Clé` de votre LCT :
 
 ```

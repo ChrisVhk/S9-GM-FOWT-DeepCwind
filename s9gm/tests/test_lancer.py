@@ -5,7 +5,7 @@ import pytest
 
 from s9gm import cas, lancer
 
-from .conftest import MODELE, PRISE_EN_MAIN, requiert_openfast
+from .conftest import MODELE, CAS, requiert_openfast
 
 
 def _faux_openfast(chemin, corps):
@@ -16,7 +16,7 @@ def _faux_openfast(chemin, corps):
 
 def _cas_court(pref, nom="C1", tmax="5"):
     return cas.generer_cas({"cas": f"{pref}_{nom}", "fst.TMax": tmax, "inflow.WindType": "1",
-                             "inflow.HWindSpeed": "7.5", "inflow.PLExp": "0.11"}, MODELE, PRISE_EN_MAIN)
+                             "inflow.HWindSpeed": "7.5", "inflow.PLExp": "0.11"}, MODELE, CAS)
 
 
 def test_reprise_avec_faux_executable(pref, tmp_path):

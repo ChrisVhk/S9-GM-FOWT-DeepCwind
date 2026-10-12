@@ -5,7 +5,7 @@
 
 ## Pourquoi
 
-Les cas `F01`/`F02` du tutoriel `prise_en_main/` font tourner une éolienne à vitesse de vent
+Les cas `F01`/`F02` du dossier `cas/` font tourner une éolienne à vitesse de vent
 imposée et vous donnent en sortie `RotSpeed`, `GenPwr`, `TwrBsMyt`. Sans ces notions, ces
 nombres sont des courbes sans signification : vous ne pouvez ni les prévoir avant de lancer le
 calcul, ni juger s'ils sont physiquement plausibles une fois le calcul fini. C'est le contrôle le
@@ -248,7 +248,7 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
 - Les cas `F01-F05` de ce tutoriel tournent en **BEMT quasi-stationnaire (`Wake_Mod=1`), pas en
   DBEMT (`Wake_Mod=2`)** — le modèle dynamique du sillage n'est pas actif. En vent turbulent ou
   en régime transitoire rapide (échelon de F02), la réponse aérodynamique instantanée peut
-  différer d'un calcul DBEMT ou d'une mesure réelle (cf `tutorials/prise_en_main/README.md`).
+  différer d'un calcul DBEMT ou d'une mesure réelle (cf `cas/README.md`).
 - Le `Ct ≈ 0,8` de l'estimation de poussée est un ordre de grandeur usuel, **pas une valeur tirée d'une table
   `Ct(λ,β)` du modèle** (sortie `RtAeroCt` d'AeroDyn). La courbe `Cp(λ)` à calage nul, elle, est calculée sur le
   modèle du dépôt (section « Region 1½ ») ; seul le calage 0° est couvert, pas `Cp(λ, β)` complète.

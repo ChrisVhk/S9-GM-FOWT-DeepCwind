@@ -3,7 +3,7 @@ OpenFast Main File Tutorial 1
 ---------------------- SIMULATION CONTROL --------------------------------------
 False         Echo            - Echo input data to <RootName>.ech (flag)
 "FATAL"       AbortLevel      - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
-		300   TMax            - Total run time (s)
+		200   TMax            - Total run time (s)
      0.0125   DT              - Recommended module time step (s)
           1   ModCoupling     - Module coupling method (switch) {1=loose; 2=tight fixed Jacobian; 3=tight auto Jacobian}
           2   InterpOrder     - Interpolation order for input/output time history (-) {1=linear, 2=quadratic}
@@ -38,17 +38,17 @@ False         Echo            - Echo input data to <RootName>.ech (flag)
          20   WtrDpth         - Water depth (m)
           0   MSL2SWL         - Offset between still-water level and mean sea level (m) [positive upward]
 ---------------------- INPUT FILES ---------------------------------------------
-"../modele_fixe/config_elastodyn.dat"       EDFile          - Name of file containing ElastoDyn input parameters (quoted string)
+"../../modeles/fixe/config_elastodyn.dat"       EDFile          - Name of file containing ElastoDyn input parameters (quoted string)
 "unused"                     BDBldFile(1)    - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
 "unused"                     BDBldFile(2)    - Name of file containing BeamDyn input parameters for blade 2 (quoted string)
 "unused"                     BDBldFile(3)    - Name of file containing BeamDyn input parameters for blade 3 (quoted string)
 "config_inflow.dat"          InflowFile      - Name of file containing inflow wind input parameters (quoted string)
-"../modele_fixe/config_aerodyn.dat"         AeroFile        - Name of file containing aerodynamic input parameters (quoted string)
-"../modele_fixe/config_servodyn.dat"        ServoFile       - Name of file containing control and electrical-drive input parameters (quoted string)
-"../modele_fixe/SeaState.dat"               SeaStFile       - Name of file containing sea state input parameters (quoted string)
-"../modele_fixe/config_mpl_hydrodyn.dat"    HydroFile       - Name of file containing hydrodynamic input parameters (quoted string)
-"../modele_fixe/config_mpl_subdyn.dat"      SubFile         - Name of file containing sub-structural input parameters (quoted string)
-"../modele_fixe/config_moordyn.dat"         MooringFile     - Name of file containing mooring system input parameters (quoted string)
+"../../modeles/fixe/config_aerodyn.dat"         AeroFile        - Name of file containing aerodynamic input parameters (quoted string)
+"../../modeles/fixe/config_servodyn.dat"        ServoFile       - Name of file containing control and electrical-drive input parameters (quoted string)
+"../../modeles/fixe/SeaState.dat"               SeaStFile       - Name of file containing sea state input parameters (quoted string)
+"../../modeles/fixe/config_mpl_hydrodyn.dat"    HydroFile       - Name of file containing hydrodynamic input parameters (quoted string)
+"../../modeles/fixe/config_mpl_subdyn.dat"      SubFile         - Name of file containing sub-structural input parameters (quoted string)
+"../../modeles/fixe/config_moordyn.dat"         MooringFile     - Name of file containing mooring system input parameters (quoted string)
 "unused"                     IceFile         - Name of file containing ice input parameters (quoted string)
 "unused"                     SoilFile        - Name of the file containing the SoilDyn input parameters (quoted string)
 ---------------------- OUTPUT --------------------------------------------------

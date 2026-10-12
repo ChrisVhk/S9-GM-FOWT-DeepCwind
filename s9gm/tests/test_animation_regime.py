@@ -2,7 +2,7 @@
 au régime nominal), animé sur une fenêtre prise après le transitoire. FA-8a (le rotor tourne), FA-8b (le pas se
 voit), FA-8c (la fenêtre) et `lire.debut_regime`. Écrits avant le code.
 
-Cas réel : `modele_fixe`, vent uniforme de 15,4 m/s, `RotSpeed` initial 12,1 tr/min (donnée publiée, ENONCE §4),
+Cas réel : `modeles/fixe`, vent uniforme de 15,4 m/s, `RotSpeed` initial 12,1 tr/min (donnée publiée, ENONCE §4),
 pas initial 0 (le régulateur le trouve seul), TMax = 31,2 s, VTK à 5 images/s. Fenêtre animée : du début du régime
 à la fin du calcul ; le début est CALCULÉ par `lire.debut_regime` à partir de la sortie du cas, selon un critère écrit
 AVANT le calcul (|RotSpeed − 12,1| ≤ 2 % et amplitude de BldPitch1 ≤ 0,5° sur les 5 s suivantes), puis arrondi à
@@ -33,7 +33,7 @@ import pytest
 
 from s9gm import cas, lancer, lire, visu
 
-from .conftest import MODELE, PRISE_EN_MAIN, requiert_openfast
+from .conftest import MODELE, CAS, requiert_openfast
 from .test_animation import (PROV, FPS, cas_vtk, ffprobe, image_rgb, lent, prefixe,  # noqa: F401 (fixtures)
                              requiert_rendu)
 
@@ -117,7 +117,7 @@ def cas_r3(prefixe, tmp_path_factory):
     lct = tmp_path_factory.mktemp("lct_r3") / "lct.csv"
     lct.write_text("cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp,elastodyn.RotSpeed\n"
                    f"{prefixe}_r3,{TMAX_R3},1,{VENT},0,{ROT_NOMINAL}\n", encoding="utf-8")
-    d = cas.generer_serie(lct, MODELE, PRISE_EN_MAIN, executer_turbsim=False)[0]
+    d = cas.generer_serie(lct, MODELE, CAS, executer_turbsim=False)[0]
     visu.preparer_animation(d, vtk_type=1, vtk_fps=FPS)
     res = lancer.lancer_cas(d)
     assert res["statut"] == "termine", res
@@ -442,7 +442,7 @@ def pale_au_contact_du_blanc(a):
 
 @pytest.fixture(scope="module")
 def rendus_tour(cas_r3, t_debut, tmp_path_factory):
-    """Rendu réel de modele_fixe (5 images de la fenêtre, le rotor y tourne : une pale ne masque pas toujours le même
+    """Rendu réel de modeles/fixe (5 images de la fenêtre, le rotor y tourne : une pale ne masque pas toujours le même
     côté de la tour), éclairage plat : avec contour (défaut) et sans (`--sans-contour`)."""
     d = tmp_path_factory.mktemp("ft4")
     cas_dir, _ = cas_r3
@@ -598,7 +598,7 @@ def test_le_garde_git_grep_detecte_bien_un_instant_ecrit(tmp_path):
 
 
 def test_tutoriel_ne_chiffre_ni_n_affiche_l_instant_de_debut_et_le_passe_a_fenetre():
-    texte = (RACINE_DEPOT / "tutorials" / "animer.md").read_text(encoding="utf-8")
+    texte = (RACINE_DEPOT / "s9gm" / "ANIMER.md").read_text(encoding="utf-8")
     assert "print(" not in texte, "le tutoriel ne doit rien afficher du début de fenêtre"
     assert "math.ceil" not in texte, "l'arrondi est fait par `fenetre` : pas de calcul d'instant à afficher"
     assert "debut_regime(" in texte

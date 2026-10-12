@@ -34,7 +34,7 @@ PAGE_POST_TRAITEMENT = "s9gm/POST-TRAITER.md"
 # ---- R-2 : anciens chemins (table de CARTE_RESTRUCTURATION.md). `papers/` et `outils/` ne sont anciens que s'ils ne
 # sont pas précédés de `annexes/` ; `models/` ne doit pas attraper `modeles/`.
 ANCIENS = [
-    r"\btutorials/", r"\bprise_en_main\b", r"\bmodele_fixe\b", r"\bmodels/", r"\bcases/",
+    r"(?<!oracle/)\btutorials/", r"\bprise_en_main\b", r"\bmodele_fixe\b", r"\bmodels/", r"\bcases/",
     r"(?<!annexes/)\bpapers/", r"(?<!annexes/)\boutils/",
 ]
 EXCLUS_ANCIENS = ("annexes/", "scripts/verifier_parcours.py", "s9gm/tests/test_verifier_parcours.py", "TRANSITION.md", "CHANGELOG")
@@ -333,7 +333,8 @@ def autotest():
         # R-2
         for nom, texte, vide in [("tutorials/ cité", "voir tutorials/lheea/\n", False), ("models/ cité", "models/oc4_rtest\n", False),
                                  ("modeles/ nouveau", "modeles/oc4_rtest\n", True), ("annexes/papers nouveau", "annexes/papers/x.md\n", True),
-                                 ("papers/ ancien", "voir papers/x.md\n", False), ("annexes/outils nouveau", "annexes/outils/y.py\n", True)]:
+                                 ("papers/ ancien", "voir papers/x.md\n", False), ("annexes/outils nouveau", "annexes/outils/y.py\n", True),
+                                 ("URL gitlab LHEEA", "https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart\n", True)]:
             attendre(f"anciens ({nom})", anciens(_depot_jouet(d / ("a_" + str(abs(hash(nom)))), {"R.md": texte})), vide)
         ann = _depot_jouet(d / "a_annexes", {"annexes/lheea/R.md": "tutorials/lheea/\n"})
         attendre("anciens (annexes exemptées)", anciens(ann), vide=True)

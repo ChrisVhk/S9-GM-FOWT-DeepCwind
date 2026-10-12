@@ -7,36 +7,36 @@ import pytest
 
 from s9gm import cas
 
-from .conftest import PRISE_EN_MAIN, MODELE
+from .conftest import CAS, MODELE, MODELES
 
 
 def test_fst_et_inflow_identiques_a_F01_fait_main(pref, lct_f01):
-    (dossier,) = cas.generer_serie(lct_f01, MODELE, PRISE_EN_MAIN)
+    (dossier,) = cas.generer_serie(lct_f01, MODELE, CAS)
     for nom in ("main.fst", "config_inflow.dat"):
         genere = (dossier / nom).read_bytes()
-        main = (PRISE_EN_MAIN / "F01" / nom).read_bytes()
+        main = (CAS / "F01" / nom).read_bytes()
         assert genere == main, f"{nom} généré diffère de F01/{nom} fait à la main"
 
 
 def test_journal_des_parametres(pref, lct_f01):
-    (dossier,) = cas.generer_serie(lct_f01, MODELE, PRISE_EN_MAIN)
+    (dossier,) = cas.generer_serie(lct_f01, MODELE, CAS)
     j = json.loads((dossier / "journal_cas.json").read_text(encoding="utf-8"))
     mods = {(m["cle"]): (m["avant"], m["apres"]) for m in j["modifications"]}
     assert mods["TMax"] == ("600", "200")
     assert mods["HWindSpeed"] == ("8", "7.5")
-    assert j["modele"] == "../modele_fixe"
+    assert j["modele"] == "../../modeles/fixe"
 
 
 def test_modele_partage_non_modifie(pref, lct_f01):
     avant = (MODELE / "main.fst").read_bytes()
-    cas.generer_serie(lct_f01, MODELE, PRISE_EN_MAIN)
+    cas.generer_serie(lct_f01, MODELE, CAS)
     assert (MODELE / "main.fst").read_bytes() == avant
 
 
 def test_cle_inconnue_echoue(pref):
     l = {"cas": pref + "_X", "fst.PasUneCle": "1"}
     with pytest.raises(KeyError, match="PasUneCle"):
-        cas.generer_cas(l, MODELE, PRISE_EN_MAIN)
+        cas.generer_cas(l, MODELE, CAS)
 
 
 def test_prefixe_de_colonne_invalide(tmp_path):
@@ -71,10 +71,10 @@ def test_champ_texte_garde_ses_guillemets():
 
 
 def test_regenerer_un_cas_supprime_ses_anciennes_sorties(pref):
-    d = cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "5"}, MODELE, PRISE_EN_MAIN)
+    d = cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "5"}, MODELE, CAS)
     (d / "main.outb").write_bytes(b"x")
     (d / "run.log").write_text("OpenFAST terminated normally", encoding="utf-8")
-    cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "6"}, MODELE, PRISE_EN_MAIN)
+    cas.generer_cas({"cas": pref + "_Z", "fst.TMax": "6"}, MODELE, CAS)
     assert not (d / "main.outb").exists() and not (d / "run.log").exists()
 
 
@@ -102,8 +102,8 @@ requiert_turbsim = pytest.mark.skipif(shutil.which("turbsim") is None,
 
 @pytest.fixture
 def modele_turbsim(pref):
-    """Copie de modele_fixe/ (sœur, même profondeur : les chemins relatifs restent valables) + turbsim.inp."""
-    m = PRISE_EN_MAIN / f"{pref}_modele"
+    """Copie de modeles/fixe/ (sœur, même profondeur : les chemins relatifs restent valables) + turbsim.inp."""
+    m = MODELES / f"{pref}_modele"
     shutil.copytree(MODELE, m)
     shutil.copy(TURBSIM_INP, m / "turbsim.inp")
     return m
@@ -121,7 +121,7 @@ def _lct_turbsim(tmp_path, pref, graine="4242", uref="9"):
 def test_turbsim_entree_identique_a_celle_faite_a_la_main(tmp_path, pref, modele_turbsim):
     """Falsificateur 1 : le .inp écrit par `cas` est, octet pour octet, le modèle dont on a changé à la
     main les seules lignes demandées. Pas besoin de TurbSim : `executer_turbsim=False`."""
-    (dossier,) = cas.generer_serie(_lct_turbsim(tmp_path, pref), modele_turbsim, PRISE_EN_MAIN,
+    (dossier,) = cas.generer_serie(_lct_turbsim(tmp_path, pref), modele_turbsim, CAS,
                                    executer_turbsim=False)
     lignes = (modele_turbsim / "turbsim.inp").read_text(encoding="utf-8").split("\n")
     voulu = dict(PETITE_GRILLE, RandSeed1="4242", URef="9")
@@ -138,7 +138,7 @@ def test_turbsim_entree_identique_a_celle_faite_a_la_main(tmp_path, pref, modele
 
 
 def test_turbsim_pointe_le_vent_du_cas(tmp_path, pref, modele_turbsim):
-    (dossier,) = cas.generer_serie(_lct_turbsim(tmp_path, pref), modele_turbsim, PRISE_EN_MAIN,
+    (dossier,) = cas.generer_serie(_lct_turbsim(tmp_path, pref), modele_turbsim, CAS,
                                    executer_turbsim=False)
     inflow = (dossier / "config_inflow.dat").read_text(encoding="utf-8")
     assert f'"Wind/{pref}_F03.bts"' in inflow
@@ -150,14 +150,14 @@ def test_turbsim_meme_graine_meme_champ_que_a_la_main(tmp_path, pref, modele_tur
     """Falsificateur 2 : même graine → même .bts qu'un TurbSim lancé à la main sur le même .inp ;
     une autre graine donne un autre champ."""
     lct = _lct_turbsim(tmp_path, pref)
-    (dossier,) = cas.generer_serie(lct, modele_turbsim, PRISE_EN_MAIN)
+    (dossier,) = cas.generer_serie(lct, modele_turbsim, CAS)
     genere = (dossier / "Wind" / f"{pref}_F03.bts").read_bytes()
     main = tmp_path / "main"
     main.mkdir()
     shutil.copy(dossier / "Wind" / f"{pref}_F03.inp", main / "x.inp")
     subprocess.run(["turbsim", "x.inp"], cwd=main, check=True, capture_output=True)
     assert _meme_champ(main / "x.bts", (dossier / "Wind" / f"{pref}_F03.bts"))
-    (autre,) = cas.generer_serie(_lct_turbsim(tmp_path, pref, graine="999"), modele_turbsim, PRISE_EN_MAIN)
+    (autre,) = cas.generer_serie(_lct_turbsim(tmp_path, pref, graine="999"), modele_turbsim, CAS)
     assert (autre / "Wind" / f"{pref}_F03.bts").read_bytes() != genere
 
 
@@ -166,7 +166,7 @@ def test_turbsim_sans_modele_echoue(tmp_path, pref):
     p = tmp_path / "lct.csv"
     p.write_text(f"cas,{cols}{pref}_F03,1\n", encoding="utf-8")
     with pytest.raises(FileNotFoundError, match="turbsim.inp"):
-        cas.generer_serie(p, MODELE, PRISE_EN_MAIN, executer_turbsim=False)
+        cas.generer_serie(p, MODELE, CAS, executer_turbsim=False)
 
 
 # ---- gabarit à trous seances/0b/turbsim_gabarit.inp (LOT A2) --------------------------------------
@@ -177,7 +177,7 @@ SURCHARGES = {"URef": "9"}                          # champ déjà rempli, surch
 
 @pytest.fixture
 def modele_gabarit(pref):
-    m = PRISE_EN_MAIN / f"{pref}_modele"
+    m = MODELES / f"{pref}_modele"
     shutil.copytree(MODELE, m)
     shutil.copy(GABARIT, m / "turbsim.inp")
     return m
@@ -195,10 +195,10 @@ def test_gabarit_non_rempli_refuse_et_nomme_les_champs(tmp_path, pref, modele_ga
     """Falsificateur : aucun trou rempli -> refus, et le message nomme chaque champ manquant."""
     p = _lct_gabarit(tmp_path, pref, {"RandSeed1": "4242"})  # la catégorie IEC reste à compléter
     with pytest.raises(ValueError, match=r"IECturbc"):
-        cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
+        cas.generer_serie(p, modele_gabarit, CAS, executer_turbsim=False)
     p = _lct_gabarit(tmp_path, pref, {"IECturbc": "12"})   # la graine reste à compléter
     with pytest.raises(ValueError, match=r"RandSeed1"):
-        cas.generer_serie(p, modele_gabarit, PRISE_EN_MAIN, executer_turbsim=False)
+        cas.generer_serie(p, modele_gabarit, CAS, executer_turbsim=False)
 
 
 def test_gabarit_a_exactement_deux_trous_iecturbc_et_graine():
@@ -212,7 +212,7 @@ def test_gabarit_a_exactement_deux_trous_iecturbc_et_graine():
 def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_gabarit):
     """Falsificateur : le gabarit rempli À LA MAIN (éditeur de texte) donne, par TurbSim, le même .bts
     que le même gabarit rempli par les colonnes turbsim.* de la LCT et lancé par `cas`."""
-    (dossier,) = cas.generer_serie(_lct_gabarit(tmp_path, pref, TROUS, SURCHARGES), modele_gabarit, PRISE_EN_MAIN)
+    (dossier,) = cas.generer_serie(_lct_gabarit(tmp_path, pref, TROUS, SURCHARGES), modele_gabarit, CAS)
     genere = (dossier / "Wind" / f"{pref}_G.bts").read_bytes()
     texte = GABARIT.read_text(encoding="utf-8")
     for k, v in (PETITE_GRILLE | SURCHARGES | TROUS).items():

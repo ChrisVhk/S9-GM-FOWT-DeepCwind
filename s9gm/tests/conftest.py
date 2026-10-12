@@ -1,6 +1,6 @@
-"""Fixtures communes. Les cas de test sont fabriqués à côté de `modele_fixe/` (même profondeur que
-F01, F02 : le chemin relatif `../modele_fixe` est celui du tutoriel) dans un dossier `_pytest_*`
-ignoré par git et supprimé après le test."""
+"""Fixtures communes. Les cas de test sont fabriqués dans `cas/` (même profondeur que F01, F02 : le chemin
+relatif `../../modeles/fixe` est celui du tutoriel), dans un dossier `_pytest_*` ignoré par git et supprimé
+après le test."""
 import shutil
 import uuid
 from pathlib import Path
@@ -8,8 +8,9 @@ from pathlib import Path
 import pytest
 
 RACINE = Path(__file__).resolve().parents[2]
-PRISE_EN_MAIN = RACINE / "tutorials" / "prise_en_main"
-MODELE = PRISE_EN_MAIN / "modele_fixe"
+CAS = RACINE / "cas"
+MODELES = RACINE / "modeles"
+MODELE = MODELES / "fixe"
 DISCON = RACINE / "modeles" / "oc4_rtest" / "5MW_Baseline" / "ServoData" / "DISCON.so"
 
 LCT_F01 = ("cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp\n"
@@ -18,11 +19,10 @@ LCT_F01 = ("cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp\n"
 
 @pytest.fixture
 def pref():
-    """Préfixe unique des cas de test. Les cas sont fabriqués dans `prise_en_main/` (frères de
-    `modele_fixe/`), puis supprimés."""
+    """Préfixe unique des cas de test. Les cas sont fabriqués dans `cas/`, puis supprimés."""
     p = f"_pytest_{uuid.uuid4().hex[:8]}"
     yield p
-    for d in PRISE_EN_MAIN.glob(p + "*"):
+    for d in [*CAS.glob(p + "*"), *MODELES.glob(p + "*")]:   # cas fabriqués, et copies de modèle des tests
         shutil.rmtree(d, ignore_errors=True)
 
 

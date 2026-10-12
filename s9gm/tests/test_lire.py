@@ -7,7 +7,7 @@ from openfast_toolbox.io.fast_output_file import load_binary_output
 
 from s9gm import cas, lancer, lire
 
-from .conftest import MODELE, PRISE_EN_MAIN, requiert_openfast
+from .conftest import MODELE, CAS, requiert_openfast
 
 
 @pytest.fixture(scope="module")
@@ -18,12 +18,12 @@ def sortie_F01():
     nom = f"_pytest_{uuid.uuid4().hex[:8]}_F01"
     try:
         d = cas.generer_cas({"cas": nom, "fst.TMax": "20", "inflow.WindType": "1",
-                             "inflow.HWindSpeed": "7.5", "inflow.PLExp": "0.11"}, MODELE, PRISE_EN_MAIN)
+                             "inflow.HWindSpeed": "7.5", "inflow.PLExp": "0.11"}, MODELE, CAS)
         (res,) = lancer.lancer_serie([d], afficher=None)
         assert res["statut"] == "termine"
         yield d / "main.outb"
     finally:
-        shutil.rmtree(PRISE_EN_MAIN / nom, ignore_errors=True)
+        shutil.rmtree(CAS / nom, ignore_errors=True)
 
 
 @requiert_openfast

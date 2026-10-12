@@ -31,7 +31,7 @@
    dites.
 4. **Ce que le modèle ne permet pas de conclure** — qu'une LCT bien fabriquée soit une bonne LCT :
    `cas` ne dit rien de la représentativité des cas choisis (phase 1), ni de leur nombre suffisant.
-5. **Renvois** — fiche F1 (cas F01/F02 du tutoriel) ; `tutorials/prise_en_main/README.md`
+5. **Renvois** — fiche F1 (cas F01/F02 du tutoriel) ; `cas/README.md`
    (modèle partagé + dossier léger, règle de résolution des chemins) ; manuel OpenFAST v5.0.0,
    format des fichiers d'entrée ; `ENONCE.md`, phase 1 (Load Case Table).
 

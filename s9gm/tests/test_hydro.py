@@ -1,6 +1,6 @@
 """Falsificateurs de s9gm.hydro. Critères et tolérances écrits AVANT le code : `_Reserve/S9_T4_hydro/CRITERE_hydro.md`
 du dépôt d'enseignement (commit 953a372). Les tests comparent à des fichiers de modèle publics (`marin_semi.hst`,
-`marin_semi.1`, HydroDyn et ElastoDyn de `models/oc4_rtest`) et à deux publications (Coulling et al. 2013, Tab. XIII ;
+`marin_semi.1`, HydroDyn et ElastoDyn de `modeles/oc4_rtest`) et à deux publications (Coulling et al. 2013, Tab. XIII ;
 DNV-RP-C205 §3.2.2.4) ; aucune valeur de corrigé n'est écrite ici.
 
 Variables tenues égales : ρ, g, ULEN, la géométrie de `geometrie_deepcwind.md`. Variables qui bougent : membres pris
@@ -16,7 +16,7 @@ import pytest
 from s9gm import hydro
 
 RACINE = Path(__file__).resolve().parents[2]
-OC4 = RACINE / "models" / "oc4_rtest"
+OC4 = RACINE / "modeles" / "oc4_rtest"
 HST = OC4 / "5MW_Baseline" / "HydroData" / "marin_semi.hst"
 ADDED = OC4 / "5MW_Baseline" / "HydroData" / "marin_semi.1"
 HYDRODYN = OC4 / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat"

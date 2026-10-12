@@ -22,7 +22,7 @@ ensuite cette adaptation au laboratoire. Le récit pédagogique des 5 cas est in
 dans `seances/0a/` et `seances/0b/` du cours (pas un document séparé) ; chaque section reprise y
 porte son attribution et un renvoi vers `annexes/lheea/NOTICE`.
 
-## `tutorials/prise_en_main/`
+## `modeles/fixe/` et `cas/`
 Construit pour ce cours, à partir des modèles ci-dessus (licence Apache 2.0 des sources) et d'une
 progression inspirée d'un cours de Master Génie Maritime (2013) sur les outils de conception
 éolien — adaptée ici en OpenFAST v5.0.0, pas une reproduction du document source.

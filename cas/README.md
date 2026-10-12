@@ -8,35 +8,35 @@ d'ouverture au cours DMO-S9 (phase 0 de l'énoncé).
 ## Organisation
 
 ```
-modele_fixe/      fichiers communs de l'éolienne fixe (monopieu OC3) -- ne pas lancer directement
-F01/, F02/, ...    un dossier LÉGER par cas : main.fst (pointe vers modele_fixe/) + ce qui change
-modele_flottant/   (à construire, séance 0b) fichiers communs de l'éolienne flottante DeepCwind
-D00/, D01/, ...    (à construire, séance 0b) idem, pour le flottant
-run_cas.sh         lance un cas (ou plusieurs, ou "all")
+modeles/fixe/      (à la racine du dépôt) fichiers communs de l'éolienne fixe (monopieu OC3) -- ne pas lancer directement
+cas/F01/, F02/, ...  un dossier LÉGER par cas : main.fst (pointe vers modeles/fixe/) + ce qui change
+modeles/flottant/  (à construire, séance 0b) fichiers communs de l'éolienne flottante DeepCwind
+cas/D00/, D01/, ...  (à construire, séance 0b) idem, pour le flottant
+cas/run_cas.sh     lance un cas (ou plusieurs, ou "all")
 ```
 
 **Règle de résolution des chemins** : un chemin relatif écrit DANS un fichier secondaire
 (ElastoDyn, AeroDyn, ServoDyn…) se résout par rapport au dossier DE CE FICHIER SECONDAIRE
 lui-même, pas par rapport au dossier du `.fst` primaire. `main.fst` peut donc pointer vers
-`../modele_fixe/config_aerodyn.dat`, et ce dernier garde ses propres références internes
-(`Airfoils/DU21_A17.dat`) inchangées : elles visent toujours `modele_fixe/Airfoils/`, jamais le
+`../../modeles/fixe/config_aerodyn.dat`, et ce dernier garde ses propres références internes
+(`Airfoils/DU21_A17.dat`) inchangées : elles visent toujours `modeles/fixe/Airfoils/`, jamais le
 dossier du cas qui l'appelle.
 
 **Commande qui le démontre** : un `main.fst` contenant uniquement `config_inflow.dat` en local et
-les 7 autres champs de fichiers réécrits en `"../modele_fixe/config_xxx.dat"`, exécuté par
-`cd F01 && openfast main.fst`, charge correctement les `Airfoils/` de `modele_fixe/` (AeroDyn) et
-le contrôleur compilé dans `models/oc4_rtest/5MW_Baseline/ServoData/` (ServoDyn) — chemin lui-même
-écrit à l'intérieur de `modele_fixe/config_servodyn.dat`, à TROIS niveaux (`../../../models/...`,
-relatif à `modele_fixe/`), jamais réécrit lors du partage. `OpenFAST terminated normally.` dans les
+les 7 autres champs de fichiers réécrits en `"../../modeles/fixe/config_xxx.dat"`, exécuté par
+`cd F01 && openfast main.fst`, charge correctement les `Airfoils/` de `modeles/fixe/` (AeroDyn) et
+le contrôleur compilé dans `modeles/oc4_rtest/5MW_Baseline/ServoData/` (ServoDyn) — chemin lui-même
+écrit à l'intérieur de `modeles/fixe/config_servodyn.dat`, à UN niveau (`../oc4_rtest/...`,
+relatif à `modeles/fixe/`), jamais réécrit lors du partage. `OpenFAST terminated normally.` dans les
 deux cas.
 
 **Conséquence pour le dépôt** : `F01/` et `F02/` ne contiennent plus que `main.fst` et ce qui leur
 est propre (`config_inflow.dat`, et `Wind/ramp_wind.dat` pour F02) — `Airfoils/`, `tower.dat`,
 `blade_*.dat`, `SeaState.dat` et les `config_*.dat` partagés vivent une seule fois, dans
-`modele_fixe/`.
+`modeles/fixe/`.
 
 **Pour créer un nouveau cas** : créez un dossier léger, copiez-y `main.fst` depuis un cas existant
-(il pointe déjà vers `modele_fixe/`), et ne modifiez que ce qui doit changer (le plus souvent
+(il pointe déjà vers `modeles/fixe/`), et ne modifiez que ce qui doit changer (le plus souvent
 `config_inflow.dat`, propre à chaque cas, et `TMax` dans `main.fst`).
 
 ## Avant de lancer un cas
@@ -96,6 +96,6 @@ calcul à la fréquence 1P visible sur `RootMyb1` (fréquence = RotSpeed / 60).
 Pour le moment en pied de tour (`TwrBsMyt`) : estimez la poussée du rotor à partir de la théorie du
 disque actuateur (voir fiche F1) et comparez `TwrBsMyt` ≈ poussée × (hauteur du moyeu − `TowerBsHt`), à ±20 %.
 `TwrBsMyt` est le moment **au pied de la tour** : le bras de levier se compte depuis ce pied,
-dont la hauteur `TowerBsHt` se lit dans `modele_fixe/config_elastodyn.dat`, et non depuis le
+dont la hauteur `TowerBsHt` se lit dans `modeles/fixe/config_elastodyn.dat`, et non depuis le
 niveau de la mer ni depuis le sol (le
 modèle complet inclut aussi le poids de la nacelle/tour en flexion, d'où l'écart toléré).

@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from s9gm import visu
 
-PROV = dict(cas="F01", modele="modele_fixe", etat="rejoué le 04/10")
+PROV = dict(cas="F01", modele="fixe", etat="rejoué le 04/10")
 TOL = 8  # tolérance (niveaux sur 255) pour le crénelage ; voir _hors_charte
 
 
@@ -62,7 +62,7 @@ def test_series_aucune_couleur_hors_charte(df):
 def test_statistiques_aucune_couleur_hors_charte():
     st = pd.DataFrame({"moyenne": [3.0], "ecart_type": [0.5], "min": [2.0], "max": [4.5]},
                       index=["Y"])
-    fig = visu.tracer_statistiques({"F03": st, "F04": st * 1.2}, "Y", modele="modele_fixe",
+    fig = visu.tracer_statistiques({"F03": st, "F04": st * 1.2}, "Y", modele="fixe",
                                    etat="test")
     n, ex = _hors_charte(fig)
     assert n == 0, f"{n} couleurs hors charte, par ex. {ex}"
@@ -77,7 +77,7 @@ def test_le_detecteur_attrape_une_couleur_hors_charte(df):
 
 def test_provenance_incrustee(df, tmp_path):
     fig = visu.tracer_series(df, ["A"], **PROV)
-    attendu = "cas · F01  ·  modèle · modele_fixe  ·  état · rejoué le 04/10"
+    attendu = "cas · F01  ·  modèle · fixe  ·  état · rejoué le 04/10"
     assert attendu in [t.get_text() for t in fig.texts]
     with plt.rc_context(visu._RC):
         fig.savefig(tmp_path / "f.svg")  # texte conservé dans le SVG (fonttype none)

@@ -249,7 +249,7 @@ def _fps_du_cas(dossier_cas, fst="main.fst"):
     return float(_cas._sans_guillemets(_cas._valeur_de(lignes, "VTK_fps")))
 
 
-# Maillages vus et vérifiés sur `modele_fixe` (VTK_type = 1) : seuls ceux-là peuvent être amplifiés.
+# Maillages vus et vérifiés sur `modeles/fixe` (VTK_type = 1) : seuls ceux-là peuvent être amplifiés.
 # Noms exacts, sans sous-chaîne : « TowerSurface2 » n'est pas « TowerSurface1 ».
 MAILLAGES_VERIFIES = (r"Blade_R1B[123]Surface", r"HubSurface1", r"NacelleSurface1", r"TowerSurface1",
                       r"MorisonSurface", r"WaveSurface", r"SeabedSurface", r"StillWaterSurface")
@@ -271,7 +271,7 @@ def verifier_amplification(dossier_vtk, amplification):
         raise ValueError(
             f"amplification ×{amplification:g} refusée : maillage(s) non vérifié(s) {', '.join(inconnus)} "
             "(ancrage, plateforme, ou autre : l'amplification de leur mouvement n'est validée que pour les "
-            "pales, le moyeu, la nacelle, la tour, Morison et la surface libre de modele_fixe). "
+            "pales, le moyeu, la nacelle, la tour, Morison et la surface libre de modeles/fixe). "
             "N = 1 reste possible.")
 
 

@@ -12,7 +12,7 @@ if ! command -v openfast &>/dev/null; then
   exit 1
 fi
 
-if [ ! -f "$HERE/../../modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON.so" ]; then
+if [ ! -f "$HERE/../modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON.so" ]; then
   echo "ERREUR : le controleur DISCON n'est pas compile." >&2
   echo "Lancez d'abord, depuis la racine du depot : bash scripts/build_discon.sh" >&2
   exit 1

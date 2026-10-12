@@ -62,7 +62,7 @@ openfast main.fst
 ```
 
 Ces deux cas sont rapides (quelques secondes à quelques dizaines de secondes). Les cas suivants
-(03 à 05, et le tutoriel `prise_en_main/`) utilisent le contrôleur compilé à l'étape 2.
+(03 à 05, et les cas de `cas/`) utilisent le contrôleur compilé à l'étape 2.
 
 Le cas **05** (éolienne flottante, vent turbulent) a besoin d'un fichier de vent supplémentaire
 (~70 Mo), trop gros pour être suivi par git : générez-le une fois par clone avec
@@ -77,14 +77,14 @@ file`.
 
 ## 4. Le tutoriel de prise en main
 
-Pour la séance 0a, allez dans `tutorials/prise_en_main/` et suivez son propre `README.md`. C'est
+Pour la séance 0a, allez dans `cas/` et suivez son propre `README.md`. C'est
 là que se trouvent les cas **F01, F02** (éolienne fixe) demandés pour cette séance — voir aussi
 `seances/0a/README.md` pour le déroulé complet de la séance.
 
 ## 5. Animation (facultatif) : ParaView et ffmpeg
 
 Seule fonction de ce dépôt qui sorte de l'environnement `s9gm-fowt` : l'animation d'un calcul
-(`s9gm.visu.animer`, voir `tutorials/animer.md`) appelle deux programmes **du système**, `pvbatch`
+(`s9gm.visu.animer`, voir `s9gm/ANIMER.md`) appelle deux programmes **du système**, `pvbatch`
 (ParaView) et `ffmpeg`. Rien n'est à installer dans l'environnement Python. Ces deux paquets
 s'installent avec `apt`, donc **avec les droits administrateur** : sur votre machine personnelle,
 ou en demandant à l'administrateur de la salle. Sans eux, tout le reste du dépôt fonctionne.

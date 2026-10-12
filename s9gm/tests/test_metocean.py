@@ -14,7 +14,7 @@ import pytest
 
 from s9gm import cas, metocean as mo
 
-from .conftest import PRISE_EN_MAIN, MODELE  # noqa: F401
+from .conftest import CAS, MODELE, MODELES  # noqa: F401
 
 TOL_IDENTITE = 1e-12          # critère 1 et 4 : identités algébriques
 TOL_MOYENNE = 0.25            # critère 2 : écart relatif maximal de la moyenne (par défaut, écrit avant l'essai)
@@ -137,10 +137,10 @@ def test_la_lct_exportee_est_relue_par_cas(tmp_path, t, pref):
     et = pd.read_csv(etats)
     assert abs(et["O_pct"].sum() - 100.0) < 1e-6 and (et["U_hub"] < et["U_table"]).all()   # moyeu plus bas
     # relecture par cas.generer_cas : le gabarit à un trou, la graine vient de la LCT
-    from .conftest import PRISE_EN_MAIN
+    from .conftest import CAS, MODELES
     from .test_cas import GABARIT
-    m = PRISE_EN_MAIN / f"{pref}_modele"
+    m = MODELES / f"{pref}_modele"
     shutil.copytree(MODELE, m)
     shutil.copy(GABARIT, m / "turbsim.inp")
-    dossiers = cas.generer_serie(lct, m, PRISE_EN_MAIN, executer_turbsim=False)
+    dossiers = cas.generer_serie(lct, m, CAS, executer_turbsim=False)
     assert len(dossiers) == len(df)

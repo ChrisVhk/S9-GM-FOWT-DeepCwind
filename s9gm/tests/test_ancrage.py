@@ -21,7 +21,7 @@ from scipy.optimize import brentq
 
 COMPLET = os.environ.get("S9GM_ANCRAGE_COMPLET")
 RACINE = Path(__file__).parents[2]
-MOORDYN = RACINE / "models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat"
+MOORDYN = RACINE / "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat"
 
 
 def _charger():
