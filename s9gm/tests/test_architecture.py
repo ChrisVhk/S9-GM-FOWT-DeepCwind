@@ -64,7 +64,7 @@ def _hydrodyn_brut():
 
     def table(titre, n_champs):
         i = next(k for k, l in enumerate(lignes) if titre in l)
-        i += 3                                             # titre, compte, en-tête, unités -> données
+        i += 4                                             # titre, compte, en-tête, unités -> données
         sortie = []
         while len(sortie) < 10_000:
             cols = lignes[i].split("!")[0].split()
@@ -262,3 +262,15 @@ def test_la_consigne_de_la_0b_donne_la_commande_et_n_a_plus_de_a_completer_sur_l
     assert "DeepCwind_ARCHITECTURE.xlsx" in texte
     bloc = texte[texte.index("### 3.2"):texte.index("### 3.3")]
     assert "à compléter" not in bloc.lower()
+
+
+def test_cd_et_ca_du_groupe_sont_controles_pour_tous_ses_membres(tmp_path, va):
+    chemin = _classeur_complet(tmp_path / "coef.xlsx")
+    wb = openpyxl.load_workbook(chemin)
+    ligne = next(r for r in wb["Coefficients"].iter_rows(min_row=2) if r[0].value == GROUPES[1])
+    ligne[1].value += 0.1                      # Cd des colonnes déportées
+    ligne[2].value = 0.5                       # Ca des colonnes déportées
+    wb.save(chemin)
+    v = _lignes_sorties(_lancer(chemin).stdout)
+    assert {i for i, (s, _) in v.items() if s == "écart"} == {2, 3, 4}
+    assert all("Cd" in v[i][1] and "Ca" in v[i][1] for i in (2, 3, 4))

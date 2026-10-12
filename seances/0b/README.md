@@ -168,19 +168,54 @@ référence IEC est 600 s.
 
 ### 3.2 Architecture du modèle de flotteur, au tableur (environ 30 min)
 
-*Théorie : sections 6.5 (flotteur) ; fiche F4 (à venir (master)).*
+*Théorie : section 6.5 (flotteur) ; fiche F4 (à venir (master)).*
 
-À partir de la géométrie de la DeepCwind (dimensions fournies), compléter le classeur `DeepCwind_ARCHITECTURE.xlsx`
-du tutoriel : **nœuds** (coordonnées dans le repère inertiel), **membres** (nœud 1 → nœud 2, jeu de propriétés,
-discrétisation), **jeux de propriétés** (diamètre, épaisseur) et **coefficients hydrodynamiques** (Cd, Ca) par
-groupe — colonne centrale, colonnes déportées, bases, pontoons, entretoises. Retrouver ensuite chaque colonne du
-tableau dans le fichier HydroDyn du modèle. C'est la façon la plus directe de comprendre comment OpenFAST « voit » une
-structure tubulaire, et ce tableau resservira en phase 5 (entretoises, β = d/D).
+À partir de la géométrie de la DeepCwind (dimensions fournies), compléter le classeur `DeepCwind_ARCHITECTURE.xlsx` : **nœuds**
+(coordonnées dans le repère inertiel), **membres** (nœud 1 → nœud 2, jeu de propriétés, discrétisation), **jeux de propriétés**
+(diamètre, épaisseur) et **coefficients hydrodynamiques** (Cd, Ca) par groupe — colonne centrale, colonnes déportées, bases,
+pontons, entretoises. Retrouver ensuite chaque colonne du tableau dans le fichier HydroDyn du modèle. C'est la façon la plus
+directe de comprendre comment OpenFAST « voit » une structure tubulaire, et ce tableau resservira en phase 5 (entretoises,
+β = d/D).
 
-> **À compléter** : le classeur `DeepCwind_ARCHITECTURE.xlsx` n'est pas dans le dépôt ; la géométrie fournie est dans
-> [`../../data/geometrie_deepcwind.md`](../../data/geometrie_deepcwind.md). Le fichier HydroDyn du modèle flottant
-> est `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat` (voir
-> [`modeles/flottant/README.md`](../../modeles/flottant/README.md)).
+Le classeur est [`DeepCwind_ARCHITECTURE.xlsx`](DeepCwind_ARCHITECTURE.xlsx) : un fichier suivi par git, que vous **copiez d'abord
+sous `results/`** et dont vous remplissez la copie (LibreOffice Calc ou Excel ; enregistrez au format `.xlsx`).
+
+```bash
+cp seances/0b/DeepCwind_ARCHITECTURE.xlsx results/
+```
+
+**Ce que contient le classeur.**
+- `Donnees` : les dimensions du document de définition OC5 (Tables 3-10 et 3-11, avec leur page), et la liste de ce que ce
+  document **ne donne pas** (épaisseurs de paroi, Cd, Ca, discrétisation) : cela se lit dans le fichier HydroDyn du modèle
+  flottant, [`modeles/oc4_rtest/…/NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat`](../../modeles/flottant/README.md) (le
+  `HydroFile` de `modeles/flottant/main.fst`).
+- `Noeuds`, `Membres`, `Proprietes`, `Coefficients` : à remplir. Les cellules « à remplir » sont en jaune. **La colonne centrale
+  (membre `M1`) est résolue en exemple**, en vert : regardez comment elle relie les quatre feuilles.
+- Étiquettes : un nœud s'appelle `N…`, un jeu de propriétés `P…`, un membre `M…` (numéro du membre dans HydroDyn). Vous numérotez
+  vos nœuds et vos jeux comme vous voulez (choisissez des étiquettes libres) ; vous les citez dans `Membres`.
+
+**Contrôle.** Le script compare votre classeur, membre par membre, au fichier HydroDyn de `modeles/flottant` :
+
+```bash
+python scripts/verifier_architecture.py results/DeepCwind_ARCHITECTURE.xlsx
+```
+
+**Vous devez voir** : une ligne par membre du fichier HydroDyn, `juste`, `écart (…)` ou `manquant (…)`, puis un décompte. Sur le
+classeur tel que livré : seule la colonne centrale est `juste`, les autres membres sont `manquant` (cellules encore « à remplir »).
+À mesure que vous remplissez, les `manquant` deviennent `juste` ou `écart` ; un `écart` nomme le champ fautif, votre valeur et
+celle du fichier. **Un écart n'est pas forcément votre erreur** : le document de définition arrondit ses coordonnées (le script
+tolère 5 cm), et le fichier HydroDyn peut contenir des joints et des membres que le tableau du document ne contient pas. Votre
+travail est de **retrouver chaque colonne dans le fichier, puis d'attribuer chaque écart restant** (quel membre, quelle
+différence entre le document et le fichier) : c'est l'objet de Q0.3.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `Classeur illisible : …` | fichier non `.xlsx`, ouvert ailleurs, ou feuille renommée | enregistrez la copie en `.xlsx`, sans renommer les feuilles ni les colonnes |
+| `manquant (nœud 1, …)` sur un membre que vous avez rempli | l'étiquette citée n'existe pas dans `Noeuds`, ou une faute de frappe (`n3`, `N 3`) | citez exactement l'étiquette de la feuille `Noeuds` |
+| `manquant (coordonnées de N7 (nœud 1))` | le nœud est cité mais ses coordonnées sont encore « à remplir » | remplissez la ligne `N7` de `Noeuds` |
+| `manquant (Cd du groupe …)` | la ligne du groupe est encore « à remplir » | remplissez `Coefficients` |
+| `écart (nœud 2 N… : z = … (fichier : …))` | coordonnée différente de celle du fichier au-delà de 5 cm | relisez la section « MEMBER JOINTS » ; est-ce votre erreur, ou une différence entre document et fichier ? |
+| `écart (nœud 1 …)` et `écart (nœud 2 …)` inversés | sens du membre inversé | nœud 1 → nœud 2 dans le sens du fichier |
 
 ### 3.3 Raideurs hydrostatiques, à la main (environ 30 min)
 
@@ -306,7 +341,7 @@ La démarche complète, du `.outb` aux statistiques, aux figures et au DEL, est 
 
 **Rendu R0 — seconde partie**, dans `rendus/` (les questions Q0.1 et Q0.2 sont celles de la [séance 0a](../0a/README.md)) :
 
-- Q0.3 — Classeur d'architecture complété, et correspondance avec le fichier HydroDyn ; K33 et K55 **à la main**
+- Q0.3 — Classeur d'architecture complété (votre copie remplie, dans `rendus/`), et correspondance avec le fichier HydroDyn ; K33 et K55 **à la main**
   (colonnes seules), puis **confrontés à `s9gm.hydro` et au fichier `.hst` du modèle, avec attribution de l'écart** ;
   périodes propres qui en découlent, et ce qui les écarte des valeurs publiées. L'attribution compte plus que le chiffre.
 - Q0.4 — Tableau fixe / flottant (max, écart-type) et trois constats argumentés : ce qui change, pourquoi, et ce que ce
