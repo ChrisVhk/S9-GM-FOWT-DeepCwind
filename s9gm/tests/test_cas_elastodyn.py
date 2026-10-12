@@ -3,6 +3,7 @@ dans une COPIE ElastoDyn propre au cas, jamais dans le fichier partagé du tutor
 
 Écrits avant le code. Le strict nécessaire : le préfixe de colonne `elastodyn.Clé`, comme `seastate.Clé`."""
 import hashlib
+import os
 import re
 from pathlib import Path
 
@@ -83,3 +84,18 @@ def test_elastodyn_colonne_acceptee_par_la_lct(tmp_path):
 def test_elastodyn_cle_inconnue_refusee(tmp_path):
     with pytest.raises(KeyError, match="CleQuiNExistePas"):
         cas.generer_cas({"cas": "BAD", "elastodyn.CleQuiNExistePas": "1"}, MODELE, tmp_path, executer_turbsim=False)
+
+
+def test_elastodyn_un_fichier_de_tour_donne_par_la_lct_est_relatif_au_dossier_du_cas(tmp_path):
+    """Une colonne `elastodyn.TwrFile` désigne un fichier **relatif au dossier du cas**, comme `fst.ServoFile` : `cas` ne le réécrit pas
+    comme un chemin du modèle. Les autres fichiers (pales), eux, restent réécrits depuis le dossier du modèle."""
+    tour = tmp_path / "tour_autre.dat"
+    tour_modele = (MODELE / str(cas.FASTInputFile(str(ED))["TwrFile"]).strip('"')).resolve()
+    tour.write_text(tour_modele.read_text(encoding="utf-8"), encoding="utf-8")
+    sortie = tmp_path / "sortie"
+    sortie.mkdir()
+    relatif = Path(os.path.relpath(tour, sortie / "ED2")).as_posix()
+    d = cas.generer_cas({"cas": "ED2", "elastodyn.TwrFile": relatif}, MODELE, sortie, executer_turbsim=False)
+    ed = cas.FASTInputFile(str(d / "config_elastodyn.dat"))
+    assert (d / str(ed["TwrFile"]).strip('"')).resolve() == tour.resolve()          # le fichier demandé est bien celui que lira ElastoDyn
+    assert (d / str(ed["BldFile(1)"]).strip('"')).resolve().parent == MODELE.resolve()      # un fichier non demandé reste celui du modèle

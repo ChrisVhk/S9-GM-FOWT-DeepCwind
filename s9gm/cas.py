@@ -279,6 +279,8 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True, turbsim_inp=No
             journal["modifications"].append({"fichier": modele_ed.name, "cle": cle,
                                              "avant": _sans_guillemets(ancien), "apres": val})
         for cle in CLES_FICHIERS_ELASTODYN:   # fichiers lus par ElastoDyn : relatifs à SON dossier, qui change
+            if cle in modifs[ELASTODYN]:      # désigné par la LCT : relatif au dossier du cas (comme `fst.ServoFile`), pas réécrit
+                continue
             try:
                 valeur = _sans_guillemets(_valeur_de(lignes, cle))
             except KeyError:
