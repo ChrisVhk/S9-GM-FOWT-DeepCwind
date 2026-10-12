@@ -12,6 +12,11 @@ Cette séance poursuit la progression du tutoriel OpenFAST Quickstart du LHEEA (
 commencée en séance 0a (cas 01-02) : du contrôle réaliste d'une éolienne jusqu'au flotteur ancré.
 Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du tutoriel `prise_en_main/`.
 
+**Pour construire et lire vos propres cas, suivez le guide
+[`tutorials/prise_en_main/PAS_A_PAS.md`](../../tutorials/prise_en_main/PAS_A_PAS.md)** : commandes
+exactes, résultat attendu et pièges à chaque étape (Linux et Python, sans `.m`). Les dossiers
+`tutorials/lheea/*` ci-dessous servent de référence à lire, pas de support de manipulation.
+
 ## 1. Cas LHEEA 03 — éolienne pilotée en vent variable (environ 30 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §3, adapté — voir

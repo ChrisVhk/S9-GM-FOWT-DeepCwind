@@ -1,0 +1,176 @@
+<!-- destinations: github -->
+# Pas à pas — construire et lire vos cas F01 à F05
+
+Ce guide remplace, pour la séance 0b, les dossiers `tutorials/lheea/*/1_Configuration` : vous
+travaillez uniquement dans `tutorials/prise_en_main/`, avec des commandes Linux et du Python (aucun
+script `.m`). Les cas LHEEA restent disponibles en **lecture seule**, comme référence.
+
+Chaque étape donne : **ce que vous faites**, **la commande exacte**, **ce que vous devez voir**, et
+**ce qui se passe si ça ne va pas**. Les commandes se lancent **depuis la racine du dépôt**, sauf
+mention contraire.
+
+Principe : on ne change **qu'une chose à la fois** (F01 → F02 : le vent ; F02 → F03 : le vent devient
+turbulent), et à chaque étape on prédit avant de lire.
+
+---
+
+## Étape 0 — Préparer l'environnement (une seule fois par `git clone`)
+
+```bash
+micromamba activate s9gm-fowt
+bash scripts/build_discon.sh
+which openfast turbsim
+```
+
+**Vous devez voir** : deux chemins se terminant par `.../envs/s9gm-fowt/bin/openfast` et
+`.../turbsim`.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `openfast introuvable` | environnement non activé | `micromamba activate s9gm-fowt` (à refaire dans **chaque** nouveau terminal) |
+| `le controleur DISCON n'est pas compile` | étape `build_discon.sh` oubliée | la lancer depuis la racine du dépôt |
+
+---
+
+## Étape 1 — Lancer un cas existant (F01, vent constant 7,5 m/s)
+
+Avant de lancer, **ouvrez `F01/main.fst` dans un éditeur** et repérez `TMax`, `DT` et les noms des
+fichiers pointés. Puis :
+
+```bash
+cd tutorials/prise_en_main
+bash run_cas.sh F01
+cd ../..
+```
+
+**Vous devez voir** : `OK en NN s -> .../F01/main.outb` (environ 1 à 2 min pour 200 s simulées).
+En cas d'échec, lisez la **fin** de `F01/run.log` : OpenFAST y écrit la ligne fautive.
+
+**Ce qui doit vous interpeller** : le dossier `F01/` ne contient presque rien (`main.fst`,
+`config_inflow.dat`). Tout le reste est dans `../modele_fixe/`. Voir le `README.md` voisin pour la
+règle de résolution des chemins.
+
+---
+
+## Étape 2 — Lire un résultat sans se tromper
+
+Le début d'une simulation n'est pas de la physique : le rotor part de l'arrêt. **Regardez la courbe
+avant de calculer une statistique.**
+
+```python
+import matplotlib.pyplot as plt
+from s9gm import lire
+
+df, unites = lire.lire("tutorials/prise_en_main/F01/main.outb")
+print(list(df.columns))                     # les canaux disponibles
+df.plot(x="Time", y="RotSpeed"); plt.show() # 1) regarder
+```
+
+1. **Repérez** l'instant où `RotSpeed` cesse d'évoluer : c'est votre `t_transitoire`.
+2. **Écrivez-le** (valeur et raison) avant de calculer :
+
+```python
+print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<votre valeur, en s>))
+print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=0))   # pour comparer
+```
+
+`lire.statistiques` **refuse** de tourner sans `t_transitoire` : c'est voulu.
+
+**Vous devez voir** : sans écarter le transitoire, la moyenne de `RotSpeed` est tirée vers 0 et
+l'écart-type est très grand ; après, l'écart-type est quasi nul (régime établi). Cet écart est la
+mesure de ce que vous évitez en écartant le début.
+
+**À faire à la main, avant de regarder le résultat** (voir `README.md`, « Vérifications à la main ») :
+Ω = TSR·V/R, puis `TwrBsMyt` ≈ poussée × (hauteur du moyeu − `TowerBsHt`). Comparez ensuite.
+
+---
+
+## Étape 3 — Changer UNE chose : F02 (échelon de vent)
+
+```bash
+cd tutorials/prise_en_main && bash run_cas.sh F02 && cd ../..
+```
+
+Comparez les deux cas : `diff F01/main.fst F02/main.fst` (seul `TMax` change) puis
+`diff F01/config_inflow.dat F02/config_inflow.dat` (le type de vent, sa vitesse et son exposant de
+profil changent : c'est là que se décrit le vent). Dans F02, tracez ensemble `Wind1VelX`, `RotSpeed` et `BldPitch1`.
+
+**Questions** : à quel instant le calage des pales s'écarte-t-il de zéro ? À quel vent cela
+correspond-il, d'après la fiche F1 ? La puissance se stabilise-t-elle ou continue-t-elle de croître
+avec le vent ?
+
+---
+
+## Étape 4 — Vent turbulent : F03, F04, F05
+
+C'est ici que l'on automatise. Trois choses à faire, dans l'ordre.
+
+### 4.1 Préparer le fichier d'entrée TurbSim
+
+```bash
+cp seances/0b/turbsim_gabarit.inp tutorials/prise_en_main/modele_fixe/turbsim.inp
+```
+
+Deux champs `A_COMPLETER` sont à **choisir et justifier** (voir `seances/0b/README.md`,
+« Le champ de vent ») : `IECturbc` (catégorie de turbulence) et `RandSeed1` (graine). Notez votre
+choix et sa source dans votre carnet : la source et la page comptent plus que la lettre.
+
+### 4.2 Écrire la table de cas
+
+Créez `lct_0b.csv` à la racine du dépôt (une ligne par cas, une colonne `fichier.Clé` par paramètre) :
+
+```
+cas,fst.TMax,turbsim.URef,turbsim.IECturbc,turbsim.RandSeed1
+F03,300,7.5,<votre catégorie>,<votre graine>
+F04,300,12,<votre catégorie>,<votre graine>
+F05,300,16,<votre catégorie>,<votre graine>
+```
+
+### 4.3 Générer, lancer, lire
+
+```python
+from s9gm import cas, lancer, lire
+
+dossiers = cas.generer_serie("lct_0b.csv", "tutorials/prise_en_main/modele_fixe",
+                             "tutorials/prise_en_main")
+lancer.lancer_serie(dossiers, coeurs=2, journal="journal_lancer.csv")
+```
+
+**Vous devez voir** : un dossier `F03/`, `F04/`, `F05/` avec chacun un `Wind/Fxx.bts` (le champ de vent)
+et un `main.outb`. Durée attendue : environ **3 min par cas** pour 300 s simulées (TurbSim ≈ 1 min,
+OpenFAST ≈ 2 min) ; la génération du vent se fait avant le lancement du calcul.
+
+**Avant de lire les résultats**, comme pour F01 : écrivez le vent moyen et l'intensité de turbulence
+attendus au moyeu, puis relisez-les sur le champ produit (moyenne et écart-type de `Wind1VelX`).
+Si votre estimation et le champ diffèrent, c'est l'estimation ou le fichier d'entrée qui est faux.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `clé « … » trouvée 0 fois` | faute de frappe dans une colonne de la table | la clé fautive est nommée dans le message ; corriger l'en-tête |
+| erreur sur un champ vide | `IECturbc` ou `RandSeed1` non rempli | le champ est nommé ; le remplir (et le justifier) |
+| le cas cherche `ramp_wind.dat` et s'arrête | `inflow.WindType` non fixé et pas de TurbSim | utiliser les colonnes `turbsim.*` ci-dessus |
+| cas sauté « termine » | `lancer` saute un cas dont `run.log` et `main.outb` existent déjà | normal ; pour le refaire, supprimer le `main.outb` de ce cas |
+
+### 4.4 Lire et comparer
+
+Pour chaque cas, **choisissez `t_transitoire` en regardant la courbe**, puis comparez F03, F04, F05 :
+moyenne, écart-type, max de `RotSpeed`, `BldPitch1`, `TwrBsMyt`. Repérez la **région de régulation**
+de chacun avec les seuils de la fiche F1 avant de commenter.
+
+**Ce que ces cas ne permettent pas de conclure** : une seule graine ne dit rien de la variabilité
+entre graines, et un maximum est un maximum *de cette réalisation*, pas un extrême de
+dimensionnement. 300 s est une durée réduite ; la référence IEC est 600 s (à relancer à la maison
+et comparer, en option).
+
+---
+
+## Étape 5 — Ce que vous rendez pour cette phase
+
+Pour chaque cas F01 à F05 : le `t_transitoire` choisi (avec sa raison), les statistiques retenues,
+la région de régulation, et **une phrase sur ce que le cas ne permet pas de conclure**.
+
+## Étape 6 — Les cas flottants D00 à D05
+
+*À venir (modèle flottant DeepCwind à construire dans `modele_flottant/`).* La démarche est
+identique : un dossier léger par cas, une table de cas, une seule chose qui change à la fois (la
+houle s'ajoute, puis le vent, puis la turbulence).
