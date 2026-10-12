@@ -10,7 +10,7 @@ import pytest
 RACINE = Path(__file__).resolve().parents[2]
 PRISE_EN_MAIN = RACINE / "tutorials" / "prise_en_main"
 MODELE = PRISE_EN_MAIN / "modele_fixe"
-DISCON = RACINE / "models" / "oc4_rtest" / "5MW_Baseline" / "ServoData" / "DISCON.so"
+DISCON = RACINE / "modeles" / "oc4_rtest" / "5MW_Baseline" / "ServoData" / "DISCON.so"
 
 LCT_F01 = ("cas,fst.TMax,inflow.WindType,inflow.HWindSpeed,inflow.PLExp\n"
            "F01,200,1,7.5,0.11\n")

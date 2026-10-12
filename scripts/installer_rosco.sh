@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Recupere libdiscon.so (controleur ROSCO, conda-forge, licence Apache-2.0) pour le modele
-# models/iea15_monopile/. Meme principe que build_discon.sh : un .so est un binaire, jamais
+# modeles/iea15_monopile/. Meme principe que build_discon.sh : un .so est un binaire, jamais
 # suivi dans ce depot (.gitignore: *.so) ; chacun le reconstruit sur sa machine.
 #
 # On installe `rosco` dans un environnement SEPARE (--no-deps : on ne veut que la bibliotheque,
 # pas son Python) pour ne pas toucher a s9gm-fowt (openfast=5.0.0 epingle), puis on copie
-# libdiscon.so a l'endroit que lit ServoDyn (models/iea15_monopile/ServoData/).
+# libdiscon.so a l'endroit que lit ServoDyn (modeles/iea15_monopile/ServoData/).
 #
 # Version epinglee (2.10.6) : c'est celle avec laquelle les resultats livres ont ete produits.
 # Non teste sur une machine vierge (le .so dependrait de libgfortran du systeme).
@@ -15,7 +15,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT_DIR="$HERE/models/iea15_monopile/ServoData"
+OUT_DIR="$HERE/modeles/iea15_monopile/ServoData"
 MM="${MAMBA_EXE:-$(command -v micromamba || true)}"
 if [ -z "$MM" ]; then
   echo "ERREUR : micromamba introuvable (voir README.md, installation)." >&2

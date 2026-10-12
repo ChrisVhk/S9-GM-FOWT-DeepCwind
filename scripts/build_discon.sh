@@ -13,7 +13,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC_DIR="$HERE/models/oc4_rtest/5MW_Baseline/ServoData"
+SRC_DIR="$HERE/modeles/oc4_rtest/5MW_Baseline/ServoData"
 OUT_DIR="$SRC_DIR"
 
 if [ -z "${CONDA_PREFIX:-}" ]; then
