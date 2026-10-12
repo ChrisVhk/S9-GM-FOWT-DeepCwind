@@ -29,7 +29,7 @@ ESSAI = {
     "<votre déplacement de heave (m)>": "1",
     "<votre rotation de pitch (°)>": "3",
     "<indice du cas de base>": "5",
-    "<votre durée de simulation (s)>": "30",
+    "<votre durée de simulation (s)>": "90",     # plus longue que le transitoire d essai (60 s)
     "<vos coeurs>": "3",
     # famille bâbord (vent) : par défaut du rejeu complet
     "<vos variations>": '{"turbsim.URef": [9, 14]}',
