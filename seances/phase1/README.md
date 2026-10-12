@@ -49,7 +49,11 @@ Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas, vou
 ### Étape 1 — Charger les données FLOATECH
 
 ```python
+from pathlib import Path
 from s9gm import metocean
+
+for dossier in ("results", "rendus"):               # dossiers de ce que vous produisez : ignorés par git, donc absents d'un clone neuf
+    Path(dossier).mkdir(exist_ok=True)
 
 t = metocean.lire()
 print(t.P.shape, t.P.sum())                       # forme du tableau, somme des probabilités
@@ -65,6 +69,7 @@ for axe in metocean.AXES:                         # bornes des classes de chaque
 |---|---|---|
 | `ModuleNotFoundError: No module named 's9gm'` | Python lancé hors de la racine du dépôt | `cd` à la racine, ou `sys.path.insert(0, ".")` |
 | `ValueError … Σ P = …` | `floatech_wob_pdf_array.bin` modifié ou tronqué | `git restore data/metocean/` ; ne modifiez jamais `data/` |
+| `FileNotFoundError : results/…` (plus loin) | le dossier `results/` n'existe pas : git l'ignore, un clone neuf ne l'a pas | les deux premières lignes de l'étape 1 le créent ; relancez-les |
 
 ### Étape 2 — La distribution conjointe (point 1)
 
