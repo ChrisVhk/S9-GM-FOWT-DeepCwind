@@ -233,7 +233,18 @@ une seule graine suffit-elle ?) Il n'y a pas de valeur attendue : la réponse es
 | `TMax` de `SeaState` inférieur à 600 s | `seastate.WaveTMax` abaissé | laissez la valeur du modèle (600 s) |
 | les deux cas ne démarrent pas ensemble | `coeurs=1` | `coeurs=2` pour les lancer en parallèle |
 
-**Temps mesurés** (machine de développement du cours, OpenFAST et TurbSim seuls, en parallèle de deux ou trois cas ; la salle sera plus lente) : voir le tableau en fin de section.
+**Temps mesurés** (machine de développement du cours ; la salle sera plus lente) :
+
+| Calcul | Durée mesurée |
+|---|---|
+| Étape 1 : cas de référence D01, 300 s simulées | ≈ 305 s (rejeu en clone neuf) |
+| Étape 2 : trois lâchers de 60 s simulées, en parallèle | ≈ 95 s |
+| Étape 5 : cas turbulent flottant, 300 s simulées (deux cas en parallèle) | 384 s |
+| Étape 5 : le même cas, 600 s simulées (en parallèle du précédent) | 709 s (rapport 0,85) |
+| Champ de vent TurbSim (deux champs identiques) | ≈ 140 s |
+| Rejeu complet de la phase 2 (valeurs d'essai courtes pour les lâchers et la sensibilité) | 1553 s |
+
+Les calculs à 300 s et à 600 s ont été mesurés ensemble : seul, un cas va un peu plus vite.
 
 ## 4. Post-traiter
 

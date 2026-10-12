@@ -256,7 +256,16 @@ Le temps de calcul est mesuré dans la section « Temps mesurés » ci-dessous.
 | `KeyError: 'FAIRTEN1'` | canal absent de la sortie | `print(list(df.columns))` |
 | `lire.statistiques` refuse de tourner | `t_transitoire` absent | regardez la courbe, choisissez une valeur (0 seulement si vous l'assumez) |
 
-**Temps mesurés** (machine de développement du cours, OpenFAST et TurbSim seuls ; la salle sera plus lente) : voir le tableau en fin de section.
+**Temps mesurés** (rejeu des commandes dans un clone neuf, machine de développement du cours, seule sur la machine ; la salle sera plus lente) :
+
+| Étape | Durée mesurée |
+|---|---|
+| 1 à 5 (lecture, classes, LCT, génération sans TurbSim de 13 cas) | moins d'une seconde au total |
+| 6 : champ de vent TurbSim (un cas) | ≈ 107 s |
+| 6 : OpenFAST, 300 s simulées (un cas flottant turbulent) | ≈ 363 s (rapport 0,83) |
+| Étape 6 entière, rejeu | 471 s |
+
+Pour la campagne : un cas de 600 s simulées prend environ 12 min de calcul sur cette machine (voir la phase 2), contre « environ 25 min » annoncé pour une machine de la salle (ENONCE, §3 bis).
 
 ## 4. Post-traiter
 
