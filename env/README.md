@@ -23,4 +23,4 @@ openfast -v   # doit afficher OpenFAST-v5.0.0
 - **`turbsim`** : installé automatiquement avec le paquet `openfast` (même distribution
   conda-forge) — pas une dépendance séparée.
 - **`notebook`, `ipykernel`** : nécessaires pour ouvrir et exécuter les notebooks
-  `tutorials/lheea/practicals/*.ipynb` (`jupyter notebook` depuis l'environnement activé).
+  `annexes/lheea/practicals/*.ipynb` (`jupyter notebook` depuis l'environnement activé).

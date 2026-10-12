@@ -49,7 +49,7 @@ sur votre disque tant que vous ne supprimez pas le dépôt).
 ## 3. Premier calcul : les cas 01 et 02 du tutoriel LHEEA
 
 ```bash
-cd tutorials/lheea/01_TowerStructure/1_Configuration
+cd annexes/lheea/01_TowerStructure/1_Configuration
 openfast main.fst
 ```
 
@@ -72,7 +72,7 @@ bash scripts/generer_vent_turbulent_05.sh
 ```
 
 (quelques minutes de calcul). Sans cette étape, `openfast main.fst` dans
-`tutorials/lheea/05_FOWT/1_Configuration` échoue avec `Cannot find TurbSim full-field wind input
+`annexes/lheea/05_FOWT/1_Configuration` échoue avec `Cannot find TurbSim full-field wind input
 file`.
 
 ## 4. Le tutoriel de prise en main
@@ -126,4 +126,4 @@ Doit afficher une ligne `paraview version 5.11…` ou `6.0…`, puis deux lignes
 Voir `PROVENANCE.md`. En résumé : modèle de référence et contrôleur sous licence Apache 2.0
 (projet [OpenFAST](https://github.com/OpenFAST/openfast)) ; tutoriel LHEEA sous licence Apache 2.0
 ([openfast_quickstart](https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart)), avec
-attribution dans `tutorials/lheea/NOTICE`.
+attribution dans `annexes/lheea/NOTICE`.

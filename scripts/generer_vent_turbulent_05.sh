@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Regenere le champ de vent turbulent du cas 05 (FOWT) avec TurbSim, a partir du fichier
-# d'entree .inp d'origine (conserve intact, cf tutorials/lheea/NOTICE).
+# d'entree .inp d'origine (conserve intact, cf annexes/lheea/NOTICE).
 #
 # Pourquoi : le fichier .bts genere (~70 Mo) est gitignore (regle du cours : aucun fichier
 # >50 Mo, aucun binaire genere suivi) et n'est donc jamais present apres un git clone. TurbSim
@@ -15,7 +15,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WIND_DIR="$HERE/tutorials/lheea/05_FOWT/1_Configuration/Wind"
+WIND_DIR="$HERE/annexes/lheea/05_FOWT/1_Configuration/Wind"
 
 if [ -z "${CONDA_PREFIX:-}" ]; then
   echo "ERREUR : aucun environnement conda/micromamba actif (lancez 'micromamba activate s9gm-fowt' d'abord)." >&2

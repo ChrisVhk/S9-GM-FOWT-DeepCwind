@@ -13,7 +13,7 @@ from pathlib import Path
 
 from s9gm import cas, fatigue, lancer, lire, metocean
 
-MODELE = Path("tutorials/lheea/05_FOWT/1_Configuration")       # modèle flottant du dépôt
+MODELE = Path("annexes/lheea/05_FOWT/1_Configuration")       # modèle flottant du dépôt
 SORTIE = Path("results/chaine")                                 # dossier des cas (non suivi par git)
 
 # Choix à faire (None = non décidé : les fonctions refusent de calculer plutôt que d'inventer un défaut) ----------------

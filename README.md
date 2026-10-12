@@ -7,7 +7,7 @@ de qualifier sa tenue en fatigue et aux états limites.
 
 Droits : ENSM, publié avec l'accord de l'École.
 
-Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [models/iea15_monopile/LICENSE](models/iea15_monopile/LICENSE) et [tutorials/lheea/LICENSE](tutorials/lheea/LICENSE) (exceptions, non modifiées).
+Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [models/iea15_monopile/LICENSE](models/iea15_monopile/LICENSE) et [annexes/lheea/LICENSE](annexes/lheea/LICENSE) (exceptions, non modifiées).
 
 ## Lundi — séance 0a : commencez ici → [`seances/0a/`](seances/0a/README.md)
 
@@ -41,9 +41,9 @@ Détail phase par phase, compétences visées, méthode de travail et règles d'
 | `scripts/build_discon.sh` | Compile le contrôleur (jamais suivi compilé) | phase 0, toute séance |
 | `scripts/generer_vent_turbulent_05.sh` | Génère le vent turbulent du cas LHEEA 05 (fichier trop gros pour git) | phase 0b, phase 2 |
 | `models/oc4_rtest/` | Modèle de référence OC4-DeepCwind (cas r-test OpenFAST, Apache-2.0) : géométrie, contrôleur et données hydro partagés par les tutoriels ci-dessous | toutes phases (référence partagée) |
-| `tutorials/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre — récit dans `seances/0a/` | phase 0a |
-| `tutorials/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
-| `tutorials/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
+| `annexes/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre — récit dans `seances/0a/` | phase 0a |
+| `annexes/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
+| `annexes/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
 | `tutorials/prise_en_main/` | Tutoriel du cours : éolienne fixe (F0x) puis flottante (D0x) | phase 0 |
 | `seances/atelier_tour/` | Tutoriel d'accompagnement d'un atelier distribué sur Vega (dimensionnement FLS/ULS d'une tour tubulaire) — répétition générale de la méthode de la phase 5 | phase 5 |
 | `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) — une seule à ce jour (F1) | toutes phases |
@@ -57,4 +57,4 @@ Détail phase par phase, compétences visées, méthode de travail et règles d'
 Voir `PROVENANCE.md`. En résumé : modèle de référence et contrôleur sous licence Apache 2.0
 (projet [OpenFAST](https://github.com/OpenFAST/openfast)) ; tutoriel LHEEA sous licence Apache 2.0
 ([openfast_quickstart](https://gitlab.in2p3.fr/lheea/oracle/tutorials/openfast_quickstart)), avec
-attribution dans `tutorials/lheea/NOTICE`.
+attribution dans `annexes/lheea/NOTICE`.

@@ -1,4 +1,4 @@
-Ce dossier (tutorials/lheea/) reprend, avec modifications, le tutoriel OpenFAST Quickstart
+Ce dossier (annexes/lheea/, anciennement tutorials/lheea/) reprend, avec modifications, le tutoriel OpenFAST Quickstart
 publié par le LHEEA (Nantes Université / Centrale Nantes / CNRS, ORACLE), sous licence
 Apache License 2.0 (voir le fichier LICENSE dans ce dossier).
 
@@ -39,7 +39,7 @@ modifies -- ADAPTATION_LHEEA.md fait foi pour l'exhaustivite, ce NOTICE en est l
   cas 04 et 05 (voir ADAPTATION_LHEEA.md dans ce meme dossier).
 - UA_Mod=3 (Beddoes-Leishman Minnema/Pierce, instationnaire) au lieu de 0 (stationnaire, valeur
   equivalente au AFAeroMod=1 d'origine) dans les cas 02 a 05 : alignement delibere sur le modele
-  de reference du projet (models/oc4_rtest, meme valeur UA_Mod=3), pas une reproduction du
+  de reference du projet (modeles/oc4_rtest, meme valeur UA_Mod=3), pas une reproduction du
   comportement stationnaire d'origine (voir ADAPTATION_LHEEA.md).
 
 - practicals SWRT : deux defauts preexistants corriges, independants de la migration v5.0.0 --
@@ -49,5 +49,10 @@ modifies -- ADAPTATION_LHEEA.md fait foi pour l'exhaustivite, ce NOTICE en est l
   Detail dans ADAPTATION_LHEEA.md, qui signale aussi un mesappariement AeroDyn v14/v15 sur
   SWRT_022.fst, connu et non migre (le cas est retire du parcours propose aux etudiants plutot
   que corrige).
+- reorganisation du depot du cours (12/10/2026) : le dossier des modeles du cours, qui s'appelait
+  models/, s'appelle desormais modeles/ ; le champ DLL_FileName de config_servodyn.dat (ligne 86)
+  des cas 03_ControlledWT, 04_MonopileWT et 05_FOWT (1_Configuration) en est modifie : seul le nom
+  du dossier change (models/ -> modeles/), la profondeur relative est inchangee. Detail dans
+  ADAPTATION_LHEEA.md, section « Reorganisation du depot du cours ».
 
 Aucune mention de copyright ou d'attribution du depot d'origine n'a ete retiree.

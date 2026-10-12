@@ -15,12 +15,12 @@ Elle prépare la construction de vos propres cas (F03-F05, D00-D05) du tutoriel 
 **Pour construire et lire vos propres cas, suivez le guide
 [`tutorials/prise_en_main/PAS_A_PAS.md`](../../tutorials/prise_en_main/PAS_A_PAS.md)** : commandes
 exactes, résultat attendu et pièges à chaque étape (Linux et Python, sans `.m`). Les dossiers
-`tutorials/lheea/*` ci-dessous servent de référence à lire, pas de support de manipulation.
+`annexes/lheea/*` ci-dessous servent de référence à lire, pas de support de manipulation.
 
 ## 1. Cas LHEEA 03 — éolienne pilotée en vent variable (environ 30 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §3, adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 ### Bloc Théorie
 
@@ -42,14 +42,14 @@ exactes, résultat attendu et pièges à chaque étape (Linux et Python, sans `.
    contrôleur complet (voir `ADAPTATION_LHEEA.md`) ; fiche F1 (régulation).
 
 ```bash
-cd tutorials/lheea/03_ControlledWT/1_Configuration
+cd annexes/lheea/03_ControlledWT/1_Configuration
 openfast main.fst
 ```
 
 ## 2. Cas LHEEA 04 — éolienne sur monopieu (environ 30 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §4, adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 ### Bloc Théorie
 
@@ -78,14 +78,14 @@ openfast main.fst
    fichier `.bts` d'origine n'ayant jamais été distribué par l'amont (voir `ADAPTATION_LHEEA.md`).
 
 ```bash
-cd tutorials/lheea/04_MonopileWT/1_Configuration
+cd annexes/lheea/04_MonopileWT/1_Configuration
 openfast main.fst
 ```
 
 ## 3. Cas LHEEA 05 — éolienne flottante (environ 30 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §5, adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 ### Bloc Théorie
 
@@ -113,7 +113,7 @@ Le cas 05 nécessite un fichier de vent turbulent supplémentaire (~70 Mo, non s
 générez-le d'abord avec `bash scripts/generer_vent_turbulent_05.sh` (voir `README.md` racine).
 
 ```bash
-cd tutorials/lheea/05_FOWT/1_Configuration
+cd annexes/lheea/05_FOWT/1_Configuration
 openfast main.fst
 ```
 

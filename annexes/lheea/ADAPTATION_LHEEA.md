@@ -28,7 +28,7 @@ Conformément à la licence Apache-2.0 (§4b), chaque modification est signalée
 
 | Champ / fichier | Avant (v3.2.1) | Après (v5.0.0) | Raison | Test qui le valide |
 |---|---|---|---|---|
-| `config_aerodyn.dat` (cas 02 à 05) | `AFAeroMod=1` (modèle stationnaire actif) ; le bloc Beddoes-Leishman qui suit (`UAMod=3`) est présent dans le fichier mais inactif, puisqu'il n'est utilisé que si `AFAeroMod=2` | `AFAeroMod` remplacé par `UA_Mod`, qui pilote directement le modèle. Valeur retenue : `UA_Mod=3` (Beddoes-Leishman Minnema/Pierce, actif) | Alignement sur le modèle de référence du projet : `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat` porte la même valeur (`UA_Mod=3`). L'aérodynamique de profil des 4 cas (02-05) est donc instationnaire, pas stationnaire comme dans le tutoriel d'origine | `openfast main.fst` → `EXIT=0` sur les 4 cas (aucun fichier modifié par ce point) ; même valeur confirmée dans `tutorials/prise_en_main/modele_fixe/` |
+| `config_aerodyn.dat` (cas 02 à 05) | `AFAeroMod=1` (modèle stationnaire actif) ; le bloc Beddoes-Leishman qui suit (`UAMod=3`) est présent dans le fichier mais inactif, puisqu'il n'est utilisé que si `AFAeroMod=2` | `AFAeroMod` remplacé par `UA_Mod`, qui pilote directement le modèle. Valeur retenue : `UA_Mod=3` (Beddoes-Leishman Minnema/Pierce, actif) | Alignement sur le modèle de référence du projet : `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat` porte la même valeur (`UA_Mod=3`). L'aérodynamique de profil des 4 cas (02-05) est donc instationnaire, pas stationnaire comme dans le tutoriel d'origine | `openfast main.fst` → `EXIT=0` sur les 4 cas (aucun fichier modifié par ce point) ; même valeur confirmée dans `modeles/fixe/` |
 
 ## Cas 03 — Éolienne contrôlée (`03_ControlledWT/`)
 
@@ -109,3 +109,19 @@ n'est référencé par aucune cellule de code des deux notebooks.
 
 **Nouvelle dépendance** : `notebook` et `ipykernel` ajoutés à `env/environment.yml` — sans eux,
 rien dans l'environnement pinné ne permettait d'ouvrir ou d'exécuter ces notebooks.
+
+## Réorganisation du dépôt du cours (12/10/2026) — dossiers renommés
+
+Ce dossier a été déplacé de `tutorials/lheea/` vers `annexes/lheea/` (même profondeur : les chemins
+relatifs internes aux cas et aux practicals sont inchangés). Le dossier des modèles du cours, nommé
+`models/`, s'appelle désormais `modeles/` : trois fichiers de ce tutoriel citent ce dossier et sont donc
+modifiés.
+
+| Fichier | Avant | Après | Raison | Test qui le valide |
+|---|---|---|---|---|
+| `03_ControlledWT/1_Configuration/config_servodyn.dat`, ligne 86 (`DLL_FileName`) | `"../../../../models/oc4_rtest/5MW_Baseline/ServoData/DISCON.so"` | `"../../../../modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON.so"` | Le dossier `models/` n'existe plus ; seul le nom change | `python scripts/verifier_parcours.py chemins` : le dossier du `.so` se résout |
+| `04_MonopileWT/1_Configuration/config_servodyn.dat`, ligne 86 | idem | idem | idem | idem |
+| `05_FOWT/1_Configuration/config_servodyn.dat`, ligne 86 | `"../../../../models/oc4_rtest/5MW_Baseline/ServoData/DISCON_OC3Hywind.so"` | `"../../../../modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON_OC3Hywind.so"` | idem | idem |
+
+Les textes ci-dessus qui citent des chemins du dépôt du cours (`models/…`, `tutorials/prise_en_main/…`)
+ont été mis à jour de la même façon (`modeles/…`, `modeles/fixe/`) ; leur sens n'a pas changé.

@@ -1,4 +1,4 @@
-"""Falsificateurs de s9gm.cas sur le modèle FLOTTANT du dépôt (`tutorials/lheea/05_FOWT/1_Configuration`) : un cas
+"""Falsificateurs de s9gm.cas sur le modèle FLOTTANT du dépôt (`annexes/lheea/05_FOWT/1_Configuration`) : un cas
 généré (état de mer `seastate.*`, vent TurbSim `turbsim.*`, durée `fst.*`) doit être **identique octet pour octet** aux
 fichiers faits à la main (`tests/data/`, éditions `sed` du modèle avec des valeurs distinctes des siennes)."""
 import shutil
@@ -10,7 +10,7 @@ import pytest
 from s9gm import cas
 
 RACINE = Path(__file__).resolve().parents[2]
-FLOTTANT = RACINE / "tutorials" / "lheea" / "05_FOWT" / "1_Configuration"
+FLOTTANT = RACINE / "annexes" / "lheea" / "05_FOWT" / "1_Configuration"
 DONNEES = Path(__file__).parent / "data"
 PARENT = FLOTTANT.parent       # les cas sont les sœurs du modèle : `../1_Configuration` reste valable
 

@@ -20,14 +20,14 @@ continuez avec un camarade en binôme pour la suite, et terminez l'installation 
 ## 2. Anatomie d'un cas OpenFAST (environ 20 min, en binôme)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 OpenFAST est un code « glue » : il couple des modules indépendants (ElastoDyn pour la structure,
 AeroDyn pour l'aérodynamique, HydroDyn pour l'hydrodynamique, ServoDyn pour le contrôle, MoorDyn
 pour l'ancrage…), chacun avec son propre fichier de configuration. Un seul fichier pilote tout :
 `main.fst`.
 
-Ouvrez `tutorials/lheea/01_TowerStructure/1_Configuration/main.fst` dans un éditeur de texte.
+Ouvrez `annexes/lheea/01_TowerStructure/1_Configuration/main.fst` dans un éditeur de texte.
 Trois sections à repérer :
 - **SIMULATION CONTROL** : `TMax` (durée), `DT` (pas de temps), `InterpOrder`.
 - **FEATURE SWITCHES AND FLAGS** : quels modules sont actifs (`CompElast`, `CompInflow`,
@@ -42,7 +42,7 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
 ## 3. Cas LHEEA 01 — dynamique structurelle de la tour seule (environ 20 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §1, adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 ### Bloc Théorie
 
@@ -68,7 +68,7 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
    adaptations v3.2.1→v5.0.0, `ADAPTATION_LHEEA.md`).
 
 ```bash
-cd tutorials/lheea/01_TowerStructure/1_Configuration
+cd annexes/lheea/01_TowerStructure/1_Configuration
 openfast main.fst
 ```
 
@@ -78,7 +78,7 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
 ## 4. Cas LHEEA 02 — éolienne libre en vent constant (environ 15 min)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §2, adapté — voir
-[`../../tutorials/lheea/NOTICE`](../../tutorials/lheea/NOTICE).*
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
 
 ### Bloc Théorie
 
@@ -101,7 +101,7 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §2 ; fiche F1 (régulation, bloc suivant).
 
 ```bash
-cd tutorials/lheea/02_FreeRotatingWT/1_Configuration
+cd annexes/lheea/02_FreeRotatingWT/1_Configuration
 openfast main.fst
 ```
 

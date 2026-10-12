@@ -1,7 +1,7 @@
 <!-- destinations: github -->
 # Pas à pas — construire et lire vos cas F01 à F05
 
-Ce guide remplace, pour la séance 0b, les dossiers `tutorials/lheea/*/1_Configuration` : vous
+Ce guide remplace, pour la séance 0b, les dossiers `annexes/lheea/*/1_Configuration` : vous
 travaillez uniquement dans `tutorials/prise_en_main/`, avec des commandes Linux et du Python (aucun
 script `.m`). Les cas LHEEA restent disponibles en **lecture seule**, comme référence.
 

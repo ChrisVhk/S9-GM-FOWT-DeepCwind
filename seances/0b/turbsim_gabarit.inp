@@ -1,5 +1,5 @@
 ---------TurbSim v2.* Input File------------------------
-Gabarit du cours DMO-S9 (seance 0b) : tout est fixe SAUF deux champs, marques A_COMPLETER, que vous choisissez : IECturbc (categorie de turbulence IEC, a justifier) et RandSeed1 (graine). Vent moyen donne par l'enonce pour F03 (les autres cas : colonne turbsim.URef de la LCT). Derive du fichier d'exemple LHEEA (Apache-2.0), voir tutorials/lheea/NOTICE.
+Gabarit du cours DMO-S9 (seance 0b) : tout est fixe SAUF deux champs, marques A_COMPLETER, que vous choisissez : IECturbc (categorie de turbulence IEC, a justifier) et RandSeed1 (graine). Vent moyen donne par l'enonce pour F03 (les autres cas : colonne turbsim.URef de la LCT). Derive du fichier d'exemple LHEEA (Apache-2.0), voir annexes/lheea/NOTICE.
 ---------Runtime Options-----------------------------------
 False         Echo            - Echo input data to <RootName>.ech (flag)
 A_COMPLETER   RandSeed1       - First random seed  (-2147483648 to 2147483647)

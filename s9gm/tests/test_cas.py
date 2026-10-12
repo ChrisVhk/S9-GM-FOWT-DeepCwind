@@ -92,7 +92,7 @@ import re
 import shutil
 
 TURBSIM_INP = (RACINE_TESTS := __import__("pathlib").Path(__file__).resolve().parents[2]) \
-    / "tutorials" / "lheea" / "05_FOWT" / "1_Configuration" / "Wind" / "turb12mps.inp"
+    / "annexes" / "lheea" / "05_FOWT" / "1_Configuration" / "Wind" / "turb12mps.inp"
 # grille minuscule : l'essai vérifie la chaîne, pas la turbulence
 PETITE_GRILLE = {"NumGrid_Z": "5", "NumGrid_Y": "5", "TimeStep": "0.5", "AnalysisTime": "30",
                  "UsableTime": "20"}
