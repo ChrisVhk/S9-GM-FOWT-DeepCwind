@@ -54,6 +54,6 @@ outil) — réserve explicite sur la fiabilité de CE chiffre particulier.
 ## Reproductible avec nos moyens ?
 **Oui, partiellement, et c'est notre comparaison n°2 retenue.** Nous n'avons pas la campagne d'essai
 MaRINET2 simplifiée, mais nous POUVONS reproduire le calcul PSD basse fréquence sur notre propre cas
-houle (irrégulière ou bruit blanc, déjà dans `models/oc4_rtest/`) et le confronter QUALITATIVEMENT à
+houle (irrégulière ou bruit blanc, déjà dans `modeles/oc4_rtest/`) et le confronter QUALITATIVEMENT à
 l'ordre de grandeur publié (30-50 % / 40 %) — sans prétendre reproduire l'intervalle MARIN exact
 (système différent, cf réserve fiche 02 sur OC4≠OC5).

@@ -64,4 +64,4 @@ comparés à la théorie — base quantifiée directement réutilisable.
 **Oui pour l'ancrage** (LOT 3f/3h) : toutes les données nécessaires à une transposition MoorDyn/MAP++
 sont ici, avec une référence quantifiée (Tableaux 3-14/3-15) pour juger l'écart. **Partiel pour le
 système complet** : nécessiterait la turbine « proche du NREL 5MW » spécifique à OC5 (non modélisée
-dans ce dépôt, qui utilise le NREL 5MW standard du cas r-test) — à signaler dans `models/oc5/NOTE.md`.
+dans ce dépôt, qui utilise le NREL 5MW standard du cas r-test) — à signaler dans `modeles/oc5/NOTE.md`.

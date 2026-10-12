@@ -10,7 +10,7 @@ colonne.
 Cet atelier **répète en avance** une méthode que vous reprendrez deux fois dans le projet
 ([`ENONCE.md`](../../ENONCE.md)) : en Phase 3 (étape 0, « premier passage », puis point 2 sur la
 tour de référence) et en Phase 5 (point 1, « second passage, avec vos données » — géométrie lue
-dans `models/oc4_rtest`, DEL et extrêmes de vos propres simulations). La différence, à chaque
+dans `modeles/oc4_rtest`, DEL et extrêmes de vos propres simulations). La différence, à chaque
 reprise, est l'origine des données — la méthode (tronc de cône creux, DEL, S-N, Von Mises,
 dimensionnement pleinement contraint) reste la même ; cet atelier sert à la pratiquer une première
 fois sur un jeu de données prêt à l'emploi, avant de la refaire sur des données de plus en plus
@@ -39,7 +39,7 @@ l'épaisseur** de la paroi (flexion locale de la coque, ovalisation) — le mod�
 que la section globale.
 
 **Renvois** : colonnes `R`, `S`, `T` du classeur (masse linéique et raideurs ElastoDyn) ; voir
-aussi le fichier tour d'ElastoDyn de `models/oc4_rtest/` pour la même table sur la tour de
+aussi le fichier tour d'ElastoDyn de `modeles/oc4_rtest/` pour la même table sur la tour de
 référence du projet (chemin complet au §9a).
 
 ## 2. DEL court terme, DEL long terme
@@ -280,7 +280,7 @@ manipulations, et signalez tout écart en séance.
 Deux questions ouvertes, sans valeur de réponse publiée ici.
 
 **(a) Comparer `R`, `S`, `T` du classeur à la tour du modèle de référence du projet.** La tour
-`models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat`
+`modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat`
 donne la même table (`HtFract`, `TMassDen`, `TwFAStif`, `TwSSStif`) pour la tour réelle du projet.
 Avant de comparer les valeurs, vérifiez d'abord la **longueur** et la **base** de cette tour dans
 `NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat` (`TowerHt`, `TowerBsHt`) — est-ce la même

@@ -90,7 +90,7 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
    sillage est traité en BEMT quasi-stationnaire (`Wake_Mod=1`), mais l'aérodynamique de profil,
    elle, est **instationnaire** (`UA_Mod=3`, modèle de décrochage dynamique de Beddoes-Leishman) —
    ne confondez pas les deux sous-modèles en répondant à une question sur ce cas. `UA_Mod=3` est la
-   valeur du modèle de référence de ce projet (`models/oc4_rtest`), pas un choix propre à ce cas.
+   valeur du modèle de référence de ce projet (`modeles/oc4_rtest`), pas un choix propre à ce cas.
 3. **Ordre de grandeur attendu** — la méthode : observer le plateau de `RotSpeed` en régime
    établi, et le comparer au régime nominal de la machine (fiche F1) pour juger si cette vitesse
    libre est réaliste ou extrême.
@@ -168,7 +168,7 @@ contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **
    que la configuration est correcte (un transitoire mal filtré peut produire le même symptôme
    qu'une vraie erreur), et cette vérification stationnaire ne valide rien sur la dynamique de
    F02 (échelon), qui demande une lecture différente (temps de réaction du calage).
-5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `outils/lire_outb.py` (option
+5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `annexes/outils/lire_outb.py` (option
    `t_min`, pour écarter le transitoire).
 
 ### Bloc Théorie — fréquence 1P

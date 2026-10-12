@@ -1,6 +1,6 @@
 # Géométrie de la plateforme OC4-DeepCwind
 
-Source : `papers/02_...` (document de définition OC5, Tableaux 3-10 et 3-11 — la géométrie du
+Source : `annexes/papers/02_...` (document de définition OC5, Tableaux 3-10 et 3-11 — la géométrie du
 flotteur n'a pas changé entre OC4 et OC5, seule la turbine diffère, cf la même fiche p.5).
 
 ## Dimensions principales (Tableau 3-10)
@@ -77,7 +77,7 @@ déposé), ou à calculer par une formule usuelle (ex. contrainte de rupture de 
 
 ## Vérifier dans le modèle du dépôt
 
-Ces mêmes valeurs sont dans `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
+Ces mêmes valeurs sont dans `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
 NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat` (section MEMBER JOINTS / MEMBER CROSS-SECTION
 PROPERTIES) et `.../NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat` (section POINTS / LINES) —
 c'est l'exercice du classeur d'architecture (phase 0, séance 0b).

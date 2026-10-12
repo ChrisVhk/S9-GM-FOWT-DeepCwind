@@ -6,9 +6,9 @@ Ne fait PAS de rainflow ni de DEL : c'est a vous de les programmer (phase 3 du p
 precisement pour que vous compreniez ce que fait l'outil avant de vous en servir.
 
 Usage :
-    python outils/lire_outb.py chemin/vers/main.outb                 # liste les canaux
-    python outils/lire_outb.py chemin/vers/main.outb TwrBsMyt         # stats + trace
-    python outils/lire_outb.py chemin/vers/main.outb TwrBsMyt RotSpeed  # plusieurs canaux
+    python annexes/outils/lire_outb.py chemin/vers/main.outb                 # liste les canaux
+    python annexes/outils/lire_outb.py chemin/vers/main.outb TwrBsMyt         # stats + trace
+    python annexes/outils/lire_outb.py chemin/vers/main.outb TwrBsMyt RotSpeed  # plusieurs canaux
 """
 import sys
 import numpy as np

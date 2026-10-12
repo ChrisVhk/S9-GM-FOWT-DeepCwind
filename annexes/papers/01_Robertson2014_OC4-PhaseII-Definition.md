@@ -20,10 +20,10 @@ cohérents entre eux (étude de comparaison de codes, pas de validation contre e
 
 ## Système modélisé
 Plateforme semi-submersible DeepCwind + éolienne NREL 5 MW. C'est la plateforme reprise telle quelle
-par le cas r-test `5MW_OC4Semi_WSt_WavesWN` de ce dépôt (`models/oc4_rtest/`) : géométrie (colonnes,
+par le cas r-test `5MW_OC4Semi_WSt_WavesWN` de ce dépôt (`modeles/oc4_rtest/`) : géométrie (colonnes,
 pontons), masses et ancrage identiques (à confirmer précisément une fois le texte intégral
 accessible — voir `data/geometrie_deepcwind.md` pour les valeurs sourcées sur la fiche 02, et
-`models/oc4_rtest/5MW_Baseline/HydroData/marin_semi.*` pour les données hydro WAMIT elles-mêmes,
+`modeles/oc4_rtest/5MW_Baseline/HydroData/marin_semi.*` pour les données hydro WAMIT elles-mêmes,
 dont ce rapport est probablement la source documentaire).
 
 ## Outil et version
@@ -44,7 +44,7 @@ bassin (2011 et 2013) était une version mise à l'échelle géométrique du NRE
 pas sa poussée/puissance réelles, contrairement à la turbine utilisée dans les essais OC5 2013.
 
 ## Reproductible avec nos moyens ?
-**Partiel.** Le système décrit est déjà notre cas de référence (`models/oc4_rtest/`), validé par le
+**Partiel.** Le système décrit est déjà notre cas de référence (`modeles/oc4_rtest/`), validé par le
 LOT 6. Mais faute d'accès au texte intégral de CE rapport, on ne peut pas vérifier page par page que
 notre copie r-test correspond exactement aux cotes d'origine — on s'appuie sur la cohérence déjà
 établie (sha256, LOT 3a partiel) entre r-test et le tutoriel LHEEA, pas sur ce rapport lui-même.

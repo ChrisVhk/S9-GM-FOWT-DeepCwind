@@ -109,7 +109,7 @@ Côté rotor, le couple équivalent est `N · Q_gen(N·Ω)`.
 **2. La courbe `Cp(λ)` de la NREL 5 MW à calage nul.** Jonkman 2009 ne donne que le point maximal (`Cp = 0,482`
 à `λ = 7,55`, §7.2 p.19). La courbe ci-dessous est **calculée sur le modèle du dépôt** (OpenFAST v5.0.0, AeroDyn v15,
 rotor à vitesse imposée, calage 0°, `V` = 8 m/s au moyeu, cisaillement 0,11 comme F01 ; script
-`outils/courbe_cp_nrel5mw.py`, données `data/cp_lambda_nrel5mw_pitch0.csv`). Son maximum (≈ 0,47 vers `λ = 7`) est inférieur de 3 à 4 % au point de Jonkman. Variables qui diffèrent
+`annexes/outils/courbe_cp_nrel5mw.py`, données `data/cp_lambda_nrel5mw_pitch0.csv`). Son maximum (≈ 0,47 vers `λ = 7`) est inférieur de 3 à 4 % au point de Jonkman. Variables qui diffèrent
 d'un calcul de Jonkman : outil (AeroDyn v15 de ce dépôt), cisaillement 0,11, ombre de la tour, inclinaison de l'arbre et
 précône du modèle du dépôt ; pales rigides ici. On utilise donc la courbe du dépôt, plate entre `λ = 7` et `λ = 8`, pour rester cohérent avec les cas F01 et F02. Interpolation : linéaire ou spline, au choix (écart sans effet sur le résultat à 1 % près).
 
@@ -155,7 +155,7 @@ couples en Region 1½.*
 Pour le cas F01 du tutoriel (vent constant) : **identifiez d'abord sa région** (méthode ci-dessus),
 puis calculez `Ω` attendu et comparez-le au `RotSpeed` observé en régime établi. Un écart tolérable est attendu
 (la loi de couple réelle du contrôleur ne colle pas parfaitement à `λ*` à toutes les vitesses), et
-il y a un régime transitoire au démarrage à écarter de la moyenne (cf `outils/lire_outb.py`,
+il y a un régime transitoire au démarrage à écarter de la moyenne (cf `annexes/outils/lire_outb.py`,
 option `t_min`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
 moyenne, pas une erreur de configuration.
 
@@ -264,7 +264,7 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
   Region 2½ — qui commence **avant** le vent nominal (11,4 m/s, début de la Region 3), pas à
   partir de lui.
 - Moyenner `RotSpeed`/`GenPwr` sur toute la durée simulée, transitoire de démarrage inclus — biais
-  systématique signalé dans `outils/lire_outb.py` (argument `t_min`).
+  systématique signalé dans `annexes/outils/lire_outb.py` (argument `t_min`).
 - Oublier que `Ct` n'est pas constant : il décroît avec `λ` au-delà de l'optimum — une estimation
   de poussée à `Ct = 0,8` devient fausse en Region 3 (le pitch réduit fortement `Ct`).
 
@@ -293,7 +293,7 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
   BEM (relation de référence, formule, pas de reproduction de texte).
 - J. F. Manwell, J. G. McGowan, A. L. Rogers, *Wind Energy Explained*, Wiley — *référence générale, non consultée page par page pour cette fiche* — définitions
   TSR/Cp/Ct et zones de régulation (relation de référence).
-- `models/oc4_rtest/5MW_Baseline/ServoData/DISCON/DISCON.F90` (`VS_CtInSp`, `VS_Rgn2Sp`,
-  `VS_Rgn2K`) — seuils des régions 1½ et 2 et loi de couple de Region 2 effectivement utilisés dans ce dépôt ; `models/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
+- `modeles/oc4_rtest/5MW_Baseline/ServoData/DISCON/DISCON.F90` (`VS_CtInSp`, `VS_Rgn2Sp`,
+  `VS_Rgn2K`) — seuils des régions 1½ et 2 et loi de couple de Region 2 effectivement utilisés dans ce dépôt ; `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/
   NRELOffshrBsline5MW_OC4DeepCwindSemi_ServoDyn.dat` pour les paramètres ServoDyn du cas flottant
   de référence.

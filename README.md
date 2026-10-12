@@ -7,7 +7,7 @@ de qualifier sa tenue en fatigue et aux états limites.
 
 Droits : ENSM, publié avec l'accord de l'École.
 
-Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [models/iea15_monopile/LICENSE](models/iea15_monopile/LICENSE) et [annexes/lheea/LICENSE](annexes/lheea/LICENSE) (exceptions, non modifiées).
+Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [modeles/iea15_monopile/LICENSE](modeles/iea15_monopile/LICENSE) et [annexes/lheea/LICENSE](annexes/lheea/LICENSE) (exceptions, non modifiées).
 
 ## Lundi — séance 0a : commencez ici → [`seances/0a/`](seances/0a/README.md)
 
@@ -40,16 +40,16 @@ Détail phase par phase, compétences visées, méthode de travail et règles d'
 | `env/` | Environnement épinglé (`environment.yml`) et script d'installation | phase 0 |
 | `scripts/build_discon.sh` | Compile le contrôleur (jamais suivi compilé) | phase 0, toute séance |
 | `scripts/generer_vent_turbulent_05.sh` | Génère le vent turbulent du cas LHEEA 05 (fichier trop gros pour git) | phase 0b, phase 2 |
-| `models/oc4_rtest/` | Modèle de référence OC4-DeepCwind (cas r-test OpenFAST, Apache-2.0) : géométrie, contrôleur et données hydro partagés par les tutoriels ci-dessous | toutes phases (référence partagée) |
+| `modeles/oc4_rtest/` | Modèle de référence OC4-DeepCwind (cas r-test OpenFAST, Apache-2.0) : géométrie, contrôleur et données hydro partagés par les tutoriels ci-dessous | toutes phases (référence partagée) |
 | `annexes/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre — récit dans `seances/0a/` | phase 0a |
 | `annexes/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
 | `annexes/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
 | `cas/` et `modeles/fixe/` | Cas de référence du cours : éolienne fixe (F0x) puis flottante (D0x), et leur modèle partagé | phase 0 |
 | `seances/atelier_tour/` | Tutoriel d'accompagnement d'un atelier distribué sur Vega (dimensionnement FLS/ULS d'une tour tubulaire) — répétition générale de la méthode de la phase 5 | phase 5 |
 | `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) — une seule à ce jour (F1) | toutes phases |
-| `papers/` | Fiches de lecture sourcées sur les systèmes OC4/OC5/OC6 (documents publics) | phases 1-2 |
+| `annexes/papers/` | Fiches de lecture sourcées sur les systèmes OC4/OC5/OC6 (documents publics) | phases 1-2 |
 | `data/` | Données du projet (dimensions, propriétés, références) — *en construction* | phases 0b-2 |
-| `outils/` | Scripts de post-traitement de base (lecture `.outb`, tracés) | toutes phases |
+| `annexes/outils/` | Scripts de post-traitement de base (lecture `.outb`, tracés) | toutes phases |
 | `rendus/` | Déposez vos rendus ici (jamais suivi par git) | tous rendus |
 
 ## Licences et attributions

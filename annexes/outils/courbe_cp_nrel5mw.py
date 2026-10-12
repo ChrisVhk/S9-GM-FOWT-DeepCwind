@@ -16,7 +16,7 @@ de tours (le cisaillement et l'ombre de la tour font osciller le signal à 1P et
 SORTIE : `data/cp_lambda_nrel5mw_pitch0.csv` (λ, Ω, Cp) — suivi par git, relu par la fiche F1.
 
 Usage (environnement s9gm-fowt actif, depuis la racine du dépôt) :
-    python outils/courbe_cp_nrel5mw.py
+    python annexes/outils/courbe_cp_nrel5mw.py
 """
 import csv
 import math
@@ -26,7 +26,7 @@ from pathlib import Path
 
 import numpy as np
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE))
 from s9gm import cas, lancer, lire  # noqa: E402
 

@@ -3,7 +3,7 @@
 Ce dépôt assemble du code et des données de plusieurs origines. Voici, pour chaque dossier, d'où
 il vient et sous quelle licence.
 
-## `models/oc4_rtest/`
+## `modeles/oc4_rtest/`
 Origine : [OpenFAST/r-test](https://github.com/OpenFAST/r-test), tag `v5.0.0`
 (SHA `dd5feaaaa500ba7283140107806300d551cff0a7`), cas `5MW_OC4Semi_WSt_WavesWN` et fichiers partagés
 de `5MW_Baseline/`. **Licence Apache 2.0** (comme le dépôt [OpenFAST/openfast](
@@ -27,16 +27,16 @@ Construit pour ce cours, à partir des modèles ci-dessus (licence Apache 2.0 de
 progression inspirée d'un cours de Master Génie Maritime (2013) sur les outils de conception
 éolien — adaptée ici en OpenFAST v5.0.0, pas une reproduction du document source.
 
-## `models/oc5/`
+## `modeles/oc5/`
 Dossier vide + `NOTE.md`, écrit pour ce dépôt à partir du document public de définition OC5 (voir
-`papers/02_*.md`) — pas de fichier de modèle OC5 construit à ce jour.
+`annexes/papers/02_*.md`) — pas de fichier de modèle OC5 construit à ce jour.
 
-## `papers/`
+## `annexes/papers/`
 Fiches de lecture écrites pour ce dépôt, sourcées sur des publications publiques (OC4/OC5/OC6,
 références DOI/OSTI/HAL dans chaque fiche) — aucun PDF source inclus, aucune reproduction de texte
 au-delà des relations/valeurs chiffrées citées avec leur page.
 
-## `env/`, `scripts/`, `outils/`, `ENONCE.md`, `seances/`, `README.md`, `INSTALLATION.md`, `data/`
+## `env/`, `scripts/`, `annexes/outils/`, `ENONCE.md`, `seances/`, `README.md`, `INSTALLATION.md`, `data/`
 Écrits pour ce dépôt.
 
 ## `fiches/`
@@ -48,7 +48,7 @@ Les fichiers `DISCON.F90` / `DISCON_OC3Hywind.F90` (sources du contrôleur) prov
 OpenFAST (tag v5.0.0, licence Apache 2.0). **Aucun binaire compilé (`.so`) n'est suivi dans ce
 dépôt** : chacun compile le sien avec `scripts/build_discon.sh` (voir le README).
 
-## `models/iea15_monopile/`
+## `modeles/iea15_monopile/`
 Origine : [IEAWindTask37/IEA-15-240-RWT](https://github.com/IEAWindTask37/IEA-15-240-RWT), commit
 `e4993d63de10f165389534461dd544006750fe60` (ReleaseNotes v1.1.6), dossiers `OpenFAST/IEA-15-240-RWT/`
 (éléments communs) et `OpenFAST/IEA-15-240-RWT-Monopile/` (variante monopieu, contrôleur ROSCO). Modèle de
@@ -83,7 +83,7 @@ Vérifié le 05/10 (INV-18), pas présumé :
   `HydroDyn`/`SeaState`/`SubDyn` conservés mais désactivés dans les cas (`CompSeaSt = CompHydro = 0`).
 - **ROSCO** : `DISCON.IN` écrit par l'amont avec ROSCO 2.10.1 ; bibliothèque `libdiscon.so` fournie par le
   paquet **conda-forge `rosco` 2.10.6** (Apache-2.0), installé par `scripts/installer_rosco.sh` dans un
-  environnement séparé (`s9gm-rosco`, `--no-deps`) puis copié dans `models/iea15_monopile/ServoData/`
+  environnement séparé (`s9gm-rosco`, `--no-deps`) puis copié dans `modeles/iea15_monopile/ServoData/`
   (jamais suivi : `*.so`). Écart 2.10.1 → 2.10.6 **non élucidé** : rien ne prouve qu'il soit sans effet sur Ω(V)
   au pour-cent ; la comparaison à Gaertner 2020 du carnet 0b en est le seul garde-fou.
 - **`data/iea15_wisdem_performance.csv`** : tableau « Rotor Performance » du classeur
@@ -96,4 +96,4 @@ Contenu : tableau 4-D de probabilités (vent à **100 m** × Hs × Tp × désali
 Vérifié : la somme du tableau vaut 1 (lecture du fichier) ; la période et la hauteur de vent sont celles de l'article, **pas relues dans les fichiers ERA5** (non fournis). Le classeur porte 252 lignes de données DLC 1.2 contre 251 classes annoncées dans l'article (écart non expliqué).
 
 ## Fichiers de calcul de masse ajoutée et de diffraction (futur fournisseur : `ENSM-Lab-BEM`)
-Le dépôt `ENSM-Lab-BEM` (outils BEM, public) produira des fichiers au format WAMIT (`.1`, `.3`, `.hst`, `.12d`) que ce dépôt pourra **consommer sans copier son code**. Tant qu'une version de `ENSM-Lab-BEM` n'est pas validée et étiquetée, **aucune version n'est consommée** et les fichiers WAMIT de `models/` restent la référence (aucun changement de modèle). Quand une version sera consommée, ce paragraphe donnera : dépôt, étiquette, commit, paramètres de maillage et grille de fréquences de chaque fichier utilisé.
+Le dépôt `ENSM-Lab-BEM` (outils BEM, public) produira des fichiers au format WAMIT (`.1`, `.3`, `.hst`, `.12d`) que ce dépôt pourra **consommer sans copier son code**. Tant qu'une version de `ENSM-Lab-BEM` n'est pas validée et étiquetée, **aucune version n'est consommée** et les fichiers WAMIT de `modeles/` restent la référence (aucun changement de modèle). Quand une version sera consommée, ce paragraphe donnera : dépôt, étiquette, commit, paramètres de maillage et grille de fréquences de chaque fichier utilisé.

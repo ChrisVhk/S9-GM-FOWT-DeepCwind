@@ -37,4 +37,4 @@ not be ascertained » — c'est explicitement la question ouverte qui motive OC6
 participants, mais nous pouvons : (a) faire tourner NOTRE cas r-test (même système OC4, pas OC5 à
 l'identique — cf réserve fiche 02) sur les mêmes conditions de houle que LC3.3 (citée par la fiche 05)
 et comparer notre PSD basse fréquence à l'intervalle d'incertitude publié ; (b) documenter l'écart
-système OC4≠OC5 comme limite de la comparaison. Retenue dans `papers/SYNTHESE.md` comme comparaison n°1.
+système OC4≠OC5 comme limite de la comparaison. Retenue dans `annexes/papers/SYNTHESE.md` comme comparaison n°1.
