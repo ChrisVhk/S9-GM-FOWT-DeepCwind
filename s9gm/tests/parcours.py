@@ -38,7 +38,7 @@ def substituer(code, substitutions):
 
 def cloner(racine, destination):
     """Clone local du dépôt (état COMMITÉ) + contrôleur compilé : l'état d'un étudiant après INSTALLATION.md."""
-    subprocess.run(["git", "clone", "-q", "--local", str(racine), str(destination)], check=True, capture_output=True)
+    subprocess.run(["git", "clone", "-q", "--no-hardlinks", str(racine), str(destination)], check=True, capture_output=True)
     r = subprocess.run(["bash", "scripts/build_discon.sh"], cwd=destination, capture_output=True, text=True)
     if r.returncode != 0:
         raise AssertionError(f"build_discon.sh a échoué dans le clone :\n{r.stdout}{r.stderr}")
