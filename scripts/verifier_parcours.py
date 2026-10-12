@@ -8,6 +8,8 @@
   edition     R-7  aucune consigne (seances/**/*.md, cas/README.md, INSTALLATION.md) ne demande d'éditer un fichier SUIVI par git :
                pas de verbe d'édition à côté d'un chemin suivi (sauf copie sous results/ ou mention « lecture seule »), pas d'éditeur
                ni de `sed -i` lancé sur un fichier suivi. L'étudiant ne modifie que des dossiers ignorés par git.
+  completer   R-8  aucune consigne de phase 1 ou 2 (seances/phase1, seances/phase2) ne contient encore « à compléter » (commandes non écrites)
+               ni « en attente d'arbitrage » ; « fiche à venir (master) » reste permis
   anciens     R-2  aucun ancien chemin cité hors annexes/, hors TRANSITION.md et CHANGELOG, hors ce script et son test
   format      R-4  chaque seances/*/README.md porte les 6 titres « ## » du format commun, dans l'ordre, et eux seuls
   porte       R-5  le README.md racine renvoie à chaque séance et à la page de post-traitement ; aucun autre fichier ne se
@@ -15,9 +17,9 @@
   transition  R-6  clone de l'état ANCIEN (par défaut origin/main), travail d'étudiant simulé, `git pull` de l'état NOUVEAU
                (par défaut HEAD) : aucun conflit, aucun fichier d'étudiant perdu, anciens emplacements nommés dans TRANSITION.md
 
-Usage : python scripts/verifier_parcours.py {liens|chemins|edition|anciens|format|porte|transition|tout} [--racine DOSSIER]
+Usage : python scripts/verifier_parcours.py {liens|chemins|edition|completer|anciens|format|porte|transition|tout} [--racine DOSSIER]
         python scripts/verifier_parcours.py --autotest      (chaque contrôle doit voir une faute plantée)
-Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5, R-7 (R-6 se lance à part).
+Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5, R-7, R-8 (R-6 se lance à part).
 """
 import argparse
 import hashlib
@@ -202,6 +204,25 @@ def _est_suivi(jeton, racine, depuis, f_suivis):
     return False
 
 
+PHASES_COMPLETES = ("seances/phase1/README.md", "seances/phase2/README.md")
+MARQUEUR_TROU = re.compile(r"à compléter|a completer|en attente d.arbitrage", re.IGNORECASE)
+
+
+def completer(racine):
+    """R-8 : les consignes des phases 1 et 2 n'ont plus de trou annoncé (« fiche à venir (master) » n'en est pas un)."""
+    racine = Path(racine).resolve()
+    ecarts = []
+    for f in PHASES_COMPLETES:
+        chemin = racine / f
+        if not chemin.is_file():
+            ecarts.append(f"{f} : absent")
+            continue
+        for n, ligne in enumerate(chemin.read_text(encoding="utf-8").splitlines(), start=1):
+            if MARQUEUR_TROU.search(ligne):
+                ecarts.append(f"{f}:{n}: trou annoncé : « {ligne.strip()[:90]} »")
+    return ecarts
+
+
 def anciens(racine):
     racine = Path(racine).resolve()
     motifs = [re.compile(p) for p in ANCIENS]
@@ -367,7 +388,7 @@ def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=N
     return ecarts
 
 
-CONTROLES = {"liens": liens, "chemins": chemins, "edition": edition, "anciens": anciens, "format": format_seances, "porte": porte_unique}
+CONTROLES = {"liens": liens, "chemins": chemins, "edition": edition, "completer": completer, "anciens": anciens, "format": format_seances, "porte": porte_unique}
 
 
 # ---- autotest : chaque contrôle doit voir une faute plantée ------------------------------------------------------------
@@ -426,6 +447,11 @@ def autotest():
                                  ("lecture seule", "Ouvrez `modeles/fixe/main.fst` (lecture seule) : ne le modifiez pas.\n", True),
                                  ("éditer un fichier non suivi", "Éditez `results/lct_0b.csv`.\n", True)]:
             attendre(f"edition ({nom})", edition(_depot_jouet(d / ("e_" + str(abs(hash(nom)))), {**base7, "seances/0a/README.md": texte})), vide)
+        # R-8 : trou annoncé dans une consigne de phase 1 ou 2
+        for nom, texte, vide in [("à compléter", "> **À compléter** : les commandes.\n", False), ("en attente d'arbitrage", "Cas de référence (en attente d'arbitrage).\n", False),
+                                 ("fiche à venir", "F2 : *fiche à venir (master)*.\n", True), ("texte complet", "bash cas/run_cas.sh D00\n", True)]:
+            fich = {f: texte for f in PHASES_COMPLETES}
+            attendre(f"completer ({nom})", completer(_depot_jouet(d / ("r8_" + str(abs(hash(nom)))), fich)), vide)
         # R-2
         for nom, texte, vide in [("tutorials/ cité", "voir tutorials/lheea/\n", False), ("models/ cité", "models/oc4_rtest\n", False),
                                  ("modeles/ nouveau", "modeles/oc4_rtest\n", True), ("annexes/papers nouveau", "annexes/papers/x.md\n", True),
