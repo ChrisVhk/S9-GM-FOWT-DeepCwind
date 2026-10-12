@@ -19,8 +19,8 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 Les quatre points de l'ENONCE :
 
-1. **Référence commune** (modèle flottant OC4 : [`modeles/flottant/`](../../modeles/flottant/README.md) ; cas de référence **désigné par l'enseignant** parmi `D00`, `D01`, `D02` — les trois groupes lancent le même) : lancer, vérifier l'équilibre (tension statique des lignes, position moyenne du flotteur).
-2. **Lâchers (free decay)** en surge, heave, pitch : mesurer les périodes propres. Les comparer aux valeurs publiées OC4/OC5 et **dire où se situent ces périodes par rapport aux périodes de houle de votre scatter diagram**.
+1. **Référence commune** (modèle flottant OC4 : [`modeles/flottant/`](../../modeles/flottant/README.md) ; cas de référence **`D01`**, le même pour les trois groupes : c'est le point commun que la synthèse de la phase 6 retrouvera chez chacun ; votre sensibilité, elle, part de la LCT de votre groupe) : lancer, vérifier l'équilibre (tension statique des lignes, position moyenne du flotteur).
+2. **Lâchers (free decay)** en surge, heave, pitch : mesurer les périodes propres. Les comparer aux valeurs publiées ([`data/periodes_lacher_reference.md`](../../data/periodes_lacher_reference.md)) et **dire où se situent ces périodes par rapport aux périodes de houle de votre scatter diagram**.
 3. **Sensibilité** : lancer la LCT de votre groupe en ne faisant varier **que** votre famille de paramètres, tout le reste fixé à la référence.
 4. Pour chaque cas : statistiques (moyenne, écart-type, max, min) aux points imposés, et spectres de réponse.
 
@@ -35,7 +35,7 @@ varie à la fois** (point de contrôle de l'ENONCE : conclure sur une seule seed
 import subprocess
 from s9gm import lire
 
-REF = "<cas de référence désigné par l'enseignant>"        # D00, D01 ou D02 : le même pour les trois groupes
+REF = "D01"                                                 # le cas de référence commun aux trois groupes
 subprocess.run(["bash", "cas/run_cas.sh", REF], check=True)  # copie le cas sous results/ et le lance (300 s simulées)
 
 df, unites = lire.lire(f"results/{REF}/main.outb")
@@ -51,7 +51,7 @@ Temps de calcul : voir « Temps mesurés ».
 
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `Cas inconnu : …` | `REF` ne désigne pas un cas de `cas/` | `ls cas/` ; le cas est désigné par l'enseignant (`D00`, `D01`, `D02`) |
+| `Cas inconnu : …` | `REF` ne désigne pas un cas de `cas/` | `ls cas/` ; le cas de référence commun est `D01` |
 | `ERREUR : le controleur DISCON n'est pas compile` | étape 2 de `INSTALLATION.md` oubliée | `bash scripts/build_discon.sh` |
 | `KeyError: 'FAIRTEN1'` | canal absent | `print(list(df.columns))` |
 
@@ -86,8 +86,7 @@ print("périodes de pic Tp de votre LCT : de", et["Tp"].min(), "à", et["Tp"].ma
 
 **Vous devez voir** : trois dossiers de lâcher, pour chacun le nombre de pics de la réponse et la période moyenne entre pics, puis l'étendue des `Tp` de votre scatter diagram. Pour chaque mode,
 **dites si la période propre tombe dans cette étendue ou à côté, et ce que cela implique** (une période propre dans la gamme de la houle excite le flotteur ; la comparaison au scatter, pas
-la valeur seule, est ce qui compte). **Comparez aux périodes propres publiées OC4/OC5** (Robertson et al. 2014, NREL/TP-5000-60601 ; Coulling et al. 2013) : **les valeurs sont à lire dans ces
-documents, elles ne sont pas reproduites dans ce dépôt** ; vous pouvez aussi confronter à `s9gm.hydro` (séance 0b). Un écart se **chiffre et s'attribue**, il ne se constate pas.
+la valeur seule, est ce qui compte). **Comparez aux périodes propres publiées** (**référence fournie** : [`data/periodes_lacher_reference.md`](../../data/periodes_lacher_reference.md), valeurs mesurées de Coulling et al. 2013, source et page citées) ; vous pouvez aussi confronter à `s9gm.hydro` (séance 0b). Un écart se **chiffre et s'attribue**, il ne se constate pas.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
@@ -106,7 +105,7 @@ paramètre se fait varier par **une colonne de la LCT** :
 | | | intensité de turbulence | `turbsim.IECturbc` (le trou de la phase 1 : justification et source à refaire pour chaque valeur) |
 | | | nombre de seeds | `turbsim.RandSeed1` : une ligne par graine |
 | **Tribord** | Mer et courant | Hs ; Tp ; facteur de pic γ du JONSWAP | `seastate.WaveHs` ; `seastate.WaveTp` ; `seastate.WavePkShp` |
-| | | direction de houle | `seastate.WaveDir` — **limite : le modèle n'accepte que 0°** (voir la phase 1) |
+| | | direction de houle | `seastate.WaveDir` — **limite du modèle : 0° seulement** (voir la phase 1) ; ne la faites pas varier. Le désalignement vent-houle est une **question de discussion** pour votre rendu, pas une variation |
 | | | courant | `seastate.CurrMod` (1 pour l'activer), `seastate.CurrDIV` et `seastate.CurrDIDir` (courant uniforme sur la profondeur : vitesse, direction), ou les colonnes `CurrSS…`, `CurrNS…` du fichier `SeaState` |
 | **Centre** | Modélisation hydrodynamique et ancrage | ancrage dynamique (MoorDyn) vs quasi-statique (MAP++) | `fst.CompMooring` (3 : MoorDyn ; 1 : MAP++) **avec** `fst.MooringFile` (le fichier correspondant de `modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/`, chemin relatif au dossier du cas : `../../../modeles/…`) |
 | | | théorie potentielle (WAMIT) vs Morison seul vs hybride | `fst.HydroFile` : un fichier HydroDyn **que vous copiez sous `results/`** et dont vous changez les options (voir ci-dessous) |
@@ -157,7 +156,7 @@ from s9gm import lire, visu
 
 CANAUX = ["TwrBsMyt", "FAIRTEN1", "FAIRTEN2", "FAIRTEN3", "PtfmSurge", "PtfmHeave", "PtfmPitch"]
 stats, series = {}, {}
-for d in sorted(Path("results/phase2").glob("S*")):
+for d in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]:      # D01 : le point commun aux trois groupes
     df, _ = lire.lire(d / "main.outb")
     series[d.name] = df
     presents = [c for c in CANAUX if c in df.columns]        # avec MAP++, les tensions s'appellent T[1], T[2], T[3] (voir ci-dessous)

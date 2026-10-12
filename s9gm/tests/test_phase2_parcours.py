@@ -2,8 +2,8 @@
 
 Écrits AVANT la consigne. Même principe que la phase 1 (`test_phase1_parcours.py`) :
 1. Le CONTENU : les trois familles de paramètres de l'ENONCE sont chacune reliées à des colonnes de LCT ; aucune valeur de choix
-   n'est écrite dans les commandes ; le cas de référence commun est désigné par l'enseignant (pas décidé par la consigne) ; la
-   direction de houle est dite limitée à 0° ; les périodes publiées ne sont pas reproduites ; l'écart 300 s / 600 s est une QUESTION.
+   n'est écrite dans les commandes ; le cas de référence commun est D01 (décision E-187 1.a) ; la
+   direction de houle est dite limitée à 0° ; les périodes publiées sont dans data/periodes_lacher_reference.md ; l'écart 300 s / 600 s est une QUESTION.
 2. Le REJEU : les blocs de code s'exécutent dans un clone neuf, après la phase 1, avec des valeurs d'essai neutres définies ICI.
    Chaque famille de sensibilité (bâbord : vent ; tribord : mer et courant ; centre : modèle et ancrage) est rejouée séparément.
 """
@@ -26,7 +26,6 @@ PHASE2 = RACINE / "seances" / "phase2" / "README.md"
 
 CHAUMARD = "../../../modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_"
 ESSAI = {
-    "<cas de référence désigné par l'enseignant>": "D01",
     "<votre valeur>": "60",
     "<votre durée de lâcher (s)>": "60",
     "<votre déplacement de surge (m)>": "5",
@@ -70,13 +69,18 @@ def test_les_limites_du_modele_sont_dites():
     t = _plat(_texte()).lower()
     assert "direction de houle" in t and "0°" in t                           # WaveDir : cap 0° seulement (WAMIT du second ordre)
     assert "hydrodyn" in t and ("copie" in t or "copiez" in t)               # théorie potentielle vs Morison : copie locale du fichier
-    assert "non reproduit" in t or "pas reproduit" in t or "à lire dans" in t   # périodes publiées : citées, non reproduites
+    assert "data/periodes_lacher_reference.md" in t and "référence fournie" in t   # périodes publiées : fournies, sourcées (E-114)
+    assert "désalignement" in t and "question de discussion" in t               # E-187 2.a : limite du modèle, pas un oubli
 
 
-def test_le_cas_de_reference_commun_est_designe_par_l_enseignant_pas_decide_ici():
+def test_le_cas_de_reference_commun_est_d01_et_sert_de_point_commun_a_la_synthese():
+    """E-187 1.a : REF = D01 écrit dans la consigne ; la sensibilité part de la LCT du groupe ; D01 entre dans la comparaison."""
     t = _plat(_texte())
-    assert "<cas de référence désigné par l'enseignant>" in t
-    assert "désigné par l'enseignant" in t
+    assert 'REF = "D01"' in t
+    assert "<cas de référence désigné par l'enseignant>" not in t and "désigné par l'enseignant" not in t
+    assert "point commun" in t and "phase 6" in t
+    code = "\n".join(c for _, c in parcours.blocs(_texte()))
+    assert 'Path("results/D01")' in code             # D01 est dans la comparaison de l'étape 4
 
 
 def test_les_commandes_300_s_et_600_s_et_la_question_d_analyse_sans_valeur():
