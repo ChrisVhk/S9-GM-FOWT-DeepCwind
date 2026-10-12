@@ -2,7 +2,7 @@
 
 Écrits AVANT la consigne. Même principe que la phase 1 (`test_phase1_parcours.py`) :
 1. Le CONTENU : les trois familles de paramètres de l'ENONCE sont chacune reliées à des colonnes de LCT ; aucune valeur de choix
-   n'est écrite dans les commandes ; le cas de référence commun est D01 (décision E-187 1.a) ; la
+   n'est écrite dans les commandes ; le cas de référence commun est D01 ; la
    direction de houle est dite limitée à 0° ; les périodes publiées sont dans data/periodes_lacher_reference.md ; l'écart 300 s / 600 s est une QUESTION.
 2. Le REJEU : les blocs de code s'exécutent dans un clone neuf, après la phase 1, avec des valeurs d'essai neutres définies ICI.
    Chaque famille de sensibilité (bâbord : vent ; tribord : mer et courant ; centre : modèle et ancrage) est rejouée séparément.
@@ -69,12 +69,12 @@ def test_les_limites_du_modele_sont_dites():
     t = _plat(_texte()).lower()
     assert "direction de houle" in t and "0°" in t                           # WaveDir : cap 0° seulement (WAMIT du second ordre)
     assert "hydrodyn" in t and ("copie" in t or "copiez" in t)               # théorie potentielle vs Morison : copie locale du fichier
-    assert "data/periodes_lacher_reference.md" in t and "référence fournie" in t   # périodes publiées : fournies, sourcées (E-114)
-    assert "désalignement" in t and "question de discussion" in t               # E-187 2.a : limite du modèle, pas un oubli
+    assert "data/periodes_lacher_reference.md" in t and "référence fournie" in t   # périodes publiées : fournies, sourcées
+    assert "désalignement" in t and "question de discussion" in t               # limite du modèle, pas un oubli
 
 
 def test_le_cas_de_reference_commun_est_d01_et_sert_de_point_commun_a_la_synthese():
-    """E-187 1.a : REF = D01 écrit dans la consigne ; la sensibilité part de la LCT du groupe ; D01 entre dans la comparaison."""
+    """REF = D01 écrit dans la consigne ; la sensibilité part de la LCT du groupe ; D01 entre dans la comparaison."""
     t = _plat(_texte())
     assert 'REF = "D01"' in t
     assert "<cas de référence désigné par l'enseignant>" not in t and "désigné par l'enseignant" not in t

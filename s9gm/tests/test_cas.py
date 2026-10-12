@@ -242,7 +242,7 @@ def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_
     assert _meme_champ(main / "x.bts", (dossier / "Wind" / f"{pref}_G.bts"))
 
 
-# ---- E-164 (c) : une colonne turbsim.IECturbc qui remplace la valeur du fichier est signalée à l'écran ---------
+# ---- une colonne turbsim.IECturbc qui remplace la valeur du fichier est signalée à l'écran ---------
 def _modele_iec_fixe(pref, valeur="14"):
     """Modèle dont turbsim.inp porte DÉJÀ une valeur de IECturbc (le gabarit, avec son trou rempli dans le fichier)."""
     m = MODELES / f"{pref}_modele"

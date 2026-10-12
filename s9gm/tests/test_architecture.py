@@ -1,6 +1,6 @@
 """Falsificateurs du classeur d'architecture du flotteur (séance 0b, point 7) et de `scripts/verifier_architecture.py`.
 
-Le classeur a deux versions : la COMPLÈTE (coulisses, chaque valeur sourcée) et l'ÉTUDIANTE (publique,
+Le classeur a deux versions : la COMPLÈTE (réservée à l'enseignant, chaque valeur sourcée) et l'ÉTUDIANTE (publique,
 `seances/0b/DeepCwind_ARCHITECTURE.xlsx`, colonne centrale résolue en exemple, le reste « à remplir »). Le contrôle compare un classeur rempli,
 membre par membre, au fichier HydroDyn de `modeles/flottant`.
 
@@ -9,9 +9,9 @@ membre par membre, au fichier HydroDyn de `modeles/flottant`.
 - A-3 : la version étudiante vide donne « manquant » partout, sauf pour la colonne centrale.
 - A-4 : aucune cellule de la version étudiante, hors exemple et hors `Donnees`, ne contient de nombre égal à une valeur de la version complète.
 
-Public / coulisses : ce dépôt public ne contient AUCUN générateur de classeur complet depuis le vrai fichier HydroDyn (il vit en coulisses,
+Ce dépôt public ne contient AUCUN générateur de classeur complet depuis le vrai fichier HydroDyn (il reste chez l'enseignant,
 avec le classeur complet). Les tests publics éprouvent le contrôle sur une FIXTURE SYNTHÉTIQUE (trois membres inventés) ; A-1 et A-4 sur le VRAI
-classeur complet se lancent avec `S9GM_ARCHITECTURE_COMPLET=<chemin>` (sinon ils sont ignorés). Le contrôle ne dit jamais la valeur attendue :
+classeur complet se lancent avec `S9GM_CLASSEUR_COMPLET=<chemin>` (sinon ils sont ignorés). Le contrôle ne dit jamais la valeur attendue :
 il nomme le champ fautif et la valeur saisie.
 Convention des étiquettes (texte, jamais des nombres, pour que A-4 ait un sens) : membres `M1`…, nœuds `N1`…, jeux de propriétés `P1`…
 """
@@ -31,7 +31,7 @@ from .conftest import MODELES, RACINE
 SCRIPT = RACINE / "scripts" / "verifier_architecture.py"
 ETUDIANT = RACINE / "seances" / "0b" / "DeepCwind_ARCHITECTURE.xlsx"
 HYDRODYN = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_HydroDyn.dat"
-COMPLET = os.environ.get("S9GM_ARCHITECTURE_COMPLET")
+COMPLET = os.environ.get("S9GM_CLASSEUR_COMPLET")
 A_REMPLIR = "à remplir"
 
 # Groupes de coefficients (étiquettes de la feuille Coefficients) : identiques dans les deux versions.
@@ -279,15 +279,15 @@ def _cellules_exemple(wb):
     return ex
 
 
-@pytest.mark.skipif(not COMPLET, reason="version complète en coulisses : S9GM_ARCHITECTURE_COMPLET=<chemin>")
-def test_a1_reel_la_version_complete_des_coulisses_passe_a_100_pour_cent(va):
+@pytest.mark.skipif(not COMPLET, reason="version complète réservée à l'enseignant : S9GM_CLASSEUR_COMPLET=<chemin>")
+def test_a1_reel_la_version_complete_passe_a_100_pour_cent(va):
     r = _lancer(COMPLET)
     v = _lignes_sorties(r.stdout)
     assert len(v) == 25 and all(s == "juste" for s, _ in v.values()), r.stdout
     assert r.returncode == 0
 
 
-@pytest.mark.skipif(not COMPLET, reason="version complète en coulisses : S9GM_ARCHITECTURE_COMPLET=<chemin>")
+@pytest.mark.skipif(not COMPLET, reason="version complète réservée à l'enseignant : S9GM_CLASSEUR_COMPLET=<chemin>")
 def test_a4_aucune_cellule_etudiante_hors_exemple_ne_livre_une_valeur_de_la_version_complete(etudiant):
     complet = {round(v, 9) for _, _, v in _nombres(openpyxl.load_workbook(COMPLET))}
     wb = openpyxl.load_workbook(etudiant)

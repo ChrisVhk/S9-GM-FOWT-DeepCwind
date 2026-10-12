@@ -20,7 +20,7 @@ numéros du fichier HydroDyn ; seuls les membres sont repérés par leur étique
 Tolérances : 7 cm sur une coordonnée (les tableaux du document de définition OC5 sont arrondis : jusqu'à 6 cm d'écart avec le fichier
 HydroDyn), 0,1 mm sur un diamètre ou une épaisseur, 0,001 sur Cd, Ca et la discrétisation.
 Ce que le script NE contrôle PAS : l'exactitude physique du fichier HydroDyn lui-même (c'est la référence de l'exercice), ni les
-feuilles `Donnees` (version étudiante) et `Sources` (version complète des coulisses)."""
+feuilles `Donnees` (version étudiante) et `Sources` (version complète)."""
 import argparse
 import re
 import sys

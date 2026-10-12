@@ -1,4 +1,4 @@
-"""Falsificateurs de s9gm.visu.animer (E-155, volet animation) — FA-1 à FA-7.
+"""Falsificateurs de s9gm.visu.animer (animation) — FA-1 à FA-7.
 
 Écrits et committés AVANT le code (INV-25). Chaque falsificateur est doublé de sa falsification :
 le détecteur doit échouer sur une entrée volontairement fausse.

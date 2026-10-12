@@ -51,7 +51,7 @@ def _plat(texte):
 
 
 def test_les_donnees_de_courant_et_de_niveaux_d_eau_sont_dites_non_fournies():
-    """E-164 (b) : la consigne dit « à consulter, non fourni » pour le courant et les niveaux d'eau (LIFES50+ D1.1)."""
+    """La consigne dit « à consulter, non fourni » pour le courant et les niveaux d'eau (LIFES50+ D1.1)."""
     t = _texte()
     i = t.index("LIFES50+")
     voisinage = t[max(0, i - 400): i + 600].lower()
@@ -90,7 +90,7 @@ def test_la_lct_est_validee_avant_tout_lancement_et_l_etape_6_ne_lance_que_le_ca
     etape6 = _texte().split("### Étape 6")[1].split("\n### ")[0]
     assert "EX00" in etape6 and "essai technique" in etape6.lower()
     assert "lct.iloc[" not in etape6 and "indice du cas" not in etape6                # aucun cas de la LCT de l'étudiant n'est lancé
-    assert "question de discussion" in _plat(_texte())                                # désalignement vent-houle (E-187 2.a)
+    assert "question de discussion" in _plat(_texte())                                # désalignement vent-houle
 
 
 def test_les_commandes_n_utilisent_que_les_modules_prevus():

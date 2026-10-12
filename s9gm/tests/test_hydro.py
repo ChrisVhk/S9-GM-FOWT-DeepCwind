@@ -190,7 +190,7 @@ def test_regime_morison_exige_un_seuil():
     assert hydro.regime_morison(0.1, seuil=0.17) == "morison" and hydro.regime_morison(0.3, seuil=0.17) == "diffraction"   # seuil d'essai arbitraire, pas celui de la norme
 
 
-# ---- data/periodes_lacher_reference.md : périodes propres publiées, source et page citées (E-114) -----------------
+# ---- data/periodes_lacher_reference.md : périodes propres publiées, source et page citées -----------------
 def test_le_fichier_des_periodes_de_reference_cite_sa_source_et_ses_six_ddl():
     f = RACINE / "data" / "periodes_lacher_reference.md"
     assert f.is_file()
