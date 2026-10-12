@@ -189,7 +189,7 @@ hauteur de référence de `Uw` : citez la source (article FLOATECH) et justifiez
 |---|---|---|
 | `ValueError : loi « puissance » : exposant obligatoire` | loi donnée sans paramètre | `exposant=` pour la loi puissance, `z0=` pour la logarithmique |
 | `ValueError … Σ O_j … ≠ 100 %` | des classes ont été écartées sans renormaliser | revenez à l'étape 3 : la renormalisation y est explicite |
-| `KeyError: '50 yrs'` (ou autre) | ligne inexistante dans `ess` | `print(ess)` : les lignes se lisent dans l'index de la feuille |
+| `KeyError` sur le nom de la ligne de `ess` | ligne inexistante dans `ess` | `print(ess)` : les lignes se lisent dans l'index de la feuille |
 | `ModuleNotFoundError: openpyxl` | environnement non activé | `micromamba activate s9gm-fowt` |
 | `rendus/` introuvable | dossier absent de votre clone | `mkdir -p rendus` (dossier ignoré par git) |
 

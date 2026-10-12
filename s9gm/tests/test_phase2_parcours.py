@@ -143,3 +143,18 @@ def _numero_bloc_sensibilite():
         if "<vos variations>" in code:
             return i
     raise AssertionError("aucun bloc de sensibilité (<vos variations>) dans la consigne")
+
+
+@pytest.mark.slow
+@requiert_openfast
+def test_les_300_premieres_secondes_du_calcul_de_600_s_sont_celles_du_calcul_de_300_s(depot):
+    """Affirmation de la consigne (étape 5) : même graine, même champ de vent, même houle -> mêmes 300 premières secondes. Lit les sorties
+    du rejeu complet (à lancer après `test_rejeu_complet_phase_2_apres_la_phase_1`, dans le même dépôt)."""
+    import numpy as np
+    from s9gm import lire
+    a, _ = lire.lire(depot / "results" / "phase2_300_600" / "T300" / "main.outb")
+    b, _ = lire.lire(depot / "results" / "phase2_300_600" / "T600" / "main.outb")
+    n = len(a)
+    for canal in ("TwrBsMyt", "FAIRTEN1", "PtfmSurge", "PtfmHeave", "PtfmPitch"):
+        ecart = float(np.abs(a[canal].to_numpy() - b[canal].to_numpy()[:n]).max())
+        assert ecart < 1e-2 * max(1.0, float(np.ptp(a[canal].to_numpy()))), (canal, ecart)
