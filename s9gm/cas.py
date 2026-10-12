@@ -33,7 +33,7 @@
    `cas` ne dit rien de la représentativité des cas choisis (phase 1), ni de leur nombre suffisant.
 5. **Renvois** — fiche F1 (cas F01/F02 du tutoriel) ; `cas/README.md`
    (modèle partagé + dossier léger, règle de résolution des chemins) ; manuel OpenFAST v5.0.0,
-   format des fichiers d'entrée ; `ENONCE.md`, phase 1 (Load Case Table).
+   format des fichiers d'entrée ; `seances/phase1/README.md` (Load Case Table).
 
 Méthode d'édition : `openfast_toolbox` relit chaque fichier produit et confirme que la valeur est
 bien celle demandée (contrôle indépendant). L'écriture, elle, remplace *uniquement* le champ valeur
@@ -157,16 +157,17 @@ def _fichier_modele(modele, cle):
     return Path(modele) / _sans_guillemets(_valeur_de(lignes, cle))
 
 
-def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True):
-    """Fabrique `dossier/Wind/<cas>.inp` depuis `modele/turbsim.inp` (clés de `modifs` remplacées, comme
+def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True, turbsim_inp=None):
+    """Fabrique `dossier/Wind/<cas>.inp` depuis `modele/turbsim.inp` — ou depuis `turbsim_inp` s'il est donné, ce qui
+    évite de copier un fichier dans le dossier du modèle (suivi par git) — (clés de `modifs` remplacées, comme
     pour `main.fst`) et, si `executer`, lance TurbSim pour produire `dossier/Wind/<cas>.bts`.
     Renvoie `{"entree": chemin du .inp, "bts": chemin du .bts ou None}`.
 
     Le champ de vent d'un cas ne dépend que de son fichier d'entrée (graine comprise) : relancer donne
     le même `.bts`. `RandSeed1` est donc à fixer explicitement dans la LCT pour qu'un cas se reproduise."""
     dossier, modele = Path(dossier), Path(modele)
-    modele_inp = modele / "turbsim.inp"
-    if not modele_inp.is_file():   # à défaut, l'unique entrée TurbSim du dossier Wind/ du modèle
+    modele_inp = Path(turbsim_inp) if turbsim_inp else modele / "turbsim.inp"
+    if not turbsim_inp and not modele_inp.is_file():   # à défaut, l'unique entrée TurbSim du dossier Wind/ du modèle
         candidats = sorted((modele / "Wind").glob("*.inp")) if (modele / "Wind").is_dir() else []
         if len(candidats) == 1:
             modele_inp = candidats[0]
@@ -204,7 +205,7 @@ def _controler_relecture_turbsim(chemin, attendu):
             raise AssertionError(f"{chemin} : relu {cle} = {f[cle]!r}, demandé {valeur!r}")
 
 
-def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
+def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True, turbsim_inp=None):
     """Fabrique le dossier `sortie/<cas>/` depuis le modèle partagé `modele` (dossier contenant
     `main.fst` et `config_inflow.dat`). Renvoie le dossier du cas.
 
@@ -212,7 +213,7 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
     porte que ce qui change, donc ce qu'on relit en revue est exactement ce qu'on a voulu changer.
     Écrit aussi `journal_cas.json` : valeurs avant/après de chaque paramètre modifié. Avec des colonnes
     `turbsim.*`, fabrique aussi le champ de vent (`generer_vent`) ; `executer_turbsim=False` n'écrit que
-    le `.inp`."""
+    le `.inp`. `turbsim_inp` : entrée TurbSim à utiliser à la place de `modele/turbsim.inp`."""
     modele, sortie = Path(modele), Path(sortie)
     dossier = sortie / ligne_lct["cas"]
     dossier.mkdir(parents=True, exist_ok=True)
@@ -284,7 +285,7 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
         _ecrire_lignes(dossier / modele_ed.name, lignes, fin)
         _controler_relecture(dossier / modele_ed.name, modifs[ELASTODYN])
     if modifs[TURBSIM]:
-        res = generer_vent(dossier, modele, modifs[TURBSIM], executer=executer_turbsim)
+        res = generer_vent(dossier, modele, modifs[TURBSIM], executer=executer_turbsim, turbsim_inp=turbsim_inp)
         journal["turbsim"] = {"entree": res["entree"].relative_to(dossier).as_posix(),
                               "parametres": modifs[TURBSIM],
                               "bts": res["bts"].relative_to(dossier).as_posix() if res["bts"] else None}
@@ -293,6 +294,6 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True):
     return dossier
 
 
-def generer_serie(lct_csv, modele, sortie, executer_turbsim=True):
+def generer_serie(lct_csv, modele, sortie, executer_turbsim=True, turbsim_inp=None):
     """Un dossier par ligne de la LCT. Renvoie la liste des dossiers créés, dans l'ordre."""
-    return [generer_cas(l, modele, sortie, executer_turbsim) for l in lire_lct(lct_csv)]
+    return [generer_cas(l, modele, sortie, executer_turbsim, turbsim_inp) for l in lire_lct(lct_csv)]

@@ -201,6 +201,24 @@ def test_gabarit_non_rempli_refuse_et_nomme_les_champs(tmp_path, pref, modele_ga
         cas.generer_serie(p, modele_gabarit, CAS, executer_turbsim=False)
 
 
+def test_gabarit_donne_en_argument_sans_toucher_au_modele(tmp_path, pref):
+    """L'étudiant ne copie rien dans `modeles/` (dossier suivi) : le gabarit reste à sa place et se passe par
+    `turbsim_inp=`. Même .inp, octet pour octet, que lorsque le gabarit est copié dans le modèle ; les trous
+    non remplis restent refusés et nommés."""
+    m = MODELES / f"{pref}_modele"
+    shutil.copytree(MODELE, m)
+    assert not (m / "turbsim.inp").exists()
+    lct = _lct_gabarit(tmp_path, pref, TROUS, SURCHARGES)
+    (d_arg,) = cas.generer_serie(lct, m, CAS, executer_turbsim=False, turbsim_inp=GABARIT)
+    shutil.copy(GABARIT, m / "turbsim.inp")
+    (d_copie,) = cas.generer_serie(lct, m, CAS / f"{pref}_bis", executer_turbsim=False)
+    assert (d_arg / "Wind" / f"{pref}_G.inp").read_bytes() == (d_copie / "Wind" / f"{pref}_G.inp").read_bytes()
+    assert list(m.glob("*.log")) == [] and (MODELE / "turbsim.inp").exists() is False
+    with pytest.raises(ValueError, match=r"IECturbc"):
+        cas.generer_serie(_lct_gabarit(tmp_path, pref, {"RandSeed1": "4242"}), m, CAS, executer_turbsim=False,
+                          turbsim_inp=GABARIT)
+
+
 def test_gabarit_a_exactement_deux_trous_iecturbc_et_graine():
     import re
     trous = [m[1] for l in GABARIT.read_text(encoding="utf-8").split("\n") if (m := re.match(r"^\s*A_COMPLETER\s+(\w+)", l))]
