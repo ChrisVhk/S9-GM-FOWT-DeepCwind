@@ -10,7 +10,7 @@ Du site à la Load Case Table : scatter diagram, DLC, binning / lumping. Volume 
 Vous partez d'un site réel (la table des états de mer et de vent observés) et vous arrivez à **une liste de cas à simuler**, chacun avec
 son occurrence : la LCT. Le travail d'ingénieur est dans les choix (quelles classes garder, quelle valeur représentative, quels DLC), et
 dans ce que vous savez dire de ce que ces choix font perdre. **Point de contrôle** (ENONCE, §3 bis) : la LCT est **validée par
-l'enseignant avant tout lancement** de la campagne, et la **somme des occurrences = 100 %**.
+l'enseignant avant tout lancement**, et la **somme des occurrences = 100 %**.
 
 ## 2. Avant de commencer
 
@@ -217,7 +217,7 @@ print(len(tous), "cas relus par s9gm.cas et fabriqués, sans TurbSim ni OpenFAST
 
 **Limite du modèle : la direction de la houle reste 0°.** Le modèle flottant refuse une direction de houle non nulle (OpenFAST s'arrête à l'initialisation : les données WAMIT du
 second ordre, `marin_semi.12d`, ne couvrent que le cap 0°). Le **désalignement vent-houle** (`mis`) reste dans le fichier d'états de votre LCT, mais **n'est pas simulé** : écrivez-le dans
-votre rendu comme ce que la LCT ne permet pas de conclure. Le représenter autrement (par exemple en faisant tourner le vent) est un choix de modélisation que ce dépôt ne tranche pas.
+votre rendu comme ce que la LCT ne permet pas de conclure. Que change ce désalignement sur la réponse, et comment le représenter un jour (par exemple en faisant tourner le vent) : **question de discussion** pour votre rendu, ce dépôt ne la tranche pas.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
@@ -226,33 +226,36 @@ votre rendu comme ce que la LCT ne permet pas de conclure. Le représenter autre
 | `KeyError : clé « … » trouvée 0 fois` | faute de frappe dans une colonne | la clé fautive est nommée ; corrigez l'en-tête |
 | OpenFAST s'arrête : « does not contain the range of wave directions » | colonne `seastate.WaveDir` non nulle | laissez la direction de houle à 0° (limite du modèle, ci-dessus) |
 
-### Étape 6 — Lancer **un** cas à 300 s, puis lire
+### Étape 6 — Essai technique de la chaîne : lancer le cas d'exemple `EX00` à 300 s, puis lire
+
+**Votre LCT n'est pas lancée ici** : elle attend la validation de l'enseignant (point de contrôle, section 1). Cet essai vérifie seulement que la chaîne (TurbSim, OpenFAST, lecture)
+tourne chez vous. Son cas, `EX00`, n'est pas un cas de votre LCT : vent turbulent à 7,5 m/s (celui de l'énoncé pour F03), état de mer du cas `D01` (`cas/lct_flottant.csv` : Hs 6 m, Tp 10 s).
+Seuls les deux trous du gabarit, `IECturbc` et la graine, reprennent **vos** choix (ceux de la première ligne de votre LCT) : le gabarit ne se lance pas sans.
 
 ```python
-i = <indice du cas à lancer>                      # un cas de votre LCT : le plus utile pour vérifier la chaîne
-un = lct.iloc[[i]].copy()
-un["fst.TMax"] = 300                              # 300 s en séance ; 600 s pour la campagne (phase 2)
-un.to_csv("results/lct_phase1_un_cas.csv", index=False)
-dossiers = cas.generer_serie("results/lct_phase1_un_cas.csv", "modeles/flottant", "results/phase1", turbsim_inp=GABARIT)
+ex = pd.DataFrame([{"cas": "EX00", "fst.TMax": 300,                      # 300 s en séance
+                    "turbsim.URef": 7.5,
+                    "turbsim.IECturbc": lct["turbsim.IECturbc"].iloc[0], "turbsim.RandSeed1": lct["turbsim.RandSeed1"].iloc[0],
+                    "seastate.WaveMod": 2, "seastate.WaveHs": 6, "seastate.WaveTp": 10}])
+ex.to_csv("results/lct_phase1_exemple.csv", index=False)
+dossiers = cas.generer_serie("results/lct_phase1_exemple.csv", "modeles/flottant", "results/phase1", turbsim_inp=GABARIT)
 lancer.lancer_serie(dossiers, coeurs=1, journal="results/phase1_journal.csv")
 
-nom = dossiers[0].name
-df, unites = lire.lire(f"results/phase1/{nom}/main.outb")
+df, unites = lire.lire("results/phase1/EX00/main.outb")
 df.plot(x="Time", y="PtfmSurge"); plt.show()      # regardez la courbe AVANT de choisir le transitoire
 print(lire.statistiques(df, ["TwrBsMyt", "PtfmSurge", "PtfmHeave", "PtfmPitch", "FAIRTEN1", "FAIRTEN2", "FAIRTEN3"],
                         t_transitoire=<votre valeur>))
 ```
 
-**Vous devez voir** : `termine` dans le journal de `lancer`, un fichier `results/phase1/<cas>/main.outb`, puis un tableau de statistiques (moyenne, écart-type, min, max)
-pour les points de calcul imposés de l'ENONCE (pied de tour, chaumards, mouvements du flotteur). **Ce cas est un essai technique de la chaîne** : la campagne complète attend la
-validation de votre LCT par l'enseignant. Écrivez `t_transitoire` **et sa raison** (voir [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md)).
+**Vous devez voir** : `termine` dans le journal de `lancer`, un fichier `results/phase1/EX00/main.outb`, puis un tableau de statistiques (moyenne, écart-type, min, max)
+pour les points de calcul imposés de l'ENONCE (pied de tour, chaumards, mouvements du flotteur). **Ce cas est un essai technique de la chaîne, pas un résultat de votre LCT** : aucun cas de votre LCT n'est lancé avant sa validation par l'enseignant. Écrivez `t_transitoire` **et sa raison** (voir [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md)).
 Le temps de calcul est mesuré dans la section « Temps mesurés » ci-dessous.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
 | `turbsim` introuvable | environnement non activé | `micromamba activate s9gm-fowt` |
-| `echec` dans le journal de `lancer` | OpenFAST s'est arrêté | lisez la fin de `results/phase1/<cas>/run.log` |
-| `IndexError` sur `lct.iloc[[i]]` | indice hors de la LCT | `print(len(lct))` : l'indice va de 0 à `len(lct) − 1` |
+| `echec` dans le journal de `lancer` | OpenFAST s'est arrêté | lisez la fin de `results/phase1/EX00/run.log` |
+| `KeyError: 'turbsim.IECturbc'` | votre LCT n'a pas cette colonne (étape 4) | refaites l'export de l'étape 4 avec votre catégorie, ou ajoutez la colonne |
 | `KeyError: 'FAIRTEN1'` | canal absent de la sortie | `print(list(df.columns))` |
 | `lire.statistiques` refuse de tourner | `t_transitoire` absent | regardez la courbe, choisissez une valeur (0 seulement si vous l'assumez) |
 

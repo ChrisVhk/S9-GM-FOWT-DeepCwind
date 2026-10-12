@@ -36,7 +36,6 @@ ESSAI = {
     "<votre catégorie ou intensité>": "12",
     "<votre période de retour>": "50 yrs",
     "<vos classes de vent>": "[11, 25]",
-    "<indice du cas à lancer>": "5",
     "<votre valeur>": "60",
 }
 
@@ -82,10 +81,16 @@ def test_aucune_valeur_de_choix_n_est_ecrite_dans_les_commandes():
         assert not re.search(r"exposant\s*=\s*0?\.\d", code), "exposant écrit en dur"
 
 
-def test_la_lct_est_validee_avant_la_campagne_et_les_extremes_ne_sont_pas_lances():
+def test_la_lct_est_validee_avant_tout_lancement_et_l_etape_6_ne_lance_que_le_cas_d_exemple():
+    """ENONCE §3 bis : « LCT validée avant tout lancement » (mini-lot 2). L'étape 6 est un essai technique : jamais un cas de la LCT."""
     t = _plat(_texte()).lower()
-    assert "validée par l'enseignant" in t or "validee par l'enseignant" in t
+    assert "validée par l'enseignant avant tout lancement" in t
+    assert "de la campagne" not in t.split("avant tout lancement")[1][:20]           # pas de restriction du point de contrôle à la campagne
     assert "somme des occurrences" in t and "100 %" in t
+    etape6 = _texte().split("### Étape 6")[1].split("\n### ")[0]
+    assert "EX00" in etape6 and "essai technique" in etape6.lower()
+    assert "lct.iloc[" not in etape6 and "indice du cas" not in etape6                # aucun cas de la LCT de l'étudiant n'est lancé
+    assert "question de discussion" in _plat(_texte())                                # désalignement vent-houle (E-187 2.a)
 
 
 def test_les_commandes_n_utilisent_que_les_modules_prevus():
@@ -119,7 +124,7 @@ def test_rejeu_depuis_un_clone_neuf(tmp_path):
     assert (depot / "results" / "lct_phase1.csv").is_file()
     assert (depot / "results" / "etats_phase1.csv").is_file()
     sorties = list((depot / "results" / "phase1").glob("*/main.outb"))
-    assert len(sorties) == 1, sorties
+    assert [p.parent.name for p in sorties] == ["EX00"], sorties          # le seul cas lancé est l'exemple, aucun cas de la LCT
     # la somme des occurrences est 100 % (point de contrôle de l'ENONCE)
     import pandas as pd
     etats = pd.read_csv(depot / "results" / "etats_phase1.csv")
