@@ -1,0 +1,116 @@
+{
+  "cas": "E01",
+  "s9gm": "0.1.0",
+  "modele": "../../modeles/fixe",
+  "modifications": [
+    {
+      "fichier": "main.fst",
+      "cle": "TMax",
+      "avant": "600",
+      "apres": "10"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompInflow",
+      "avant": "1",
+      "apres": "0"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompAero",
+      "avant": "2",
+      "apres": "0"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompServo",
+      "avant": "1",
+      "apres": "0"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompSeaSt",
+      "avant": "1",
+      "apres": "0"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompHydro",
+      "avant": "1",
+      "apres": "0"
+    },
+    {
+      "fichier": "main.fst",
+      "cle": "CompSub",
+      "avant": "1",
+      "apres": "0"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "DrTrDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "TeetDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmSgDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmSwDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmHvDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmRDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmPDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "PtfmYDOF",
+      "avant": "True",
+      "apres": "False"
+    },
+    {
+      "fichier": "config_elastodyn.dat",
+      "cle": "TTDspFA",
+      "avant": "0",
+      "apres": "0.1"
+    }
+  ],
+  "chemins_reecrits": [
+    "EDFile (local)",
+    "AeroFile",
+    "ServoFile",
+    "SeaStFile",
+    "HydroFile",
+    "SubFile",
+    "MooringFile",
+    "BldFile(1)",
+    "BldFile(2)",
+    "BldFile(3)",
+    "TwrFile"
+  ]
+}

@@ -1,0 +1,4 @@
+cas,fst.TMax,fst.CompInflow,fst.CompAero,inflow.WindType,inflow.HWindSpeed,inflow.PLExp,seastate.WaveMod,seastate.WaveHs,seastate.WaveTp
+D00,300,0,0,,,,1,6,10
+D01,300,,,1,7.5,0.11,1,6,10
+D02,300,,,,,,1,6,10

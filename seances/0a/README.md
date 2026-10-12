@@ -63,14 +63,16 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
 *D'après le cas 01 du tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), reconstruit sur `modeles/fixe/` — voir
 [`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE). Théorie : section 6.1.*
 
-> **À compléter** : le cas `cas/E01/` (tour seule) est en cours de construction ; la commande ci-dessous en
-> donnera le lancement.
+Le cas `cas/E01/` est la tour seule sur le modèle `modeles/fixe/` : un seul module actif (`CompElast=1`), tout le reste éteint,
+plateforme bloquée, tour lâchée depuis un déplacement initial du sommet. Avant de conclure, lisez
+`cas/E01/config_elastodyn.dat` (section DEGREES OF FREEDOM) comme le demande le bloc Théorie 6.1 (lecture seule).
 
 ```bash
 bash cas/run_cas.sh E01
 ```
 
-Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simple du dépôt — s'il échoue,
+Résultat : `results/E01/main.outb` (10 s simulées). Tracez `TTDspFA` (déplacement du sommet de tour, voir
+[`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md)). Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simple du dépôt — s'il échoue,
 l'installation n'est pas correcte, reprenez la section 2.
 
 ### 3.3 Échauffement 2 — éolienne libre en vent constant, cas E02 (environ 15 min)
@@ -78,13 +80,15 @@ l'installation n'est pas correcte, reprenez la section 2.
 *D'après le cas 02 du tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), reconstruit sur `modeles/fixe/` — voir
 [`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE). Théorie : section 6.2.*
 
-> **À compléter** : le cas `cas/E02/` (rotor libre) est en cours de construction.
+Le cas `cas/E02/` est l'éolienne sur `modeles/fixe/` **sans contrôleur** (`CompServo=0`, aucun couple de générateur), à vent
+constant avec cisaillement ; plateforme bloquée.
 
 ```bash
 bash cas/run_cas.sh E02
 ```
 
-Doit se terminer par `OpenFAST terminated normally.`.
+Résultat : `results/E02/main.outb` (200 s simulées, de l'ordre de 30 s de calcul). Tracez `RotSpeed`. Doit se terminer par
+`OpenFAST terminated normally.`.
 
 ### 3.4 Régulation de la NREL 5 MW, à la main (environ 30 min)
 

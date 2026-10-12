@@ -1,0 +1,57 @@
+{
+  "cas": "D01",
+  "s9gm": "0.1.0",
+  "modele": "../../modeles/flottant",
+  "modifications": [
+    {
+      "fichier": "main.fst",
+      "cle": "TMax",
+      "avant": "300",
+      "apres": "300"
+    },
+    {
+      "fichier": "config_inflow.dat",
+      "cle": "WindType",
+      "avant": "2",
+      "apres": "1"
+    },
+    {
+      "fichier": "config_inflow.dat",
+      "cle": "HWindSpeed",
+      "avant": "8",
+      "apres": "7.5"
+    },
+    {
+      "fichier": "config_inflow.dat",
+      "cle": "PLExp",
+      "avant": "0",
+      "apres": "0.11"
+    },
+    {
+      "fichier": "SeaState.dat",
+      "cle": "WaveMod",
+      "avant": "3",
+      "apres": "1"
+    },
+    {
+      "fichier": "SeaState.dat",
+      "cle": "WaveHs",
+      "avant": "1.788414471",
+      "apres": "6"
+    },
+    {
+      "fichier": "SeaState.dat",
+      "cle": "WaveTp",
+      "avant": "10",
+      "apres": "10"
+    }
+  ],
+  "chemins_reecrits": [
+    "EDFile",
+    "AeroFile",
+    "ServoFile",
+    "SeaStFile (local)",
+    "HydroFile",
+    "MooringFile"
+  ]
+}

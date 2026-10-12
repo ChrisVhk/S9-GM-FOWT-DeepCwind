@@ -10,8 +10,10 @@ d'ouverture au cours DMO-S9 (phase 0 de l'énoncé).
 ```
 modeles/fixe/      (à la racine du dépôt) fichiers communs de l'éolienne fixe (monopieu OC3) -- ne pas lancer directement
 cas/F01/, F02/, ...  un dossier LÉGER par cas : main.fst (pointe vers modeles/fixe/) + ce qui change
-modeles/flottant/  (à construire, séance 0b) fichiers communs de l'éolienne flottante DeepCwind
-cas/D00/, D01/, ...  (à construire, séance 0b) idem, pour le flottant
+modeles/flottant/  fichiers communs de l'éolienne flottante DeepCwind (dérivé du r-test OC4)
+cas/D00/, D01/, D02/  idem, pour le flottant (D03-D05 : à générer par vous, séance 0b)
+cas/E01/, E02/       cas d'échauffement de la séance 0a (tour seule, rotor libre), sur modeles/fixe/
+cas/lct_*.csv        les tables de cas dont `s9gm.cas` a fabriqué E01, E02, D00-D02
 cas/run_cas.sh     lance un cas de référence sur une copie sous results/ (ou plusieurs, ou "all")
 ```
 
@@ -70,7 +72,12 @@ sous `results/<cas>/`.
 | F01 | constant 7,5 m/s | — (fixe) | régime établi : poussée, moment en pied de tour, RotSpeed |
 | F02 | échelon 5 → 20 m/s à t = 100 s | — (fixe) | passage d'une zone de régulation à l'autre |
 | F03-F05 | turbulent (TurbSim, à générer) 7,5 / 12 / 16 m/s | — (fixe) | *à générer par vous sous `results/`, séance 0b* |
-| D00-D05 | — / constant / échelon / turbulent (mêmes vents que F01-F05) | — / régulière / JONSWAP | *à construire, séance 0b* |
+| E01 | — (tour seule) | — | échauffement 0a : oscillation libre de la tour |
+| E02 | constant 8 m/s, cisaillement, sans contrôleur | — | échauffement 0a : rotor libre |
+| D00 | aucun | régulière, H = 6 m, T = 10 s | réponse du flotteur à la houle seule |
+| D01 | constant 7,5 m/s | régulière, H = 6 m, T = 10 s | vent + houle |
+| D02 | échelon 5 → 20 m/s à t = 100 s | régulière, H = 6 m, T = 10 s | échelon de vent sur flotteur |
+| D03-D05 | turbulent (mêmes champs que F03-F05) | JONSWAP, Hs = 6 m, Tp = 10 s | *à générer par vous sous `results/`, séance 0b* |
 
 **Lecture d'un `.fst`** : ouvrez `F01/main.fst` dans un éditeur de texte (lecture seule : ne l'enregistrez pas modifié). Les sections qui
 changent d'un cas à l'autre dans ce tutoriel : `TMax` (durée), le nom du fichier `InflowFile`

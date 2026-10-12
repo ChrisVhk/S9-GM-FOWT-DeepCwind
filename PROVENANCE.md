@@ -18,9 +18,14 @@ Origine : [openfast_quickstart](https://gitlab.in2p3.fr/lheea/oracle/tutorials/o
 des modifications, et `annexes/lheea/ADAPTATION_LHEEA.md` pour le détail cas par cas (migration
 v3.2.1→v5.0.0, Windows→Linux), prêt à être transmis au LHEEA. Reprise faite avec l'accord de
 l'enseignant du cours, membre du LHEEA (cluster Cargo, ED SPIN/ENSTA Bretagne), qui proposera
-ensuite cette adaptation au laboratoire. Le récit pédagogique des 5 cas est intégré directement
-dans `seances/0a/` et `seances/0b/` du cours (pas un document séparé) ; chaque section reprise y
-porte son attribution et un renvoi vers `annexes/lheea/NOTICE`.
+ensuite cette adaptation au laboratoire. Les blocs Théorie des cinq cas sont repris dans la section 6 de
+`seances/0a/` et `seances/0b/` (chaque bloc porte son attribution et un renvoi vers `annexes/lheea/NOTICE`) ; les cas 01 et 02 sont
+reconstruits sur `modeles/fixe/` sous le nom `cas/E01` et `cas/E02`. Aucune séance ne lance les cas de `annexes/lheea/`, conservés
+comme référence.
+
+## `modeles/flottant/`
+Construit pour ce cours à partir du cas r-test `5MW_OC4Semi_WSt_WavesWN` (voir `modeles/oc4_rtest/`, licence Apache 2.0 des sources) : il ne
+contient que ce qui diffère du r-test et renvoie vers ses fichiers (détail dans `modeles/flottant/README.md`).
 
 ## `modeles/fixe/` et `cas/`
 Construit pour ce cours, à partir des modèles ci-dessus (licence Apache 2.0 des sources) et d'une

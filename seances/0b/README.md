@@ -145,7 +145,14 @@ développement du cours) :
 |---|---|---|---|
 | 300 s | 1 min 07 s | 2 min 01 s | ≈ 3 min 10 s |
 
-*À compléter pour 600 s et pour les cas flottants (D0x) une fois construits.*
+Cas flottants (OpenFAST seul, 300 s simulées, trois cas en parallèle, machine de développement du cours) :
+
+| Cas | Simulation OpenFAST |
+|---|---|
+| D00, D01, D02 | 408 s, 439 s, 437 s (≈ 7 min) |
+| D03, D04, D05 (champ de vent déjà généré) | ≈ 7 min 20 s chacun |
+
+*À compléter pour 600 s.*
 
 | Symptôme | Cause | Geste |
 |---|---|---|
@@ -210,8 +217,49 @@ savez prédire ce qu'il va dire.
 Même principe qu'en 0a : **une seule chose change à la fois** d'un cas à l'autre — la houle s'ajoute, puis le vent, puis la
 turbulence.
 
-> **À compléter** : le modèle flottant `modeles/flottant/` et les cas D00 à D05 sont en cours de construction ; leurs
-> commandes, leurs temps de calcul mesurés et leur table de cas s'ajouteront ici.
+Le modèle partagé est [`modeles/flottant/`](../../modeles/flottant/README.md) : la NREL 5 MW sur la plateforme OC4-DeepCwind, dérivée
+du cas r-test OpenFAST, partant **au repos** comme le modèle fixe (rotor à l'arrêt, plateforme sans déplacement initial). Le
+flotteur y est un seul corps rigide à 6 degrés de liberté.
+
+**D00, D01, D02 sont des cas de référence** (`cas/`) : vous les lancez, sans les modifier.
+
+```bash
+bash cas/run_cas.sh D00 D01 D02
+```
+
+**Vous devez voir** : `OK en NN s -> .../results/D0x/main.outb` pour chacun (environ **7 minutes par cas** pour 300 s simulées (mesuré, trois cas en parallèle) ;
+lancez-les ensemble, dans un second terminal, pendant que vous travaillez sur autre chose). Lisez ensuite `results/D0x/main.outb` comme
+au 3.1 : `lire.lire`, choix de `t_transitoire` en regardant la courbe, `lire.statistiques`. D00 n'a **aucun vent** (air au repos, rotor
+non simulé : `CompInflow = 0`, `CompAero = 0`) : le flotteur ne répond qu'à la houle.
+
+**D03, D04, D05 sont à générer par vous**, avec les **mêmes champs de vent que F03, F04, F05** : ils n'existent que dans vos
+dossiers de sortie, puisque la catégorie de turbulence et la graine sont vos choix. Une seconde table de cas, **dans le même
+dossier de sortie que F03-F05**, dit à chaque cas D de relire le champ de son cas F :
+
+```
+cas,fst.TMax,inflow.WindType,inflow.FileName_BTS,seastate.WaveMod,seastate.WaveHs,seastate.WaveTp
+D03,300,3,../F03/Wind/F03.bts,2,6,10
+D04,300,3,../F04/Wind/F04.bts,2,6,10
+D05,300,3,../F05/Wind/F05.bts,2,6,10
+```
+
+(`seastate.WaveMod = 2` : houle irrégulière JONSWAP ; `WaveHs`, `WaveTp` : Hs et Tp.) Enregistrez-la sous `results/lct_0b_flottant.csv`
+puis, **une fois F03 à F05 générés** (3.1) :
+
+```python
+dossiers = cas.generer_serie("results/lct_0b_flottant.csv", "modeles/flottant", "results/cas_0b")
+lancer.lancer_serie(dossiers, coeurs=2, journal="results/journal_lancer_D.csv")
+```
+
+**Vous devez voir** : `results/cas_0b/D03/`, `D04/`, `D05/`, chacun avec son `main.outb`, environ **7 à 8 minutes par cas** pour 300 s
+simulées (mesuré sur la machine de développement du cours, trois cas en parallèle ; prévoyez le même ordre de grandeur en salle). Si un cas D ne trouve pas son
+champ de vent (`FileName_BTS`), vérifiez que `results/cas_0b/F03/Wind/F03.bts` existe : le chemin est relatif au dossier du cas D.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `D03` s'arrête à l'initialisation (fichier de vent introuvable) | F03 pas encore généré, ou autre dossier de sortie | générez F03-F05 d'abord, dans le même dossier de sortie que D03-D05 |
+| `main.outb` absent après un cas D | `run.log` du cas se termine par une erreur | lisez la fin de `run.log` du cas |
+| calcul beaucoup plus long que prévu | machine chargée, trop de cas en parallèle | `coeurs=` plus petit ; relancez `lancer` (il saute les cas terminés) |
 
 ### 3.5 Comparer fixe et flottant ; le vent apparent (environ 30 min)
 
