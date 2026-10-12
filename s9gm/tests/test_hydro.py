@@ -188,3 +188,19 @@ def test_regime_morison_exige_un_seuil():
     with pytest.raises(TypeError):
         hydro.regime_morison(0.1)
     assert hydro.regime_morison(0.1, seuil=0.17) == "morison" and hydro.regime_morison(0.3, seuil=0.17) == "diffraction"   # seuil d'essai arbitraire, pas celui de la norme
+
+
+# ---- data/periodes_lacher_reference.md : périodes propres publiées, source et page citées (E-114) -----------------
+def test_le_fichier_des_periodes_de_reference_cite_sa_source_et_ses_six_ddl():
+    f = RACINE / "data" / "periodes_lacher_reference.md"
+    assert f.is_file()
+    t = f.read_text(encoding="utf-8")
+    for mot in ("Coulling", "2013", "023116", "10.1063/1.4796197", "Table XIII", "page"):
+        assert mot in t, mot
+    valeurs = {}
+    for ddl in ("surge", "sway", "heave", "roll", "pitch", "yaw"):
+        m = re.search(rf"^\|\s*{ddl}\b[^|]*\|\s*([\d.]+)\s*\|", t, re.I | re.M)
+        assert m, f"degré de liberté « {ddl} » absent du tableau"
+        valeurs[ddl] = float(m[1])
+    for ddl, v in PUBLIE.items():                       # cohérent avec les valeurs déjà utilisées par le test hydro
+        assert valeurs[ddl] == v
