@@ -46,40 +46,24 @@ bash scripts/build_discon.sh
 À refaire après chaque nouveau `git clone` (mais pas à chaque session : le fichier compilé reste
 sur votre disque tant que vous ne supprimez pas le dépôt).
 
-## 3. Premier calcul : les cas 01 et 02 du tutoriel LHEEA
+## 3. Premier calcul : les cas d'échauffement E01 et E02
+
+Depuis la racine du dépôt, environnement activé :
 
 ```bash
-cd annexes/lheea/01_TowerStructure/1_Configuration
-openfast main.fst
+bash cas/run_cas.sh E01
+bash cas/run_cas.sh E02
 ```
 
-Si tout va bien, le calcul se termine par `OpenFAST terminated normally.` et produit un fichier
-`main.outb` (les résultats, au format binaire OpenFAST). Recommencez avec le cas 02 :
+Si tout va bien, chaque calcul se termine par `OK en NN s` et produit un fichier `main.outb` (les résultats, au format
+binaire OpenFAST) dans son dossier ; `cas/E01/run.log` se termine par `OpenFAST terminated normally.`. Ces deux cas sont
+rapides (quelques secondes à quelques dizaines de secondes). Les cas suivants (F01 et suivants) utilisent le contrôleur
+compilé à l'étape 2.
 
-```bash
-cd ../../02_FreeRotatingWT/1_Configuration
-openfast main.fst
-```
+## 4. La suite
 
-Ces deux cas sont rapides (quelques secondes à quelques dizaines de secondes). Les cas suivants
-(03 à 05, et les cas de `cas/`) utilisent le contrôleur compilé à l'étape 2.
-
-Le cas **05** (éolienne flottante, vent turbulent) a besoin d'un fichier de vent supplémentaire
-(~70 Mo), trop gros pour être suivi par git : générez-le une fois par clone avec
-
-```bash
-bash scripts/generer_vent_turbulent_05.sh
-```
-
-(quelques minutes de calcul). Sans cette étape, `openfast main.fst` dans
-`annexes/lheea/05_FOWT/1_Configuration` échoue avec `Cannot find TurbSim full-field wind input
-file`.
-
-## 4. Le tutoriel de prise en main
-
-Pour la séance 0a, allez dans `cas/` et suivez son propre `README.md`. C'est
-là que se trouvent les cas **F01, F02** (éolienne fixe) demandés pour cette séance — voir aussi
-`seances/0a/README.md` pour le déroulé complet de la séance.
+Pour la séance 0a, suivez [`seances/0a/README.md`](seances/0a/README.md) : c'est une consigne autonome, de l'installation
+jusqu'aux cas F01 et F02. Le [`README.md`](README.md) de la racine donne la carte du dépôt et le parcours séance par séance.
 
 ## 5. Animation (facultatif) : ParaView et ffmpeg
 

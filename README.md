@@ -9,48 +9,53 @@ Droits : ENSM, publié avec l'accord de l'École.
 
 Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICENSE-docs](LICENSE-docs)) ; les composants tiers gardent leur propre licence, notamment [modeles/iea15_monopile/LICENSE](modeles/iea15_monopile/LICENSE) et [annexes/lheea/LICENSE](annexes/lheea/LICENSE) (exceptions, non modifiées).
 
-## Lundi — séance 0a : commencez ici → [`seances/0a/`](seances/0a/README.md)
+> **Vous aviez déjà cloné ce dépôt avant le 12/10/2026 ?** Il a été réorganisé : lisez d'abord [`TRANSITION.md`](TRANSITION.md).
 
-L'énoncé complet du projet est dans [`ENONCE.md`](ENONCE.md). L'installation (pas à pas, avec
-dépannage) est dans [`INSTALLATION.md`](INSTALLATION.md).
+## Commencez ici
 
-## Le projet en bref
+1. **Installer** : [`INSTALLATION.md`](INSTALLATION.md) (pas à pas, avec dépannage).
+2. **Suivre les séances dans l'ordre** : chacune a sa consigne autonome, au même format (objectif, avant de commencer, à
+   faire étape par étape, post-traiter, ce qu'on rend, théorie à lire).
+3. **Post-traiter toujours de la même façon** : [`s9gm/POST-TRAITER.md`](s9gm/POST-TRAITER.md), du `.outb` aux
+   statistiques, aux figures et au DEL.
 
-| Phase | Contenu | Volume | Rendu |
-|---|---|---|---|
-| 0 | Tutoriel de prise en main : installation, éolienne fixe puis flottante, vérifications à la main | 6 h — 0a lundi, 0b séance suivante | R0 |
-| 1 | Du site à la Load Case Table (scatter diagram, DLC, binning/lumping) | 3 h | R1 |
-| 2 | Simulations de référence, lâchers, étude de sensibilité par groupe | 5 h | R2 |
-| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | 8 h (+ ≈3 h à la maison) | R3 |
-| 4 | Extrêmes (ULS) et ancrage | 12 h | R4 |
-| 5 | Structures tubulaires : section de tour, entretoise, SCF | 8 h (+ ≈5 h à la maison) | R5 |
-| 6 | Synthèse commune des trois groupes et soutenance | 4 h | Soutenance |
-| | | **46 h** | |
+Le cadre du projet (compétences visées, organisation, évaluation, règles) est dans [`ENONCE.md`](ENONCE.md).
 
-Les phases 3 et 5 se poursuivent à la maison (atelier tour) : les heures entre parenthèses
-s'ajoutent au volume de séance, détail dans `ENONCE.md`.
+## Le parcours, séance par séance
 
-Détail phase par phase, compétences visées, méthode de travail et règles d'évaluation :
-[`ENONCE.md`](ENONCE.md).
+| Phase | Contenu | Volume | Consigne | Rendu |
+|---|---|---|---|---|
+| 0a | Installation, anatomie d'un cas, régulation à la main, éolienne fixe F01-F02 | 3 h (lundi) | [`seances/0a/`](seances/0a/README.md) | R0 |
+| 0b | Vent turbulent F03-F05, architecture et hydrostatique du flotteur, flottant D00-D05, comparaison fixe / flottant | 3 h | [`seances/0b/`](seances/0b/README.md) | R0 |
+| 1 | Du site à la Load Case Table (scatter diagram, DLC, binning/lumping) | 3 h | [`seances/phase1/`](seances/phase1/README.md) | R1 |
+| 2 | Simulations de référence, lâchers, étude de sensibilité | 5 h | [`seances/phase2/`](seances/phase2/README.md) | R2 |
+| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | 8 h (+ ≈ 3 h) | [`seances/phase3/`](seances/phase3/README.md) | R3 |
+| 4 | Extrêmes (ULS) et ancrage | 12 h | [`seances/phase4/`](seances/phase4/README.md) | R4 |
+| 5 | Structures tubulaires : section de tour, entretoise, SCF | 8 h (+ ≈ 5 h) | [`seances/phase5/`](seances/phase5/README.md) | R5 |
+| 6 | Synthèse commune des trois groupes et soutenance | 4 h | [`seances/phase6/`](seances/phase6/README.md) | Soutenance |
+| 3 et 5 | Atelier tour (accompagne les phases 3 et 5) | — | [`seances/atelier_tour/`](seances/atelier_tour/README.md) | — |
+| | | **46 h** | | |
+
+Les phases 3 et 5 se poursuivent à la maison (atelier tour) : les heures entre parenthèses s'ajoutent au volume de
+séance.
 
 ## Carte du dépôt
 
-| Dossier | Contenu | Sert en |
+| Dossier | Contenu | Vous le… |
 |---|---|---|
-| `env/` | Environnement épinglé (`environment.yml`) et script d'installation | phase 0 |
-| `scripts/build_discon.sh` | Compile le contrôleur (jamais suivi compilé) | phase 0, toute séance |
-| `scripts/generer_vent_turbulent_05.sh` | Génère le vent turbulent du cas LHEEA 05 (fichier trop gros pour git) | phase 0b, phase 2 |
-| `modeles/oc4_rtest/` | Modèle de référence OC4-DeepCwind (cas r-test OpenFAST, Apache-2.0) : géométrie, contrôleur et données hydro partagés par les tutoriels ci-dessous | toutes phases (référence partagée) |
-| `annexes/lheea/01-02` | Tutoriel OpenFAST Quickstart (LHEEA), Apache-2.0 : tour seule, rotor libre — récit dans `seances/0a/` | phase 0a |
-| `annexes/lheea/03-04` | Suite du même tutoriel (éolienne pilotée, monopieu) — récit dans `seances/0b/` | phase 0b |
-| `annexes/lheea/05` | Cas flottant complet du même tutoriel — récit dans `seances/0b/`, puis cas de **référence commune** | phase 0b, phase 2 |
-| `cas/` et `modeles/fixe/` | Cas de référence du cours : éolienne fixe (F0x) puis flottante (D0x), et leur modèle partagé | phase 0 |
-| `seances/atelier_tour/` | Tutoriel d'accompagnement d'un atelier distribué sur Vega (dimensionnement FLS/ULS d'une tour tubulaire) — répétition générale de la méthode de la phase 5 | phase 5 |
-| `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) — une seule à ce jour (F1) | toutes phases |
-| `annexes/papers/` | Fiches de lecture sourcées sur les systèmes OC4/OC5/OC6 (documents publics) | phases 1-2 |
-| `data/` | Données du projet (dimensions, propriétés, références) — *en construction* | phases 0b-2 |
-| `annexes/outils/` | Scripts de post-traitement de base (lecture `.outb`, tracés) | toutes phases |
-| `rendus/` | Déposez vos rendus ici (jamais suivi par git) | tous rendus |
+| `seances/` | Une consigne autonome par séance ou par phase | **lisez et suivez** |
+| `modeles/` | Tous les modèles : `fixe/` (monopieu OC3 du tutoriel), `oc4_rtest/` (OC4-DeepCwind, r-test OpenFAST, Apache-2.0), `iea15_monopile/`, `oc5/` (note) | lisez, sans le modifier |
+| `cas/` | Cas de référence (F01, F02…) et leur lanceur `run_cas.sh` | lancez, sans le modifier |
+| `s9gm/` | Le seul outil de calcul et de post-traitement (Python) | utilisez, sans le modifier |
+| `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) | lisez |
+| `data/` | Données du projet (dimensions, propriétés, références, site) | lisez |
+| `env/`, `scripts/` | Environnement épinglé ; compilation du contrôleur, contrôles du dépôt | lancez |
+| `annexes/` | Tutoriel LHEEA d'origine, outils et notes de lecture historiques, archives | consultez |
+| `results/` | **Vos** sorties, copies de cas, tables de cas, figures (ignoré par git) | écrivez ici |
+| `rendus/` | **Vos** rendus (ignoré par git) | déposez ici |
+
+**Règle du dépôt** : vous ne modifiez aucun fichier suivi par git. Tout ce que vous créez ou modifiez vit sous `results/`
+ou `rendus/`, ce qui rend `git pull` toujours sans conflit.
 
 ## Licences et attributions
 

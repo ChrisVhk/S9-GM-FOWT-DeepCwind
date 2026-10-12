@@ -274,9 +274,15 @@ def recuperer(racine, distant_nu, ref):
                    check=True, capture_output=True, text=True)
 
 
-def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=None, note="TRANSITION.md"):
-    """Rejoue le geste d'un étudiant. `fichiers_etudiant` : {chemin: contenu}. N'écrit jamais dans le vrai `origin`
-    (le dépôt « distant » est un dépôt nu temporaire)."""
+def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=None, note="TRANSITION.md",
+               fichier_suivi="tutorials/prise_en_main/F01/main.fst"):
+    """Rejoue le geste d'un étudiant, deux fois. N'écrit jamais dans le vrai `origin` (le dépôt « distant » est un dépôt nu
+    temporaire, alimenté par `fetch`).
+
+    Scénario A : l'étudiant n'a créé que des fichiers NON suivis (sorties, tables de cas, brouillons) : `git pull` doit passer, sans rien
+    perdre. Scénario B : il a de plus MODIFIÉ un fichier suivi que la restructuration déplace (`fichier_suivi`) : le `git pull` simple peut
+    refuser ; la recette de la note (`git stash`, `git pull`, `git stash pop`) doit alors passer sans perdre sa modification, et la note doit
+    la donner."""
     racine = Path(racine).resolve()
     if fichiers_etudiant is None:
         fichiers_etudiant = {
@@ -287,41 +293,42 @@ def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=N
         }
     ecarts = []
     tmp = Path(tempfile.mkdtemp(prefix="transition_"))
-    try:
-        nu = tmp / "distant.git"
+    marque = "! modification d'etudiant (R-6)"
+
+    def cloner(nom):
+        nu = tmp / f"{nom}.git"
         subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(nu)], check=True)
         recuperer(racine, nu, ancien)
-        etu = tmp / "etudiant"
+        etu = tmp / nom
         subprocess.run(["git", "clone", "-q", str(nu), str(etu)], check=True, capture_output=True)
         git(etu, "config", "user.email", "etudiant@exemple.invalid")
         git(etu, "config", "user.name", "etudiant")
         for f, c in fichiers_etudiant.items():
             (etu / f).parent.mkdir(parents=True, exist_ok=True)
             (etu / f).write_text(c, encoding="utf-8")
-        avant = empreintes(etu, fichiers_etudiant)
-        # Cas fréquent : l'étudiant a édité un fichier SUIVI que la restructuration déplace (un main.fst de cas).
-        suivi = etu / "tutorials/prise_en_main/F01/main.fst"
-        marque = "! modification d'etudiant (R-6)"
-        modifie = suivi.is_file()
-        if modifie:
-            suivi.write_text(suivi.read_text(encoding="utf-8") + marque + "\n", encoding="utf-8")
         recuperer(racine, nu, nouveau)
+        return etu
+
+    def verifier_fichiers(etu, etiquette):
+        avant = {f: hashlib.sha256(c.encode("utf-8")).hexdigest() for f, c in fichiers_etudiant.items()}
+        perdus = [f for f in fichiers_etudiant if not (etu / f).is_file()]
+        ecarts.extend(f"{etiquette} : fichier d'étudiant perdu : {f}" for f in perdus)
+        ecarts.extend(f"{etiquette} : fichier d'étudiant modifié : {f}" for f, h in
+                      empreintes(etu, [f for f in fichiers_etudiant if f not in perdus]).items() if h != avant[f])
+
+    def modification_presente(etu):
+        return any(marque in f.read_text(encoding="utf-8", errors="replace")
+                   for f in etu.rglob("*.fst") if f.is_file() and ".git" not in f.parts)
+
+    try:
+        # --- scénario A : fichiers non suivis seulement
+        etu = cloner("etudiant_a")
         r = subprocess.run(["git", "pull", "-q", "--no-rebase", "--no-edit"], cwd=etu, capture_output=True, text=True)
         if r.returncode != 0:
-            ecarts.append(f"git pull a échoué : {(r.stderr or r.stdout).strip()[:300]}")
-        perdus = [f for f in fichiers_etudiant if not (etu / f).is_file()]
-        ecarts += [f"fichier d'étudiant perdu : {f}" for f in perdus]
-        altere = [f for f, h in empreintes(etu, [f for f in fichiers_etudiant if f not in perdus]).items() if h != avant[f]]
-        ecarts += [f"fichier d'étudiant modifié : {f}" for f in altere]
-        if modifie and not any(
-                marque in f.read_text(encoding="utf-8", errors="replace")
-                for f in etu.rglob("main.fst") if ".git" not in f.parts):
-            ecarts.append("modification d'étudiant sur un fichier suivi (F01/main.fst) perdue")
-        if r.returncode == 0:
-            # Anciens emplacements qui subsistent chez l'étudiant (sorties, binaires compilés ignorés par git) :
-            # la note de transition doit les nommer, sinon l'étudiant ne sait pas qu'il doit les déplacer ou les refaire.
-            tete_note = etu / note
-            texte_note = tete_note.read_text(encoding="utf-8") if tete_note.is_file() else None
+            ecarts.append(f"A : git pull a échoué : {(r.stderr or r.stdout).strip()[:300]}")
+        else:
+            verifier_fichiers(etu, "A")
+            texte_note = (etu / note).read_text(encoding="utf-8") if (etu / note).is_file() else None
             restes = sorted({f.split("/")[0] + "/" for f in fichiers_etudiant
                              if f.split("/")[0] not in ("results", "rendus") and "/" in f})
             if texte_note is None:
@@ -329,6 +336,25 @@ def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=N
                     ecarts.append(f"{note} absente alors que des fichiers d'étudiant restent à d'anciens emplacements : {restes}")
             else:
                 ecarts += [f"{note} ne nomme pas l'ancien emplacement {d}" for d in restes if d not in texte_note]
+        # --- scénario B : un fichier suivi modifié par l'étudiant
+        etu = cloner("etudiant_b")
+        suivi = etu / fichier_suivi
+        if suivi.is_file():
+            suivi.write_text(suivi.read_text(encoding="utf-8") + marque + "\n", encoding="utf-8")
+            r = subprocess.run(["git", "pull", "-q", "--no-rebase", "--no-edit"], cwd=etu, capture_output=True, text=True)
+            if r.returncode != 0:
+                # refus attendu : la recette de la note doit passer, et la note doit la donner
+                for cmd in (["git", "stash", "-q"], ["git", "pull", "-q", "--no-rebase", "--no-edit"], ["git", "stash", "pop", "-q"]):
+                    r2 = subprocess.run(cmd, cwd=etu, capture_output=True, text=True)
+                    if r2.returncode != 0:
+                        ecarts.append(f"B : « {' '.join(cmd)} » a échoué : {(r2.stderr or r2.stdout).strip()[:300]}")
+                        break
+                texte_note = (etu / note).read_text(encoding="utf-8") if (etu / note).is_file() else ""
+                if "git stash pop" not in texte_note or "git stash" not in texte_note:
+                    ecarts.append(f"B : le git pull simple refuse, et {note} ne donne pas la recette git stash / git pull / git stash pop")
+            if not modification_presente(etu):
+                ecarts.append("B : la modification d'étudiant sur un fichier suivi a été perdue")
+            verifier_fichiers(etu, "B")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return ecarts
@@ -428,6 +454,16 @@ def autotest():
         git(sain, "add", "b.txt")
         git(sain, "commit", "-q", "-m", "nouveau")
         attendre("transition (sain)", transition(sain, fichiers_etudiant={"results/x.csv": "x\n", "lct_0b.csv": "y\n"}), vide=True)
+        # scénario B : fichier suivi modifié par l'étudiant et déplacé par la restructuration
+        for nom, avec_note, vide in [("fichier suivi déplacé, note sans recette", "Rien à signaler.\n", False),
+                                     ("fichier suivi déplacé, note avec recette", "git stash\ngit pull\ngit stash pop\n", True)]:
+            ancien = _depot_jouet(d / ("b_" + str(abs(hash(nom)))), {"tutorials/prise_en_main/F01/main.fst": "a\nb\nc\n"})
+            git(ancien, "update-ref", "refs/remotes/origin/main", "HEAD")
+            git(ancien, "mv", "tutorials/prise_en_main/F01/main.fst", "cas_F01_main.fst")
+            (ancien / "TRANSITION.md").write_text(avec_note, encoding="utf-8")
+            git(ancien, "add", "TRANSITION.md")
+            git(ancien, "commit", "-q", "-m", "déplacement")
+            attendre(f"transition ({nom})", transition(ancien, fichiers_etudiant={"results/x.csv": "x\n"}), vide)
         attendre("transition (reste sans note)", transition(sain, fichiers_etudiant={"vieux/F03.outb": "z\n"}), vide=False)
     for e in echecs:
         print("AUTOTEST ÉCHEC :", e)
