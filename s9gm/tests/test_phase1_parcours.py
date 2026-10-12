@@ -17,6 +17,10 @@ import pytest
 from . import parcours
 from .conftest import RACINE, requiert_openfast
 
+REJEU_OPTIONNEL = pytest.mark.skipif(
+    not (os.environ.get("S9GM_PARCOURS_REJEU") or os.environ.get("S9GM_PARCOURS_DEPOT")),
+    reason="rejeu long (clone neuf, TurbSim, OpenFAST : plus d'une heure) : S9GM_PARCOURS_REJEU=1, ou S9GM_PARCOURS_DEPOT=<dépôt>")
+
 PHASE1 = RACINE / "seances" / "phase1" / "README.md"
 
 # Valeurs d'essai neutres, propres au TEST (pas à la consigne) : une marque par choix de l'étudiant.
@@ -104,6 +108,7 @@ def test_r8_la_phase_1_n_a_plus_de_trou_annonce():
 
 
 @pytest.mark.slow
+@REJEU_OPTIONNEL
 @requiert_openfast
 def test_rejeu_depuis_un_clone_neuf(tmp_path):
     depot = os.environ.get("S9GM_PARCOURS_DEPOT")

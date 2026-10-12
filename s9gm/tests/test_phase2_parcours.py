@@ -18,6 +18,10 @@ from . import parcours
 from .conftest import RACINE, requiert_openfast
 from .test_phase1_parcours import ESSAI as ESSAI_PHASE1
 
+REJEU_OPTIONNEL = pytest.mark.skipif(
+    not (os.environ.get("S9GM_PARCOURS_REJEU") or os.environ.get("S9GM_PARCOURS_DEPOT")),
+    reason="rejeu long (clone neuf, TurbSim, OpenFAST : plus d'une heure) : S9GM_PARCOURS_REJEU=1, ou S9GM_PARCOURS_DEPOT=<dépôt>")
+
 PHASE2 = RACINE / "seances" / "phase2" / "README.md"
 
 CHAUMARD = "../../../modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_"
@@ -114,6 +118,7 @@ def depot(tmp_path_factory):
 
 
 @pytest.mark.slow
+@REJEU_OPTIONNEL
 @requiert_openfast
 def test_rejeu_complet_phase_2_apres_la_phase_1(depot):
     code, sortie, temps = parcours.rejouer(PHASE2, depot, ESSAI, delai=7200)
@@ -127,6 +132,7 @@ def test_rejeu_complet_phase_2_apres_la_phase_1(depot):
 
 
 @pytest.mark.slow
+@REJEU_OPTIONNEL
 @requiert_openfast
 @pytest.mark.parametrize("famille", [f for f in FAMILLES if f != "babord_vent"])
 def test_chaque_famille_de_sensibilite_tourne(depot, famille):
@@ -146,6 +152,7 @@ def _numero_bloc_sensibilite():
 
 
 @pytest.mark.slow
+@REJEU_OPTIONNEL
 @requiert_openfast
 def test_les_300_premieres_secondes_du_calcul_de_600_s_sont_celles_du_calcul_de_300_s(depot):
     """Affirmation de la consigne (étape 5) : même graine, même champ de vent, même houle -> mêmes 300 premières secondes. Lit les sorties
