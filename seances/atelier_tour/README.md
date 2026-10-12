@@ -34,7 +34,7 @@ pour tracer à la main l'allure de `X(t)` avant de chercher la racine.
 **Recherche de valeur cible et Solveur (LibreOffice Calc, menus à vérifier vous-même — voir
 l'avertissement ci-dessous)** : pour **une** section, fixer le ratio (FLS ou ULS) à `1` en faisant
 varier sa propre épaisseur est une recherche de valeur cible à une seule variable — c'est ce que
-fait le §6 ci-dessus, section par section. Un **Solveur**, lui, résout un problème à plusieurs
+fait le §6 (étape 3.6 plus bas), section par section. Un **Solveur**, lui, résout un problème à plusieurs
 variables à la fois (ici : les 30 épaisseurs ensemble, avec comme objectif la masse totale et
 comme contraintes les 30×2 ratios ≤ 1) — plus lourd à régler, mais pas indispensable ici puisque
 le §6 montre que les 30 recherches à une variable, faites dans l'ordre (sommet vers pied), donnent

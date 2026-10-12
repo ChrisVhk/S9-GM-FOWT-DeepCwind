@@ -26,6 +26,8 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
+*Les renvois « §n » à l'atelier tour (§2, §4, §9b, §10) suivent la correspondance donnée au début de sa [consigne](../atelier_tour/README.md).*
+
 1. **Tour (niveau A), atelier tour second passage, avec vos données.** Même méthode qu'à la Phase
    3 (étape 0), mais toutes les entrées sont désormais les vôtres, pour **chaque groupe** :
    - **géométrie de départ** = tour OC4 du modèle de référence — longueur et base lues dans le
