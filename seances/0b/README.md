@@ -207,6 +207,9 @@ savez prédire ce qu'il va dire.
 | D02 | échelon de 5 à 20 m/s | régulière, H = 6 m, T = 10 s |
 | D03 à D05 | turbulent 7,5 / 12 / 16 m/s (mêmes champs que F03-F05) | irrégulière JONSWAP, Hs = 6 m, Tp = 10 s |
 
+Même principe qu'en 0a : **une seule chose change à la fois** d'un cas à l'autre — la houle s'ajoute, puis le vent, puis la
+turbulence.
+
 > **À compléter** : le modèle flottant `modeles/flottant/` et les cas D00 à D05 sont en cours de construction ; leurs
 > commandes, leurs temps de calcul mesurés et leur table de cas s'ajouteront ici.
 
@@ -264,6 +267,9 @@ La démarche complète, du `.outb` aux statistiques, aux figures et au DEL, est 
 - Q0.6 (si vous avez relancé un cas turbulent à 600 s en plus des 300 s de la séance) — Comparez les statistiques d'un
   même canal entre les deux durées : l'écart est-il dans le bruit, ou significatif ? Qu'est-ce que cela vous dit sur la
   durée à retenir pour un rendu qui compte ?
+
+Pour chaque cas lancé (F03 à F05, D00 à D05), joignez : le `t_transitoire` choisi avec sa raison, les statistiques retenues, la
+région de régulation, et une phrase sur ce que le cas ne permet pas de conclure.
 
 Le carnet de la section 3.6 ne répond à aucune question de ce rendu.
 
@@ -393,6 +399,3 @@ lance plus ; les cas D00 à D05 reposent sur la même plateforme OC4-DeepCwind.*
    est directement tiré ; ce point est traité en phase 5 par d'autres méthodes.
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §5 ; `ENONCE.md` §3 (limite du corps
    rigide) ; fiche F5 (hydrodynamique potentielle, à publier).
-
-Le cas 05 nécessite un fichier de vent turbulent supplémentaire (~70 Mo, non suivi par git) :
-générez-le d'abord avec `bash scripts/generer_vent_turbulent_05.sh` (voir `README.md` racine).

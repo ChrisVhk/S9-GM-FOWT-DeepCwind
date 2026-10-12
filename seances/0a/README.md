@@ -28,9 +28,9 @@ sections 1 et 2 :
 d'entrée à vous, sorties, figures) vit sous `results/` ou `rendus/`, que git ignore : un `git pull` ne vous le prendra
 jamais.
 
-**Si l'installation ne marche pas** : voir « En cas d'échec » dans `INSTALLATION.md`. Notez l'erreur exacte, continuez
+**Si l'installation ne marche pas** : voir « En cas d'échec » dans `INSTALLATION.md`. Notez l'erreur exacte (dans R0), continuez
 avec un camarade en binôme pour la suite, et terminez l'installation après la séance (avant la séance 0b, au plus tard
-en salle C09). Notez l'erreur exacte dans R0.
+en salle C09).
 
 ## 3. À faire, étape par étape
 
@@ -101,7 +101,8 @@ contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **
 *Théorie : sections 6.4 et 6.5.*
 
 Les cas de référence `cas/F01` et `cas/F02` sont l'éolienne fixe sur monopieu OC3 (`modeles/fixe/`). Vous les
-**lancez et les lisez sans les modifier**.
+**lancez et les lisez sans les modifier**. Principe de toute la progression : **on ne change qu'une chose à la fois** (de F01 à
+F02, le vent) ; on apprend d'abord à lire un cas avant d'en modifier un.
 
 | Cas | Vent | Ce qu'on regarde |
 |---|---|---|
@@ -117,7 +118,7 @@ bash run_cas.sh F01
 cd ..
 ```
 
-**Vous devez voir** : `OK en NN s -> .../F01/main.outb` (de quelques dizaines de secondes à 2 min pour 200 s
+**Vous devez voir** : `OK en NN s -> .../F01/main.outb` (environ 1 à 2 min pour 200 s
 simulées). En cas d'échec, lisez la **fin** de `cas/F01/run.log` : OpenFAST y écrit la ligne fautive. Le dossier
 `cas/F01/` ne contient presque rien (`main.fst`, `config_inflow.dat`) : tout le reste est dans `modeles/fixe/`
 (règle de résolution des chemins : [`../../cas/README.md`](../../cas/README.md)).
@@ -189,6 +190,9 @@ La démarche complète, du `.outb` aux statistiques, aux figures et au DEL, est 
 
 - Q0.1 — Tableau de régulation à la main et comparaison avec le cas F02.
 - Q0.2 — Vérifications à la main de F01 (1P, poussée, moment en pied de tour) : écarts et explication.
+
+Pour chaque cas lancé (F01, F02), joignez : le `t_transitoire` choisi avec sa raison, les statistiques retenues, la région de
+régulation, et une phrase sur ce que le cas ne permet pas de conclure.
 
 Les questions Q0.3 à Q0.6 portent sur la [séance 0b](../0b/README.md), pas sur celle-ci. Les valeurs numériques de F01
 et F02 répondent à ces questions : ne les cherchez pas dans ce dépôt, calculez-les.
@@ -307,7 +311,8 @@ blocs ci-dessous, dans l'ordre des étapes de la section 3.
    qu'une vraie erreur), et cette vérification stationnaire ne valide rien sur la dynamique de
    F02 (échelon), qui demande une lecture différente (temps de réaction du calage).
 5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `s9gm/POST-TRAITER.md` (choix de
-   `t_transitoire`, pour écarter le transitoire).
+   `t_transitoire`, pour écarter le transitoire) ; historique : `annexes/outils/lire_outb.py` (option
+   `t_min`).
 
 ### 6.5 Fréquence 1P
 

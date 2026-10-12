@@ -26,3 +26,6 @@ l'`ENONCE.md` ne s'appuient dessus) : sa seconde partie utilise le cas `SWRT_022
 pas (fichier AeroDyn mal apparié, détail dans `ADAPTATION_LHEEA.md`) — décision de l'enseignant du
 03/10, retrait plutôt que correction. Sa première partie (génération de vent, TurbSim) reste
 fonctionnelle si vous l'ouvrez par curiosité, mais rien ne vous est demandé dessus.
+
+**Cas 05 (flottant)** : il nécessite un fichier de vent turbulent supplémentaire (~70 Mo, non suivi par git) ; générez-le avec
+`bash scripts/generer_vent_turbulent_05.sh` avant de le lancer. Aucune séance ne lance ce cas : il reste ici comme référence.
