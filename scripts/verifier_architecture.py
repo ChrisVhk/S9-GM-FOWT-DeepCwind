@@ -11,12 +11,13 @@ HydroDyn et écrit une ligne par membre :
     Membre M5 (Base Column 1) : juste | écart (...) | manquant (...)
 
 « manquant » : une des cellules nécessaires est vide ou porte encore « à remplir » (le membre n'est pas jugé). « écart » : toutes
-les cellules sont remplies et au moins une diffère du fichier (le champ fautif est nommé, avec votre valeur et celle du fichier).
+les cellules sont remplies et au moins une diffère du fichier : le champ fautif est nommé, avec VOTRE valeur ; le contrôle ne dit pas ce que contient
+le fichier (il n'est pas un corrigé : c'est à vous de le relire). Les noms des membres affichés sont ceux de VOTRE classeur.
 « juste » : tout concorde. Code de sortie 0 si les 25 membres sont justes, 1 sinon, 2 si le classeur est illisible.
 
 Numérotation libre : les nœuds et les jeux de propriétés sont référencés par leurs ÉTIQUETTES du classeur (`N3`, `P2`), pas par les
 numéros du fichier HydroDyn ; seuls les membres sont repérés par leur étiquette `M<numéro HydroDyn>`.
-Tolérances : 5 cm sur une coordonnée (les tableaux du document de définition OC5 sont arrondis : jusqu'à 4,2 cm d'écart avec le fichier
+Tolérances : 7 cm sur une coordonnée (les tableaux du document de définition OC5 sont arrondis : jusqu'à 6 cm d'écart avec le fichier
 HydroDyn), 0,1 mm sur un diamètre ou une épaisseur, 0,001 sur Cd, Ca et la discrétisation.
 Ce que le script NE contrôle PAS : l'exactitude physique du fichier HydroDyn lui-même (c'est la référence de l'exercice), ni les
 feuilles `Donnees` (version étudiante) et `Sources` (version complète des coulisses)."""
@@ -26,7 +27,11 @@ import sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parents[1]
-TOL_COORD, TOL_SECTION, TOL_COEF = 0.05, 1e-4, 1e-3
+# Tolérance sur une coordonnée : 7 cm. Elle est fixée d'après l'ARRONDI des documents sources. Le document de définition OC5 (Tables 3-10 et 3-11)
+# arrondit ses coordonnées à 0,01 m, et ses tableaux s'écartent du fichier HydroDyn jusqu'à 6 cm (mesuré sur les 22 membres communs aux deux : 4,2 cm
+# au plus pour les pontons, 6 cm pour la base des colonnes de base, -20 m dans le document contre -19,94 m dans le fichier). Saisir la valeur du
+# document n'est donc PAS un écart ; une erreur d'une dizaine de centimètres ou plus en est un. 7 cm = ces 6 cm, plus une marge d'un centimètre.
+TOL_COORD, TOL_SECTION, TOL_COEF = 0.07, 1e-4, 1e-3
 A_REMPLIR = "à remplir"
 
 
@@ -116,7 +121,7 @@ def lire_classeur(chemin):
     for r in wb["Membres"].iter_rows(min_row=2, values_only=True):
         m = re.match(r"^M(\d+)$", _etiquette(r[0]) or "")
         if m:
-            membres[int(m[1])] = dict(groupe=_etiquette(r[2]), n1=_etiquette(r[3]), n2=_etiquette(r[4]),
+            membres[int(m[1])] = dict(nom=_etiquette(r[1]), groupe=_etiquette(r[2]), n1=_etiquette(r[3]), n2=_etiquette(r[4]),
                                       jeu=_etiquette(r[5]), div=_nombre(r[6]))
     return dict(noeuds=noeuds, jeux=jeux, coefs=coefs, membres=membres)
 
@@ -134,8 +139,9 @@ def comparer(classeur, hydrodyn):
         w = classeur["membres"].get(i)
         manquants, ecarts = [], []
         if w is None:
-            resultat.append((i, h["nom"], "manquant", "ligne absente du classeur"))
+            resultat.append((i, "sans nom", "manquant", "ligne absente du classeur"))
             continue
+        h = {**h, "nom": w.get("nom") or "sans nom"}      # le nom affiché est celui du classeur, jamais celui du fichier
         for k, (cle, ref) in enumerate((("n1", h["p1"]), ("n2", h["p2"])), start=1):
             etiq = w[cle]
             xyz = classeur["noeuds"].get(etiq) if etiq else None
@@ -146,7 +152,7 @@ def comparer(classeur, hydrodyn):
             else:
                 for axe, v, r in zip("xyz", xyz, ref):
                     if _ecart(v, r, TOL_COORD):
-                        ecarts.append(f"nœud {k} {etiq} : {axe} = {v:g} (fichier : {r:g})")
+                        ecarts.append(f"nœud {k} {etiq} : {axe} = {v:g} ne correspond pas au fichier")
         jeu = w["jeu"]
         sect = classeur["jeux"].get(jeu) if jeu else None
         if jeu is None:
@@ -155,13 +161,13 @@ def comparer(classeur, hydrodyn):
             manquants.append(f"diamètre ou épaisseur du jeu {jeu}")
         else:
             if _ecart(sect[0], h["D"], TOL_SECTION):
-                ecarts.append(f"jeu {jeu} : diamètre = {sect[0]:g} (fichier : {h['D']:g})")
+                ecarts.append(f"jeu {jeu} : diamètre = {sect[0]:g} ne correspond pas au fichier")
             if _ecart(sect[1], h["t"], TOL_SECTION):
-                ecarts.append(f"jeu {jeu} : épaisseur = {sect[1]:g} (fichier : {h['t']:g})")
+                ecarts.append(f"jeu {jeu} : épaisseur = {sect[1]:g} ne correspond pas au fichier")
         if w["div"] is None:
             manquants.append("discrétisation")
         elif _ecart(w["div"], h["div"], TOL_COEF):
-            ecarts.append(f"discrétisation = {w['div']:g} (fichier : {h['div']:g})")
+            ecarts.append(f"discrétisation = {w['div']:g} ne correspond pas au fichier")
         g = w["groupe"]
         cc = classeur["coefs"].get(g) if g else None
         if g is None:
@@ -169,12 +175,12 @@ def comparer(classeur, hydrodyn):
         elif cc is None or cc[0] is None:
             manquants.append(f"Cd du groupe {g}")
         elif _ecart(cc[0], h["cd"], TOL_COEF):
-            ecarts.append(f"Cd du groupe {g} = {cc[0]:g} (fichier : {h['cd']:g})")
+            ecarts.append(f"Cd du groupe {g} = {cc[0]:g} ne correspond pas au fichier")
         if g is not None and cc is not None:
             if cc[1] is None:
                 manquants.append(f"Ca du groupe {g}")
             elif _ecart(cc[1], h["ca"], TOL_COEF):
-                ecarts.append(f"Ca du groupe {g} = {cc[1]:g} (fichier : {h['ca']:g})")
+                ecarts.append(f"Ca du groupe {g} = {cc[1]:g} ne correspond pas au fichier")
         if manquants:
             resultat.append((i, h["nom"], "manquant", ", ".join(manquants)))
         elif ecarts:

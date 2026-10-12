@@ -1,20 +1,18 @@
 """Falsificateurs du classeur d'architecture du flotteur (séance 0b, point 7) et de `scripts/verifier_architecture.py`.
 
-Écrits AVANT le classeur et AVANT le script (les tests échouent tant qu'ils n'existent pas).
-
-Le classeur a deux versions : la version COMPLÈTE (en coulisses, chaque valeur sourcée) et la version ÉTUDIANTE (publique,
-`seances/0b/DeepCwind_ARCHITECTURE.xlsx`, colonne centrale résolue en exemple, le reste « à remplir »). Le contrôle compare un
-classeur rempli, membre par membre, au fichier HydroDyn de `modeles/flottant` (les 25 membres du fichier).
+Le classeur a deux versions : la COMPLÈTE (coulisses, chaque valeur sourcée) et l'ÉTUDIANTE (publique,
+`seances/0b/DeepCwind_ARCHITECTURE.xlsx`, colonne centrale résolue en exemple, le reste « à remplir »). Le contrôle compare un classeur rempli,
+membre par membre, au fichier HydroDyn de `modeles/flottant`.
 
 - A-1 : la version complète passe le contrôle à 100 %.
 - A-2 : une copie altérée sur 3 cellules donne exactement 3 écarts, nommés.
 - A-3 : la version étudiante vide donne « manquant » partout, sauf pour la colonne centrale.
-- A-4 : aucune cellule de la version étudiante, hors exemple et hors `Donnees`, ne contient de nombre égal à une valeur de la
-  version complète.
+- A-4 : aucune cellule de la version étudiante, hors exemple et hors `Donnees`, ne contient de nombre égal à une valeur de la version complète.
 
-La version complète n'est pas dans le dépôt public : A-1 et A-4 sur le VRAI fichier se lancent avec
-`S9GM_ARCHITECTURE_COMPLET=<chemin du classeur complet>` (sinon ils sont ignorés). A-1 et A-2 sont aussi éprouvés sur un classeur
-complet FABRIQUÉ ICI à partir du fichier HydroDyn : ils prouvent le contrôle, sans dépendre des coulisses.
+Public / coulisses : ce dépôt public ne contient AUCUN générateur de classeur complet depuis le vrai fichier HydroDyn (il vit en coulisses,
+avec le classeur complet). Les tests publics éprouvent le contrôle sur une FIXTURE SYNTHÉTIQUE (trois membres inventés) ; A-1 et A-4 sur le VRAI
+classeur complet se lancent avec `S9GM_ARCHITECTURE_COMPLET=<chemin>` (sinon ils sont ignorés). Le contrôle ne dit jamais la valeur attendue :
+il nomme le champ fautif et la valeur saisie.
 Convention des étiquettes (texte, jamais des nombres, pour que A-4 ait un sens) : membres `M1`…, nœuds `N1`…, jeux de propriétés `P1`…
 """
 import importlib.util
@@ -58,54 +56,71 @@ def va():
     return _charger_script()
 
 
-def _hydrodyn_brut():
-    """Lecture indépendante du fichier HydroDyn (pas celle du script testé) : joints, jeux, membres, coefficients."""
-    lignes = HYDRODYN.read_text(encoding="utf-8").splitlines()
+HYDRODYN_SYNTHETIQUE = """------- HydroDyn Input File ---------------------------------------
+fixture de test : trois membres inventés (aucun lien avec la DeepCwind)
+---------------------- MEMBER JOINTS -------------------------------------------
+             6   NJoints        - Number of joints (-)
+JointID   Jointxi     Jointyi     Jointzi  JointAxID   JointOvrlp
+   (-)     (m)         (m)         (m)        (-)       (switch)
+    1     0.00000     0.00000   -10.00000      1            0
+    2     0.00000     0.00000     5.00000      1            0
+    3     8.00000     0.00000    -9.94000      1            0
+    4     8.00000     0.00000     3.00000      1            0
+    5     2.00000     1.00000     1.00000      1            0
+    6     6.00000     3.00000     1.00000      1            0
+---------------- CYLINDRICAL MEMBER CROSS-SECTION PROPERTIES -------------------
+             3   NPropSetsCyl    - Number of cylindrical member property sets (-)
+PropSetID    PropD         PropThck
+   (-)        (m)            (m)
+    1        5.00000        0.02000          ! A
+    2       10.00000        0.04000          ! B
+    3        1.00000        0.01000          ! C
+------ MEMBER-BASED CYLINDRICAL-MEMBER HYDRODYNAMIC COEFFICIENTS (model 3) ------
+            3   NCoefMembersCyl - Number of member-based cylindrical member coefficients (-)
+MemberID    MemberCd1     MemberCd2    MemberCdMG1   MemberCdMG2    MemberCa1     MemberCa2
+   (-)         (-)           (-)           (-)           (-)           (-)           (-)
+    1          0.50          0.50          0.00          0.00          0.10          0.10
+    2          0.60          0.60          0.00          0.00          0.20          0.20
+    3          0.70          0.70          0.00          0.00          0.30          0.30
+-------------------- MEMBERS -------------------------------------------------
+             3   NMembers       - Number of members (-)
+MemberID  MJointID1  MJointID2  MPropSetID1  MPropSetID2  MSecGeom    MSpinOrient   MDivSize   MCoefMod
+  (-)        (-)        (-)         (-)          (-)      (switch)       (deg)        (m)      (switch)
+   1          1          2           1            1           1            0         1.0000        3          ! Colonne synthetique
+   2          3          4           2            2           1            0         2.0000        3          ! Base synthetique
+   3          5          6           3            3           1            0         0.5000        3          ! Tube synthetique
+---------------------- FILLED MEMBERS ------------------------------------------
+"""
+# membre -> (noeud1, noeud2, jeu, discrétisation, groupe) ; coordonnées lues de la fixture
+GROUPES_SYNTH = {1: "Colonne centrale", 2: "Bases", 3: "Pontons"}
 
-    def table(titre, n_champs):
-        i = next(k for k, l in enumerate(lignes) if titre in l)
-        i += 4                                             # titre, compte, en-tête, unités -> données
-        sortie = []
-        while len(sortie) < 10_000:
-            cols = lignes[i].split("!")[0].split()
-            if len(cols) < n_champs or not re.match(r"^-?\d", cols[0]):
-                break
-            sortie.append((cols, lignes[i].split("!")[1].strip() if "!" in lignes[i] else ""))
-            i += 1
-        return sortie
 
-    joints = {int(c[0]): tuple(map(float, c[1:4])) for c, _ in table("MEMBER JOINTS", 4)}
-    jeux = {int(c[0]): (float(c[1]), float(c[2])) for c, _ in table("CYLINDRICAL MEMBER CROSS-SECTION PROPERTIES", 3)}
-    coefs = {int(c[0]): (float(c[1]), float(c[5])) for c, _ in table("MEMBER-BASED CYLINDRICAL-MEMBER HYDRODYNAMIC COEFFICIENTS (model 3)", 6)}
-    membres = {}
-    for c, nom in table("-------------------- MEMBERS", 8):
-        membres[int(c[0])] = dict(j1=int(c[1]), j2=int(c[2]), jeu=int(c[3]), div=float(c[7]), nom=nom)
-    return joints, jeux, coefs, membres
+def _hydrodyn_synthetique(tmp_path):
+    chemin = tmp_path / "HydroDyn_synthetique.dat"
+    chemin.write_text(HYDRODYN_SYNTHETIQUE, encoding="utf-8")
+    return chemin
 
 
-def _classeur_complet(chemin):
-    """Fabrique, depuis HydroDyn, un classeur COMPLET dans la mise en page des deux versions (aide de test)."""
-    joints, jeux, coefs, membres = _hydrodyn_brut()
+def _classeur_synthetique(chemin, noms=True):
+    """Classeur complet de la FIXTURE SYNTHÉTIQUE (3 membres, jamais la DeepCwind) dans la mise en page des deux versions."""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Noeuds"
     ws.append(["Noeud", "x (m)", "y (m)", "z (m)"])
-    for j in sorted(joints):
-        ws.append([f"N{j}", *joints[j]])
+    for etiquette, xyz in (("N1", (0, 0, -10)), ("N2", (0, 0, 5)), ("N3", (8, 0, -9.94)), ("N4", (8, 0, 3)), ("N5", (2, 1, 1)), ("N6", (6, 3, 1))):
+        ws.append([etiquette, *xyz])
     ws = wb.create_sheet("Membres")
     ws.append(["Membre", "Nom", "Groupe", "Noeud 1", "Noeud 2", "Jeu de propriétés", "Discrétisation (m)"])
-    for i in sorted(membres):
-        m = membres[i]
-        ws.append([f"M{i}", m["nom"], GROUPE_DU_MEMBRE[i], f"N{m['j1']}", f"N{m['j2']}", f"P{m['jeu']}", m["div"]])
+    for i, (n1, n2, jeu, div) in {1: ("N1", "N2", "P1", 1.0), 2: ("N3", "N4", "P2", 2.0), 3: ("N5", "N6", "P3", 0.5)}.items():
+        ws.append([f"M{i}", f"membre {i}" if noms else None, GROUPES_SYNTH[i], n1, n2, jeu, div])
     ws = wb.create_sheet("Proprietes")
     ws.append(["Jeu", "Diamètre (m)", "Épaisseur (m)"])
-    for p in sorted(jeux):
-        ws.append([f"P{p}", *jeux[p]])
+    for e, d, t in (("P1", 5.0, 0.02), ("P2", 10.0, 0.04), ("P3", 1.0, 0.01)):
+        ws.append([e, d, t])
     ws = wb.create_sheet("Coefficients")
     ws.append(["Groupe", "Cd", "Ca"])
-    for g in GROUPES:
-        i = next(k for k, v in GROUPE_DU_MEMBRE.items() if v == g)
-        ws.append([g, *coefs[i]])
+    for g, cd, ca in (("Colonne centrale", 0.5, 0.1), ("Bases", 0.6, 0.2), ("Pontons", 0.7, 0.3)):
+        ws.append([g, cd, ca])
     wb.save(chemin)
     return chemin
 
@@ -120,62 +135,101 @@ def _lignes_sorties(texte):
     return res
 
 
-def _lancer(classeur):
-    return subprocess.run([sys.executable, "-I", str(SCRIPT), str(classeur)], cwd=RACINE, capture_output=True, text=True)
+def _lancer(classeur, hydrodyn=None):
+    cmd = [sys.executable, "-I", str(SCRIPT), str(classeur)] + (["--hydrodyn", str(hydrodyn)] if hydrodyn else [])
+    return subprocess.run(cmd, cwd=RACINE, capture_output=True, text=True)
 
 
-# ---------------------------------------------------------------------------------------- le contrôle lui-même
+# ---------------------------------------------------------------------------------------- le contrôle lui-même (fixture synthétique)
+def _modifier(chemin, feuille, etiquette, colonne, valeur=None, delta=None):
+    wb = openpyxl.load_workbook(chemin)
+    ligne = next(r for r in wb[feuille].iter_rows(min_row=2) if r[0].value == etiquette)
+    ligne[colonne].value = (ligne[colonne].value + delta) if delta is not None else valeur
+    wb.save(chemin)
+
+
 def test_a1_un_classeur_complet_passe_a_100_pour_cent(tmp_path, va):
-    chemin = _classeur_complet(tmp_path / "complet.xlsx")
-    r = _lancer(chemin)
-    verdicts = _lignes_sorties(r.stdout)
-    assert len(verdicts) == 25, r.stdout
-    assert all(v[0] == "juste" for v in verdicts.values()), r.stdout
+    hyd = _hydrodyn_synthetique(tmp_path)
+    r = _lancer(_classeur_synthetique(tmp_path / "complet.xlsx"), hyd)
+    v = _lignes_sorties(r.stdout)
+    assert len(v) == 3 and all(s == "juste" for s, _ in v.values()), r.stdout
     assert r.returncode == 0
 
 
 def test_a2_trois_cellules_alterees_donnent_exactement_trois_ecarts_nommes(tmp_path, va):
-    chemin = _classeur_complet(tmp_path / "altere.xlsx")
-    wb = openpyxl.load_workbook(chemin)
-    # trois cellules dont l'effet est limité à UN membre chacune
-    ligne_noeud = next(r for r in wb["Noeuds"].iter_rows(min_row=2) if r[0].value == "N36")   # extrémité de la seule entretoise 20
-    ligne_noeud[3].value += 0.5                                                                  # z de N36
-    ligne_m10 = next(r for r in wb["Membres"].iter_rows(min_row=2) if r[0].value == "M10")
-    ligne_m10[6].value = 2.0                                                                     # discrétisation de M10
-    ligne_m5 = next(r for r in wb["Membres"].iter_rows(min_row=2) if r[0].value == "M5")
-    ligne_m5[5].value = "P4"                                                                     # M5 rattaché au mauvais jeu de propriétés
-    wb.save(chemin)
-    r = _lancer(chemin)
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "altere.xlsx")
+    _modifier(chemin, "Noeuds", "N2", 3, delta=0.5)                 # z de N2 : seul le membre 1 l'utilise
+    _modifier(chemin, "Membres", "M2", 6, valeur=3.0)               # discrétisation de M2
+    _modifier(chemin, "Membres", "M3", 5, valeur="P1")              # M3 rattaché au mauvais jeu de propriétés
+    r = _lancer(chemin, hyd)
     v = _lignes_sorties(r.stdout)
-    ecarts = {i for i, (s, _) in v.items() if s == "écart"}
-    assert ecarts == {20, 10, 5}, r.stdout
-    assert all(s == "juste" for i, (s, _) in v.items() if i not in ecarts), r.stdout
-    assert "discrétisation" in v[10][1], r.stdout
-    assert "jeu" in v[5][1].lower(), r.stdout
-    assert "N36" in v[20][1], r.stdout
+    assert {i for i, (s, _) in v.items() if s == "écart"} == {1, 2, 3}, r.stdout
+    assert "N2" in v[1][1] and "z" in v[1][1], r.stdout
+    assert "discrétisation" in v[2][1], r.stdout
+    assert "jeu" in v[3][1].lower(), r.stdout
     assert r.returncode != 0
 
 
+def test_un_ecart_nomme_le_champ_sans_donner_la_valeur_attendue(tmp_path, va):
+    """Le contrôle n'est pas un oracle : il dit OÙ est l'écart et ce que l'étudiant a saisi, jamais ce que contient le fichier."""
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "ecart.xlsx")
+    _modifier(chemin, "Noeuds", "N2", 3, valeur=0.0)                # z de N2 saisi à 0 (le fichier : 5)
+    _modifier(chemin, "Proprietes", "P2", 1, valeur=7.0)            # diamètre de P2 saisi à 7 (le fichier : 10)
+    _modifier(chemin, "Coefficients", "Pontons", 1, valeur=0.1)     # Cd des pontons saisi à 0,1 (le fichier : 0,7)
+    sortie = _lancer(chemin, hyd).stdout
+    assert "écart" in sortie
+    assert "fichier :" not in sortie and "(fichier" not in sortie
+    for attendu in ("5", "10", "0.7"):
+        assert not re.search(rf"(?<![\d.]){re.escape(attendu)}(?![\d.])", re.sub(r"Membre M\d+", "", re.sub(r"[NP]\d+", "", sortie))), \
+            f"la valeur attendue {attendu} apparaît dans le message"
+    assert "N2" in sortie and "diamètre" in sortie and "Cd" in sortie        # le champ est nommé
+
+
+def test_la_tolerance_accepte_les_valeurs_arrondies_des_documents_sources(tmp_path, va):
+    """Un document arrondit à 0,01 m et ses tableaux s'écartent du fichier jusqu'à 6 cm (la base d'une colonne : -20 m dans le document, -19,94 m dans
+    le fichier) : saisir la valeur du document n'est PAS un écart. Une erreur de 15 cm l'est."""
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "doc.xlsx")
+    _modifier(chemin, "Noeuds", "N3", 3, valeur=-10.0)               # fichier : -9,94 ; document : -10
+    assert _lignes_sorties(_lancer(chemin, hyd).stdout)[2][0] == "juste"
+    _modifier(chemin, "Noeuds", "N3", 3, valeur=-9.79)               # 15 cm d'écart
+    assert _lignes_sorties(_lancer(chemin, hyd).stdout)[2][0] == "écart"
+
+
+def test_la_tolerance_est_justifiee_dans_le_script():
+    code = SCRIPT.read_text(encoding="utf-8")
+    ligne = next(l for l in code.splitlines() if l.startswith("TOL_COORD"))
+    assert "0.07" in ligne
+    assert "arrondi" in code and "6 cm" in code                    # justification d'après l'arrondi des documents sources
+
+
+def test_les_noms_des_membres_viennent_du_classeur_pas_du_fichier(tmp_path, va):
+    """Un membre sans nom dans le classeur s'affiche « sans nom » : le contrôle ne révèle pas les noms du fichier HydroDyn."""
+    hyd = _hydrodyn_synthetique(tmp_path)
+    sortie = _lancer(_classeur_synthetique(tmp_path / "anonyme.xlsx", noms=False), hyd).stdout
+    assert "sans nom" in sortie
+    assert "synthetique" not in sortie.lower()
+
+
 def test_une_cellule_vide_ou_a_remplir_est_manquante_pas_fausse(tmp_path, va):
-    chemin = _classeur_complet(tmp_path / "trou.xlsx")
-    wb = openpyxl.load_workbook(chemin)
-    next(r for r in wb["Membres"].iter_rows(min_row=2) if r[0].value == "M12")[4].value = A_REMPLIR
-    next(r for r in wb["Coefficients"].iter_rows(min_row=2) if r[0].value == GROUPES[3])[1].value = None
-    wb.save(chemin)
-    v = _lignes_sorties(_lancer(chemin).stdout)
-    manquants = {i for i, (s, _) in v.items() if s == "manquant"}
-    assert 12 in manquants and set(range(8, 20)) <= manquants     # Cd des pontons vide : tous les pontons manquent
-    assert not any(s == "écart" for s, _ in v.values())
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "trou.xlsx")
+    _modifier(chemin, "Membres", "M2", 4, valeur=A_REMPLIR)
+    _modifier(chemin, "Coefficients", "Pontons", 1, valeur=None)
+    v = _lignes_sorties(_lancer(chemin, hyd).stdout)
+    assert v[2][0] == "manquant" and v[3][0] == "manquant" and v[1][0] == "juste"
 
 
 def test_le_sens_des_noeuds_compte(tmp_path, va):
-    chemin = _classeur_complet(tmp_path / "sens.xlsx")
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "sens.xlsx")
     wb = openpyxl.load_workbook(chemin)
-    ligne = next(r for r in wb["Membres"].iter_rows(min_row=2) if r[0].value == "M2")
+    ligne = next(r for r in wb["Membres"].iter_rows(min_row=2) if r[0].value == "M1")
     ligne[3].value, ligne[4].value = ligne[4].value, ligne[3].value
     wb.save(chemin)
-    v = _lignes_sorties(_lancer(chemin).stdout)
-    assert v[2][0] == "écart"
+    assert _lignes_sorties(_lancer(chemin, hyd).stdout)[1][0] == "écart"
 
 
 def test_un_classeur_illisible_est_refuse(tmp_path, va):
@@ -265,12 +319,27 @@ def test_la_consigne_de_la_0b_donne_la_commande_et_n_a_plus_de_a_completer_sur_l
 
 
 def test_cd_et_ca_du_groupe_sont_controles_pour_tous_ses_membres(tmp_path, va):
-    chemin = _classeur_complet(tmp_path / "coef.xlsx")
+    hyd = _hydrodyn_synthetique(tmp_path)
+    chemin = _classeur_synthetique(tmp_path / "coef.xlsx")
     wb = openpyxl.load_workbook(chemin)
-    ligne = next(r for r in wb["Coefficients"].iter_rows(min_row=2) if r[0].value == GROUPES[1])
-    ligne[1].value += 0.1                      # Cd des colonnes déportées
-    ligne[2].value = 0.5                       # Ca des colonnes déportées
+    # un second membre dans le même groupe « Bases » : même Cd et Ca
+    ws = wb["Membres"]
+    ligne = next(r for r in ws.iter_rows(min_row=2) if r[0].value == "M3")
+    ligne[2].value = "Bases"
+    wb["Coefficients"]["B3"].value = 0.7        # Cd de « Bases » (fichier : 0,6 pour M2 et 0,7 pour M3)
     wb.save(chemin)
-    v = _lignes_sorties(_lancer(chemin).stdout)
-    assert {i for i, (s, _) in v.items() if s == "écart"} == {2, 3, 4}
-    assert all("Cd" in v[i][1] and "Ca" in v[i][1] for i in (2, 3, 4))
+    v = _lignes_sorties(_lancer(chemin, hyd).stdout)
+    assert v[2][0] == "écart" and "Cd" in v[2][1]
+    assert v[3][0] == "écart" and "Ca" in v[3][1]
+
+
+def test_les_membres_que_le_document_ne_contient_pas_ne_sont_pas_nommes_dans_la_version_etudiante(etudiant, va):
+    """M23 à M25 existent dans le fichier HydroDyn mais pas dans le tableau du document OC5 : la version étudiante ne les nomme pas."""
+    wb = openpyxl.load_workbook(etudiant)
+    lignes = {r[0].value: r for r in wb["Membres"].iter_rows(min_row=2)}
+    for m in ("M23", "M24", "M25"):
+        assert lignes[m][1].value in (None, ""), f"{m} est nommé dans la version étudiante"
+    sortie = _lancer(etudiant).stdout
+    for i in (23, 24, 25):
+        assert f"Membre M{i} (sans nom) : manquant" in sortie
+    assert "cap" not in sortie.lower()

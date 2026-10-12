@@ -202,9 +202,10 @@ python scripts/verifier_architecture.py results/DeepCwind_ARCHITECTURE.xlsx
 
 **Vous devez voir** : une ligne par membre du fichier HydroDyn, `juste`, `écart (…)` ou `manquant (…)`, puis un décompte. Sur le
 classeur tel que livré : seule la colonne centrale est `juste`, les autres membres sont `manquant` (cellules encore « à remplir »).
-À mesure que vous remplissez, les `manquant` deviennent `juste` ou `écart` ; un `écart` nomme le champ fautif, votre valeur et
-celle du fichier. **Un écart n'est pas forcément votre erreur** : le document de définition arrondit ses coordonnées (le script
-tolère 5 cm), et le fichier HydroDyn peut contenir des joints et des membres que le tableau du document ne contient pas. Votre
+À mesure que vous remplissez, les `manquant` deviennent `juste` ou `écart` ; un `écart` nomme le champ fautif et votre valeur, jamais
+celle du fichier (à vous de la relire). **Un écart n'est pas forcément votre erreur** : le document de définition arrondit ses coordonnées (le script
+tolère 7 cm), et le fichier HydroDyn peut contenir des joints et des membres que le tableau du document ne contient pas
+(ceux-là n'ont pas de nom dans votre classeur : `sans nom`). Votre
 travail est de **retrouver chaque colonne dans le fichier, puis d'attribuer chaque écart restant** (quel membre, quelle
 différence entre le document et le fichier) : c'est l'objet de Q0.3.
 
@@ -214,7 +215,7 @@ différence entre le document et le fichier) : c'est l'objet de Q0.3.
 | `manquant (nœud 1, …)` sur un membre que vous avez rempli | l'étiquette citée n'existe pas dans `Noeuds`, ou une faute de frappe (`n3`, `N 3`) | citez exactement l'étiquette de la feuille `Noeuds` |
 | `manquant (coordonnées de N7 (nœud 1))` | le nœud est cité mais ses coordonnées sont encore « à remplir » | remplissez la ligne `N7` de `Noeuds` |
 | `manquant (Cd du groupe …)` | la ligne du groupe est encore « à remplir » | remplissez `Coefficients` |
-| `écart (nœud 2 N… : z = … (fichier : …))` | coordonnée différente de celle du fichier au-delà de 5 cm | relisez la section « MEMBER JOINTS » ; est-ce votre erreur, ou une différence entre document et fichier ? |
+| `écart (nœud 2 N… : z = … ne correspond pas au fichier)` | coordonnée différente de celle du fichier au-delà de 7 cm | relisez la section « MEMBER JOINTS » ; est-ce votre erreur, ou une différence entre document et fichier ? |
 | `écart (nœud 1 …)` et `écart (nœud 2 …)` inversés | sens du membre inversé | nœud 1 → nœud 2 dans le sens du fichier |
 
 ### 3.3 Raideurs hydrostatiques, à la main (environ 30 min)
