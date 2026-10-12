@@ -240,3 +240,28 @@ def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_
     (main / "x.inp").write_text(texte, encoding="utf-8")
     subprocess.run(["turbsim", "x.inp"], cwd=main, check=True, capture_output=True)
     assert _meme_champ(main / "x.bts", (dossier / "Wind" / f"{pref}_G.bts"))
+
+
+# ---- E-164 (c) : une colonne turbsim.IECturbc qui remplace la valeur du fichier est signalée à l'écran ---------
+def _modele_iec_fixe(pref, valeur='"B"'):
+    """Modèle dont turbsim.inp porte DÉJÀ une valeur de IECturbc (le gabarit, avec son trou rempli dans le fichier)."""
+    m = MODELES / f"{pref}_modele"
+    shutil.copytree(MODELE, m)
+    texte = GABARIT.read_text(encoding="utf-8").replace("A_COMPLETER   IECturbc", f"{valeur}   IECturbc")
+    (m / "turbsim.inp").write_text(texte, encoding="utf-8")
+    return m
+
+
+def test_une_colonne_iecturbc_qui_remplace_la_valeur_du_fichier_avertit(tmp_path, pref):
+    m = _modele_iec_fixe(pref)
+    lct = _lct_gabarit(tmp_path, pref, TROUS)             # la LCT porte IECturbc = 12, le fichier « B »
+    with pytest.warns(UserWarning, match=r"IECturbc.*B.*12"):
+        cas.generer_serie(lct, m, CAS, executer_turbsim=False)
+
+
+def test_pas_d_avertissement_quand_la_colonne_remplit_le_trou_ou_confirme_la_valeur(tmp_path, pref, recwarn):
+    cas.generer_serie(_lct_gabarit(tmp_path, pref, TROUS), (lambda m: (shutil.copytree(MODELE, m), shutil.copy(GABARIT, m / "turbsim.inp"), m)[-1])(MODELES / f"{pref}_modele"), CAS, executer_turbsim=False)
+    assert not [w for w in recwarn if "IECturbc" in str(w.message)]          # le trou est rempli : c'est le fonctionnement prévu
+    m2 = _modele_iec_fixe(pref + "b", valeur="12")
+    cas.generer_serie(_lct_gabarit(tmp_path, pref + "b", TROUS), m2, CAS, executer_turbsim=False)
+    assert not [w for w in recwarn if "IECturbc" in str(w.message)]          # même valeur : rien à signaler

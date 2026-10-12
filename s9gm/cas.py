@@ -46,6 +46,7 @@ import json
 import os
 import re
 import subprocess
+import warnings
 from pathlib import Path
 
 from openfast_toolbox.io import FASTInputFile
@@ -178,7 +179,11 @@ def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True, t
     vent.mkdir(exist_ok=True)
     lignes, fin = _lire_lignes(modele_inp)
     for cle, val in modifs.items():
-        remplacer_valeur(lignes, cle, val)
+        ancien = remplacer_valeur(lignes, cle, val)
+        if cle == "IECturbc" and ancien != "A_COMPLETER" and ancien.strip('"') != str(val).strip('"'):
+            # E-164 (c) : la colonne de la LCT l'emporte sur le fichier ; à l'écran, pour que ce ne soit pas silencieux
+            warnings.warn(f"turbsim.IECturbc : la LCT remplace la valeur du fichier {modele_inp.name} ({ancien}) par {val} ; "
+                          "vérifiez que c'est voulu et que votre justification porte sur la valeur utilisée.", UserWarning, stacklevel=2)
     # gabarit à trous (seances/0b/turbsim_gabarit.inp) : un champ resté « A_COMPLETER » est refusé, nommé
     trous = [m[1] for l in lignes if (m := re.match(r"^\s*A_COMPLETER\s+(\w+)", l))]
     if trous:
