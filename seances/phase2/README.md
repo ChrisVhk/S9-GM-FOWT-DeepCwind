@@ -17,7 +17,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
-1. **Référence commune** (cas de référence du modèle flottant OC4, `modeles/flottant/`, dossier à venir — *à compléter : le cas et sa commande sont en cours de construction*) : lancer, vérifier l'équilibre (tension statique des lignes, position moyenne du flotteur).
+1. **Référence commune** (modèle flottant OC4 : [`modeles/flottant/`](../../modeles/flottant/README.md), cas de la séance [0b](../0b/README.md) — *à compléter : le cas désigné comme référence commune de la phase 2 reste à choisir*) : lancer, vérifier l'équilibre (tension statique des lignes, position moyenne du flotteur).
 2. **Lâchers (free decay)** en surge, heave, pitch : mesurer les périodes propres. Les comparer aux valeurs publiées OC4/OC5 (référence fournie) et **dire où se situent ces périodes par rapport aux périodes de houle de votre scatter diagram**.
 3. **Sensibilité** : lancer la LCT de votre groupe en ne faisant varier **que** votre famille de paramètres, tout le reste fixé à la référence.
 4. Pour chaque cas : statistiques (moyenne, écart-type, max, min) aux points imposés, et spectres de réponse.
