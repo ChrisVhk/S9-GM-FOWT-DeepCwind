@@ -82,7 +82,7 @@ ici les régions.*
 **Avant d'appliquer cette loi, vérifiez la région** : convertissez les deux seuils de la table
 (côté génératrice) en vitesse de rotor, puis comparez à votre `Ω` calculé. Sous le seuil de
 Region 2, c'est la rampe de Region 1½ qui gouverne, et la loi `λ*·V/R` n'en est qu'une approximation
-(voir le point de cours du §5 de `seances/0a/README.md`). La conversion d'un seuil de vitesse de rotation
+(voir le point de cours du §6.3 de `seances/0a/README.md`). La conversion d'un seuil de vitesse de rotation
 en vitesse de vent par `λ*` n'a de sens qu'**au seuil de Region 2**, là où la rampe rejoint la loi de Region 2 :
 plus bas, la rampe tient la vitesse dans sa bande et la loi `λ*·V/R` sous-estime `Ω`. La loi ne s'applique plus au-dessus du
 régime nominal — **à vous de calculer à quelle vitesse de vent ce régime est atteint**, et de comparer ce résultat au vent
@@ -155,8 +155,8 @@ couples en Region 1½.*
 Pour le cas F01 du tutoriel (vent constant) : **identifiez d'abord sa région** (méthode ci-dessus),
 puis calculez `Ω` attendu et comparez-le au `RotSpeed` observé en régime établi. Un écart tolérable est attendu
 (la loi de couple réelle du contrôleur ne colle pas parfaitement à `λ*` à toutes les vitesses), et
-il y a un régime transitoire au démarrage à écarter de la moyenne (cf `annexes/outils/lire_outb.py`,
-option `t_min`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
+il y a un régime transitoire au démarrage à écarter de la moyenne (cf `s9gm/POST-TRAITER.md`, choix de
+`t_transitoire` ; historique : `annexes/outils/lire_outb.py`, option `t_min`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
 moyenne, pas une erreur de configuration.
 
 Pour `TwrBsMyt` (moment fléchissant en pied de tour) : estimez la poussée
@@ -264,7 +264,7 @@ Sur l'IEA 15 MW, mêmes données et hypothèses que ci-dessus. Corrigé :
   Region 2½ — qui commence **avant** le vent nominal (11,4 m/s, début de la Region 3), pas à
   partir de lui.
 - Moyenner `RotSpeed`/`GenPwr` sur toute la durée simulée, transitoire de démarrage inclus — biais
-  systématique signalé dans `annexes/outils/lire_outb.py` (argument `t_min`).
+  systématique signalé dans `s9gm/POST-TRAITER.md` (argument `t_transitoire`).
 - Oublier que `Ct` n'est pas constant : il décroît avec `λ` au-delà de l'optimum — une estimation
   de poussée à `Ct = 0,8` devient fausse en Region 3 (le pitch réduit fortement `Ct`).
 

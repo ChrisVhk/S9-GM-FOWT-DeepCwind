@@ -106,6 +106,9 @@ def liens(racine):
 
 CHEMIN_OPENFAST = re.compile(r'^\s*"([^"]+)"\s+\S')
 EXT_FICHIER = re.compile(r"\.(dat|so|bts|txt|csv|fst|inp|dll|1|3|hst|12d|ipt|yaml)$")
+# Références préexistantes à des fichiers que les cas concernés ne lisent pas (module éteint, vent non lu) : tolérées, le reste échoue.
+TOLERES = {"config_moordyn.dat", "NRELOffshrBsline5MW_BeamDyn.dat", "SWRT_Furl.dat", "TailPlate.dat", "ramp_wind.dat", "libdiscon.so"}
+STRICTS = {("cas/F02/config_inflow.dat", "ramp_wind.dat"), ("cas/D02/config_inflow.dat", "ramp_wind.dat")}   # ces cas LISENT la rampe
 GENERES = (".so", ".bts")   # produits par scripts/build_discon.sh, installer_rosco.sh, TurbSim : jamais suivis
 
 
@@ -115,7 +118,7 @@ def chemins(racine):
     f_suivis = set(suivis(racine))
     dossiers = {str(p) for f in f_suivis for p in Path(f).parents if str(p) != "."}
     ecarts = []
-    chemins.verifies = 0
+    chemins.verifies = chemins.toleres = 0
     for f in sorted(f_suivis):
         if not f.endswith((".dat", ".fst", ".inp")) or f.startswith("s9gm/tests/data/") or "/Documentation/" in f:
             continue
@@ -140,6 +143,10 @@ def chemins(racine):
             if c.endswith(GENERES):
                 rel = str(Path(rel).parent)   # le binaire n'est pas suivi : son dossier doit l'être
             if rel not in f_suivis and rel not in dossiers:
+                base = Path(c).name
+                if base in TOLERES and (f, base) not in STRICTS:
+                    chemins.toleres += 1
+                    continue
                 ecarts.append(f"{f}:{n}: chemin non résolu : {c}")
     return ecarts
 
@@ -490,7 +497,7 @@ def main(argv=None):
         for e in ecarts:
             print(f"[{nom}] {e}")
         if nom == "chemins":
-            print(f"[chemins] {chemins.verifies} chemins d'entrée OpenFAST examinés")
+            print(f"[chemins] {chemins.verifies} chemins d'entrée OpenFAST examinés, {chemins.toleres} références préexistantes tolérées")
         if nom == "liens":
             print(f"[liens] {liens.verifies} liens relatifs vérifiés dans {liens.fichiers} fichiers .md/.ipynb")
         print(f"[{nom}] {len(ecarts)} écart(s)")

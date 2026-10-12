@@ -13,7 +13,7 @@ NB = Path(__file__).resolve().parents[2] / "seances" / "0b" / "theorie_par_les_c
 @pytest.mark.parametrize("jeu_livre", [False, True], ids=["calculs_locaux", "jeu_livre_apres_clone"])
 def test_le_notebook_s_execute_de_bout_en_bout(monkeypatch, jeu_livre):
     if jeu_livre:
-        monkeypatch.setenv("S9GM_JEU_LIVRE", "1")  # ignore cas/.../_calculs : lit data/*.csv.gz comme après un clone
+        monkeypatch.setenv("S9GM_JEU_LIVRE", "1")  # ignore results/0b/iea15_calculs : lit data/*.csv.gz comme après un clone
     nbformat = pytest.importorskip("nbformat")
     nbclient = pytest.importorskip("nbclient")
     nb = nbformat.read(NB, as_version=4)

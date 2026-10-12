@@ -113,13 +113,12 @@ F02, le vent) ; on apprend d'abord à lire un cas avant d'en modifier un.
 pointés. Puis, depuis la racine du dépôt :
 
 ```bash
-cd cas
-bash run_cas.sh F01
-cd ..
+bash cas/run_cas.sh F01
 ```
 
-**Vous devez voir** : `OK en NN s -> .../F01/main.outb` (environ 1 à 2 min pour 200 s
-simulées). En cas d'échec, lisez la **fin** de `cas/F01/run.log` : OpenFAST y écrit la ligne fautive. Le dossier
+**Vous devez voir** : `OK en NN s -> .../results/F01/main.outb` (environ 1 à 2 min pour 200 s
+simulées). En cas d'échec, lisez la **fin** de `results/F01/run.log` : OpenFAST y écrit la ligne fautive. `run_cas.sh` lance le cas **sur une copie sous `results/F01/`** : `cas/` n'est jamais modifié, vos sorties vivent sous
+`results/`. Le dossier
 `cas/F01/` ne contient presque rien (`main.fst`, `config_inflow.dat`) : tout le reste est dans `modeles/fixe/`
 (règle de résolution des chemins : [`../../cas/README.md`](../../cas/README.md)).
 
@@ -130,7 +129,7 @@ l'arrêt. **Regardez la courbe avant de calculer une statistique.**
 import matplotlib.pyplot as plt
 from s9gm import lire
 
-df, unites = lire.lire("cas/F01/main.outb")
+df, unites = lire.lire("results/F01/main.outb")
 print(list(df.columns))                      # les canaux disponibles
 df.plot(x="Time", y="RotSpeed"); plt.show()  # 1) regarder
 ```
@@ -159,7 +158,7 @@ aussi le poids de la nacelle et de la tour en flexion, d'où l'écart toléré).
 **Étape 3 — F02, ce qui change d'un cas à l'autre.**
 
 ```bash
-cd cas && bash run_cas.sh F02 && cd ..
+bash cas/run_cas.sh F02
 ```
 
 Comparez les deux cas : `diff cas/F01/main.fst cas/F02/main.fst` (seul `TMax` change) puis
@@ -226,7 +225,7 @@ blocs ci-dessous, dans l'ordre des étapes de la section 3.
 4. **Ce que le modèle ne permet pas de conclure** — une oscillation propre correcte ne valide que
    la raideur et la masse du système dans cette configuration précise, pas le couplage
    aéro-élastique réel (aucune charge aérodynamique ici) ni le comportement d'un flotteur (la
-   plateforme est bloquée dans ce cas, pas libre comme au cas 05).
+   plateforme est bloquée dans ce cas, pas libre comme au cas 05 du tutoriel LHEEA).
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §1 (voir NOTICE pour le détail des
    adaptations v3.2.1→v5.0.0, `ADAPTATION_LHEEA.md`).
 

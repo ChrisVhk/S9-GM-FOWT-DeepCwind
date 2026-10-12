@@ -56,7 +56,7 @@ bash cas/run_cas.sh E02
 ```
 
 Si tout va bien, chaque calcul se termine par `OK en NN s` et produit un fichier `main.outb` (les résultats, au format
-binaire OpenFAST) dans son dossier ; `cas/E01/run.log` se termine par `OpenFAST terminated normally.`. Ces deux cas sont
+binaire OpenFAST) dans `results/E01/` et `results/E02/` (copies des cas de référence, que le lanceur crée) ; `results/E01/run.log` se termine par `OpenFAST terminated normally.`. Ces deux cas sont
 rapides (quelques secondes à quelques dizaines de secondes). Les cas suivants (F01 et suivants) utilisent le contrôleur
 compilé à l'étape 2.
 

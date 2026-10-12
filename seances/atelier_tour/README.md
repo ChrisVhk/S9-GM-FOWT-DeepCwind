@@ -1,3 +1,4 @@
+<!-- destinations: github -->
 # Atelier tour — tutoriel d'accompagnement
 
 Ce tutoriel accompagne le **classeur de l'atelier**, distribué sur Vega. Ce n'est **pas un
@@ -6,7 +7,7 @@ justifie. C'est ce qui manque ici — question physique par question physique, p
 colonne.
 
 Consigne autonome de la séance. Elle n'est pas numérotée dans la suite des phases : elle accompagne les phases 3 et 5.
-Les renvois « §n » du texte (hérités de la première version de ce tutoriel) désignent : §0 → section 1 ci-dessous ; §1 à §7 →
+Les renvois « §n » du texte (numérotation des sections du tutoriel) désignent : §0 → section 1 ci-dessous ; §1 à §7 →
 étapes 3.1 à 3.7 (théorie en 6.1 à 6.6 pour §1 à §6) ; §8 → section 2 ; §9 → étape 3.8 ; §10 → section 6.7.
 
 ## 1. Objectif
@@ -23,6 +24,9 @@ proches des vôtres.
 ## 2. Avant de commencer
 
 Le classeur de l'atelier est distribué à part (voir le début de ce document) ; ce tutoriel ne le remplace pas.
+
+**Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `seances/`, `cas/` et `modeles/` se lisent
+et se lancent sans être modifiés.
 
 ### Encadré — sous Ubuntu
 
@@ -42,7 +46,7 @@ déjà le même résultat.
 
 **Point de vigilance** : aucune de ces manipulations n'a **pu être vérifiée en exécution dans
 l'environnement de rédaction de ce tutoriel** (LibreOffice en mode sans affichage y échoue sur
-tout fichier, indépendamment de ce classeur — défaut d'environnement documenté en coulisses, pas
+tout fichier, indépendamment de ce classeur — défaut de l'environnement de rédaction, pas
 du classeur). Le chemin « Données → Opérations multiples » ci-dessus est donné de mémoire, sans
 vérification dans cette version de LibreOffice ; les noms exacts des menus de « Recherche de
 valeur cible » et du « Solveur » ne le sont **pas du tout**, pour ne pas vous envoyer sur un

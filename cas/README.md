@@ -12,7 +12,7 @@ modeles/fixe/      (à la racine du dépôt) fichiers communs de l'éolienne fix
 cas/F01/, F02/, ...  un dossier LÉGER par cas : main.fst (pointe vers modeles/fixe/) + ce qui change
 modeles/flottant/  (à construire, séance 0b) fichiers communs de l'éolienne flottante DeepCwind
 cas/D00/, D01/, ...  (à construire, séance 0b) idem, pour le flottant
-cas/run_cas.sh     lance un cas (ou plusieurs, ou "all")
+cas/run_cas.sh     lance un cas de référence sur une copie sous results/ (ou plusieurs, ou "all")
 ```
 
 **Règle de résolution des chemins** : un chemin relatif écrit DANS un fichier secondaire
@@ -51,12 +51,17 @@ micromamba activate s9gm-fowt
 bash scripts/build_discon.sh
 ```
 
-Puis, depuis ce dossier :
+Puis, depuis la racine du dépôt :
 ```
-bash run_cas.sh F01
-bash run_cas.sh F01 F02
-bash run_cas.sh all
+bash cas/run_cas.sh F01
+bash cas/run_cas.sh F01 F02
+bash cas/run_cas.sh all
+bash cas/run_cas.sh results/F01_essai     # un dossier à vous (qui contient un main.fst) : lancé sur place
 ```
+
+**Où vont les sorties.** `run_cas.sh` copie le cas de référence **sous `results/<cas>/`** (même profondeur que `cas/` : les
+chemins relatifs restent valables) et le lance dans cette copie : `cas/` n'est jamais modifié, `main.outb` et `run.log` sont
+sous `results/<cas>/`.
 
 ## Cas disponibles
 

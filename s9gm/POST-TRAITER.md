@@ -6,7 +6,7 @@
 consignes de séance renvoient ici.
 
 Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. L'exemple fil rouge est le
-cas `cas/F01` (séance 0a), déjà lancé ; il ne donne aucune valeur-réponse : les chiffres sont à lire chez vous.
+cas `F01` (séance 0a), déjà lancé par `bash cas/run_cas.sh F01` (sorties sous `results/F01/`) ; il ne donne aucune valeur-réponse : les chiffres sont à lire chez vous.
 
 **Où vit ce que vous produisez.** `s9gm/`, `cas/` et `modeles/` sont des fichiers suivis par git : vous les lisez et
 vous les utilisez, **vous ne les modifiez pas**. Vos figures, vos tableaux et vos copies de modules vivent sous
@@ -26,7 +26,7 @@ vous les utilisez, **vous ne les modifiez pas**. Vos figures, vos tableaux et vo
 ```python
 from s9gm import lire
 
-df, unites = lire.lire("cas/F01/main.outb")
+df, unites = lire.lire("results/F01/main.outb")
 print(list(df.columns))      # les canaux disponibles (liste de sorties : annexes/lheea/practicals/OutListParameters.xlsx)
 print(unites["RotSpeed"])    # l'unité d'un canal
 print(len(df), df["Time"].iloc[-1])
