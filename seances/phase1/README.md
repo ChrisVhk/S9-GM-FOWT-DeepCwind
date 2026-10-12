@@ -229,7 +229,7 @@ votre rendu comme ce que la LCT ne permet pas de conclure. Que change ce désali
 ### Étape 6 — Essai technique de la chaîne : lancer le cas d'exemple `EX00` à 300 s, puis lire
 
 **Votre LCT n'est pas lancée ici** : elle attend la validation de l'enseignant (point de contrôle, section 1). Cet essai vérifie seulement que la chaîne (TurbSim, OpenFAST, lecture)
-tourne chez vous. Son cas, `EX00`, n'est pas un cas de votre LCT : vent turbulent à 7,5 m/s (celui de l'énoncé pour F03), état de mer du cas `D01` (`cas/lct_flottant.csv` : Hs 6 m, Tp 10 s).
+tourne chez vous. Son cas, `EX00`, n'est pas un cas de votre LCT : vent turbulent à 7,5 m/s (celui de l'énoncé pour F03), mêmes Hs et Tp que le cas `D01` (`cas/lct_flottant.csv` : Hs 6 m, Tp 10 s), en houle irrégulière JONSWAP.
 Seuls les deux trous du gabarit, `IECturbc` et la graine, reprennent **vos** choix (ceux de la première ligne de votre LCT) : le gabarit ne se lance pas sans.
 
 ```python

@@ -243,7 +243,7 @@ def test_gabarit_rempli_a_la_main_meme_champ_que_via_cas(tmp_path, pref, modele_
 
 
 # ---- E-164 (c) : une colonne turbsim.IECturbc qui remplace la valeur du fichier est signalée à l'écran ---------
-def _modele_iec_fixe(pref, valeur='"B"'):
+def _modele_iec_fixe(pref, valeur="14"):
     """Modèle dont turbsim.inp porte DÉJÀ une valeur de IECturbc (le gabarit, avec son trou rempli dans le fichier)."""
     m = MODELES / f"{pref}_modele"
     shutil.copytree(MODELE, m)
@@ -255,7 +255,7 @@ def _modele_iec_fixe(pref, valeur='"B"'):
 def test_une_colonne_iecturbc_qui_remplace_la_valeur_du_fichier_avertit(tmp_path, pref):
     m = _modele_iec_fixe(pref)
     lct = _lct_gabarit(tmp_path, pref, TROUS)             # la LCT porte IECturbc = 12, le fichier « B »
-    with pytest.warns(UserWarning, match=r"IECturbc.*B.*12"):
+    with pytest.warns(UserWarning, match=r"IECturbc.*14.*12"):
         cas.generer_serie(lct, m, CAS, executer_turbsim=False)
 
 
