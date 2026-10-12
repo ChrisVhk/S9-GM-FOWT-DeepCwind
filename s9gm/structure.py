@@ -23,7 +23,7 @@ que vous utilisez, et se citent avec leur tableau et leur page.
    les deux et vérifier qu'ils s'accordent à quelques pour cent près avant de se fier au résultat exact.
 4. **Ce que le modèle ne permet pas de conclure** — que la contrainte nominale soit celle qui gouverne la fatigue :
    le raccord soudé la multiplie par un facteur de concentration (voir les fonctions `scf_*`).
-5. **Renvois** — fiche F1 (efforts du rotor sur la tour) ; `ENONCE.md`, phase 5 (aucune fiche ne traite encore la
+5. **Renvois** — fiche F1 (efforts du rotor sur la tour) ; `seances/phase5/README.md` (aucune fiche ne traite encore la
    résistance des tubes).
 
 ### Bloc Théorie
@@ -41,7 +41,7 @@ que vous utilisez, et se citent avec leur tableau et leur page.
 4. **Ce que le modèle ne permet pas de conclure** — que le matériau résiste : le voilement, la fatigue et la rupture
    fragile ne sont pas dans le critère.
 5. **Renvois** — fiche F1 (efforts du rotor) ; le critère de plastification de la norme de dimensionnement que vous
-   appliquez (à citer avec son édition) ; `ENONCE.md`, phase 5.
+   appliquez (à citer avec son édition) ; `seances/phase5/README.md`.
 
 ### Bloc Théorie
 
@@ -64,7 +64,7 @@ concentration de contrainte d'un joint tubulaire.*
    multi-entretoises, soudures non standard et chargements combinés relèvent d'autres méthodes (annexe de la norme,
    éléments finis).
 5. **Renvois** — fiche F4 (efforts de houle sur les colonnes, d'où viennent les charges d'un joint) ; DNV-RP-C203,
-   annexe B (tableaux de SCF et domaine de validité : tableau, page et édition à citer) ; `ENONCE.md`, phase 5.
+   annexe B (tableaux de SCF et domaine de validité : tableau, page et édition à citer) ; `seances/phase5/README.md`.
 
 ### Bloc Théorie
 
@@ -80,7 +80,7 @@ concentration de contrainte d'un joint tubulaire.*
    entretoise perpendiculaire n'en reprend aucune.
 4. **Ce que le modèle ne permet pas de conclure** — la répartition réelle entre entretoises : il faut un modèle
    d'éléments finis ou un calcul de portique.
-5. **Renvois** — fiche F4 (forces de Morison sur les colonnes) ; `ENONCE.md`, phase 5. **Cette formule n'est pas tirée
+5. **Renvois** — fiche F4 (forces de Morison sur les colonnes) ; `seances/phase5/README.md`. **Cette formule n'est pas tirée
    d'une source des documents du dépôt : c'est une estimation de statique, donnée comme hypothèse à justifier.**
 """
 from __future__ import annotations

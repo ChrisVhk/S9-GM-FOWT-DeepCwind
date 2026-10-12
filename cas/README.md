@@ -35,9 +35,13 @@ est propre (`config_inflow.dat`, et `Wind/ramp_wind.dat` pour F02) — `Airfoils
 `blade_*.dat`, `SeaState.dat` et les `config_*.dat` partagés vivent une seule fois, dans
 `modeles/fixe/`.
 
-**Pour créer un nouveau cas** : créez un dossier léger, copiez-y `main.fst` depuis un cas existant
-(il pointe déjà vers `modeles/fixe/`), et ne modifiez que ce qui doit changer (le plus souvent
-`config_inflow.dat`, propre à chaque cas, et `TMax` dans `main.fst`).
+**Règle : ce dossier est une référence, vous n'y modifiez rien.** Les cas de `cas/` sont suivis par git :
+vous les lancez et vous les lisez, vous ne les éditez pas (un `git pull` ne doit jamais rencontrer un fichier
+que vous avez modifié). **Pour créer un nouveau cas**, copiez un cas existant **directement sous `results/`**
+(`cp -r cas/F01 results/F01_essai`, à la même profondeur que `cas/F01` : son `main.fst` pointe déjà vers
+`../../modeles/fixe/` et reste valable), et ne modifiez dans la copie que ce qui doit changer (le plus souvent
+`config_inflow.dat`, propre à chaque cas, et `TMax` dans `main.fst`). Pour plus de quelques cas, passez par
+`s9gm.cas` (séance 0b), qui écrit les cas sous le dossier de sortie que vous indiquez.
 
 ## Avant de lancer un cas
 
@@ -60,10 +64,10 @@ bash run_cas.sh all
 |---|---|---|---|
 | F01 | constant 7,5 m/s | — (fixe) | régime établi : poussée, moment en pied de tour, RotSpeed |
 | F02 | échelon 5 → 20 m/s à t = 100 s | — (fixe) | passage d'une zone de régulation à l'autre |
-| F03-F05 | turbulent (TurbSim, à générer) 7,5 / 12 / 16 m/s | — (fixe) | *à construire, séance 0b* |
+| F03-F05 | turbulent (TurbSim, à générer) 7,5 / 12 / 16 m/s | — (fixe) | *à générer par vous sous `results/`, séance 0b* |
 | D00-D05 | — / constant / échelon / turbulent (mêmes vents que F01-F05) | — / régulière / JONSWAP | *à construire, séance 0b* |
 
-**Lecture d'un `.fst`** : ouvrez `F01/main.fst` dans un éditeur de texte. Les sections qui
+**Lecture d'un `.fst`** : ouvrez `F01/main.fst` dans un éditeur de texte (lecture seule : ne l'enregistrez pas modifié). Les sections qui
 changent d'un cas à l'autre dans ce tutoriel : `TMax` (durée), le nom du fichier `InflowFile`
 (éventuellement son contenu), et plus tard (D00+) `CompHydro`/`SeaStFile`/`HydroFile`/
 `MooringFile`. Tout le reste (degrés de liberté, pas de temps, modules actifs, sorties) reste

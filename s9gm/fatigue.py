@@ -47,7 +47,7 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
    environnement, finition, protection) ni que les éditions de la norme soient interchangeables : certaines valeurs
    (exposant d'épaisseur de classes, courbe de joint tubulaire) ont changé entre éditions.
 5. **Renvois** — fiche F8 (fatigue) ; DNV-RP-C203, section 2.4 (équations, tableaux de courbes, pages à citer) ;
-   `ENONCE.md`, phase 3.
+   `seances/phase3/README.md`.
 
 ### Bloc Théorie
 
@@ -65,7 +65,7 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
    indicateur statistique, et le DFF couvre incertitude et conséquences d'une rupture, pas seulement le calcul.
 5. **Renvois** — fiche F8 (fatigue) ; DNV-RP-C203 §2.2 (cumul de Palmgren-Miner ; le DFF y renvoie à DNV-OS-C101 : section 6 dans l'édition
    2010, Ch.2 Sec.5 dans l'édition 2019 amendée 2020 — citez l'édition que vous utilisez) ;
-   `ENONCE.md`, phase 3.
+   `seances/phase3/README.md`.
 
 ### Bloc Théorie
 
@@ -82,7 +82,7 @@ l'exposant d'épaisseur `k` se lisent dans DNV-RP-C203 (Tab. 2-1 à 2-4 selon l'
 4. **Ce que le modèle ne permet pas de conclure** — que le DEL remplace une courbe S-N à deux pentes, ni que deux
    signaux de même DEL aient la même durée de vie pour une autre pente `m`.
 5. **Renvois** — fiche F8 (fatigue) ; `s9gm.metocean` (les `Oⱼ`) ; DNV-RP-C203 (cumul de dommage) ;
-   `ENONCE.md`, phase 3.
+   `seances/phase3/README.md`.
 """
 from __future__ import annotations
 

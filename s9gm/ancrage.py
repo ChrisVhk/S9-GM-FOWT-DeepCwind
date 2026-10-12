@@ -26,7 +26,7 @@ modèle public (`lire_moordyn`) : une seule source par grandeur.
 4. **Ce que le modèle ne permet pas de conclure** — la réponse dynamique d'une ligne (masse ajoutée, amortissement,
    frottement de fond, ondes de tension) : un ancrage chargé vite se comporte autrement que la courbe quasi-statique.
 5. **Renvois** — fiche F7 (caténaire statique) ; `data/geometrie_deepcwind.md` (ancrage) ; MoorDyn et MAP++ (modèles
-   de référence) ; `ENONCE.md`, phase 4.
+   de référence) ; `seances/phase4/README.md`.
 
 ### Bloc Théorie
 
@@ -44,7 +44,7 @@ modèle public (`lire_moordyn`) : une seule source par grandeur.
 4. **Ce que le modèle ne permet pas de conclure** — que la raideur statique soit celle qui s'applique aux mouvements de
    houle (dynamique de la ligne) ni que la plateforme n'oscille pas verticalement ou en tangage.
 5. **Renvois** — fiche F7 (caténaire statique) ; fiche F8 (ancrage dynamique : MoorDyn contre quasi-statique) ;
-   `ENONCE.md`, phase 4.
+   `seances/phase4/README.md`.
 """
 from __future__ import annotations
 

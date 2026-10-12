@@ -32,3 +32,21 @@ def test_aucune_valeur_de_reponse_R0():
     texte = "\n".join("".join(c["source"]) for c in json.loads(NB.read_text(encoding="utf-8"))["cells"])
     for motif in (r"NREL\s*5", r"\b63\s*m\b", r"12[.,]1\s*tr", r"7[.,]55\b", r"11[.,]4\s*m/s"):
         assert not re.search(motif, texte), f"motif R0 trouvé dans le notebook : {motif}"
+
+
+def test_le_notebook_ne_modifie_aucun_fichier_suivi(monkeypatch):
+    """Règle du parcours : l'étudiant ne modifie aucun fichier suivi par git. Exécuté tel quel, le carnet écrit ses
+    figures sous `results/` (ignoré) et laisse intactes les figures de référence de `seances/0b/figures/`."""
+    import hashlib
+    monkeypatch.delenv("S9GM_ENSEIGNANT", raising=False)
+    monkeypatch.setenv("S9GM_JEU_LIVRE", "1")
+    nbformat = pytest.importorskip("nbformat")
+    nbclient = pytest.importorskip("nbclient")
+    ref = sorted((NB.parent / "figures").glob("*.png"))
+    assert ref, "figures de référence absentes"
+    avant = {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in ref}
+    nb = nbformat.read(NB, as_version=4)
+    nbclient.NotebookClient(nb, timeout=300, resources={"metadata": {"path": str(NB.parent)}}).execute()
+    assert {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in ref} == avant
+    ecrites = sorted((NB.parents[2] / "results" / "0b" / "figures").glob("FIG-S9GM-VISU-00*.png"))
+    assert len(ecrites) == len(ref)

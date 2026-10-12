@@ -23,7 +23,7 @@
    modèle (flottant, houle irrégulière) ; et « terminé normalement » ne dit pas que le résultat est
    *bon* (un calcul peut finir avec une mauvaise configuration) : c'est le rôle de `lire`.
 5. **Renvois** — fiche F1 (ce que vaut un résultat plausible) ; `cas/README.md`
-   (temps de calcul mesurés) ; `ENONCE.md`, phase 2 (série de référence) ; manuel OpenFAST v5.0.0.
+   (temps de calcul mesurés) ; `seances/phase2/README.md` (série de référence) ; manuel OpenFAST v5.0.0.
 """
 import csv
 import os

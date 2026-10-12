@@ -25,7 +25,7 @@ par `lire_membres`, jamais d'une saisie à la main.
 4. **Ce que le modèle ne permet pas de conclure** — que la houle réelle soit sinusoïdale (c'est un spectre) ni que le
    comportement en cambrure forte, près du déferlement, soit linéaire.
 5. **Renvois** — fiche F2 (houle linéaire) ; DNV-RP-C205, §3.2.2 (relation de dispersion et approximation
-   explicite de la longueur d'onde) ; `ENONCE.md`, phase 0, séance 0b.
+   explicite de la longueur d'onde) ; `seances/0b/README.md`.
 
 ### Bloc Théorie
 
@@ -63,7 +63,7 @@ par `lire_membres`, jamais d'une saisie à la main.
    terme déstabilisant (centre de gravité au-dessus du centre de poussée) et vérifier leur signe avant tout calcul.
 4. **Ce que le modèle ne permet pas de conclure** — que la stabilité statique suffise : poussée du vent sur le rotor
    et dynamique la modifient.
-5. **Renvois** — fiche F3 (hydrostatique) ; fiche F1 (poussée du rotor) ; `ENONCE.md`, phase 0, séance 0b.
+5. **Renvois** — fiche F3 (hydrostatique) ; fiche F1 (poussée du rotor) ; `seances/0b/README.md`.
 
 ### Bloc Théorie
 

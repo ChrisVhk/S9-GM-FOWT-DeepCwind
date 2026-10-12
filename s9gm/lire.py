@@ -22,8 +22,8 @@
    entre réalisations (phases 1-2). Et un maximum est un maximum *de cette réalisation*, pas un
    extrême de dimensionnement.
 5. **Renvois** — fiche F1 (écarter le transitoire, `RotSpeed`) ; `annexes/outils/lire_outb.py` (même calcul pas à
-   pas, sans l'obligation de choisir `t_transitoire`) ; `ENONCE.md`, phase 0 (piège « analyser le début de simulation ») et
-   phase 3 (DEL, qui exige la même discipline).
+   pas, sans l'obligation de choisir `t_transitoire`) ; `seances/0a/README.md` (piège « analyser le début de simulation ») et
+   `seances/phase3/README.md` (DEL, qui exige la même discipline).
 """
 import re
 

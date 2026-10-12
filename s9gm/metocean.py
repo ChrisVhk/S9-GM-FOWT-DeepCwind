@@ -27,7 +27,7 @@ voir `data/metocean/floatech_wob.metadata.json` et `PROVENANCE.md`.
    sur une période finie, à une hauteur de vent donnée ; il ne dit rien des extrêmes au-delà de sa période ni de
    la variabilité d'une année à l'autre.
 5. **Renvois** — fiche F2 (houle linéaire : Hs, Tp) ; `data/metocean/floatech_wob.metadata.json` ;
-   `PROVENANCE.md` (source, licence, période, hauteur de vent) ; `ENONCE.md`, phase 1 (occurrences).
+   `PROVENANCE.md` (source, licence, période, hauteur de vent) ; `seances/phase1/README.md` (occurrences).
 
 ### Bloc Théorie
 

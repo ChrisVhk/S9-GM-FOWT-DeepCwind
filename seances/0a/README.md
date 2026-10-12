@@ -1,23 +1,42 @@
 <!-- destinations: github -->
 # Séance 0a — lundi (3 h)
 
-Déroulé pas à pas. L'énoncé complet est dans [`../../ENONCE.md`](../../ENONCE.md) (phase 0,
-séance 0a) — ce document-ci en est la version « pas à pas » pour la séance.
+Consigne autonome de la séance. Le cadre du projet (objectifs, évaluation, règles) est dans
+[`../../ENONCE.md`](../../ENONCE.md) ; les phases suivantes sont dans [`../phase1/`](../phase1/README.md) et suivantes.
 
-**À lire avant la séance** : fiche F1 — Aéro-régulation ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).
+## 1. Objectif
 
-## 1. Installation (environ 20 min)
+Savoir **organiser, lancer, lire et vérifier à la main** une simulation OpenFAST (phase 0 du projet, première
+moitié ; la seconde est la [séance 0b](../0b/README.md)). Cette séance vous fait : installer l'environnement ;
+comprendre ce qu'est un cas OpenFAST et lire un `.fst` ; lancer deux cas d'échauffement (tour seule, rotor libre) ;
+établir **à la main** la régulation de l'éolienne NREL 5 MW ; lancer l'éolienne fixe sur monopieu à vent constant
+(F01) et à échelon (F02), et confronter vos vérifications à la main aux sorties.
 
-Suivez [`../../INSTALLATION.md`](../../INSTALLATION.md), sections 1 et 2 :
+## 2. Avant de commencer
+
+**À lire avant la séance** : fiche F1 — Aéro-régulation
+([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).
+
+**À faire d'abord : installer (environ 20 min).** Suivez [`../../INSTALLATION.md`](../../INSTALLATION.md),
+sections 1 et 2 :
 - cloner le dépôt, lancer `bash env/install.sh` ;
 - vérifier `openfast -v` → doit afficher `OpenFAST-v5.0.0` ;
 - compiler le contrôleur : `bash scripts/build_discon.sh`.
 
-**Si ça ne marche pas** : voir « En cas d'échec » dans `INSTALLATION.md`. Notez l'erreur exacte,
-continuez avec un camarade en binôme pour la suite, et terminez l'installation après la séance
-(avant la séance 0b, au plus tard en salle C09).
+**Où vit ce que vous produisez.** Les dossiers `cas/` et `modeles/` sont des références suivies par git : vous les
+**lisez et les lancez, sans les modifier**. Tout ce que vous créez ou modifiez (copies de cas, tables de cas, fichiers
+d'entrée à vous, sorties, figures) vit sous `results/` ou `rendus/`, que git ignore : un `git pull` ne vous le prendra
+jamais.
 
-## 2. Anatomie d'un cas OpenFAST (environ 20 min, en binôme)
+**Si l'installation ne marche pas** : voir « En cas d'échec » dans `INSTALLATION.md`. Notez l'erreur exacte, continuez
+avec un camarade en binôme pour la suite, et terminez l'installation après la séance (avant la séance 0b, au plus tard
+en salle C09). Notez l'erreur exacte dans R0.
+
+## 3. À faire, étape par étape
+
+### 3.1 Anatomie d'un cas OpenFAST (environ 20 min, en binôme)
+
+**Organisation d'un calcul** : fichiers de base du modèle / un dossier par cas de charge / un script de lancement.
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), adapté — voir
 [`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
@@ -27,7 +46,7 @@ AeroDyn pour l'aérodynamique, HydroDyn pour l'hydrodynamique, ServoDyn pour le 
 pour l'ancrage…), chacun avec son propre fichier de configuration. Un seul fichier pilote tout :
 `main.fst`.
 
-Ouvrez `annexes/lheea/01_TowerStructure/1_Configuration/main.fst` dans un éditeur de texte.
+Ouvrez `cas/E01/main.fst` dans un éditeur de texte (lecture seule : ne l'enregistrez pas modifié).
 Trois sections à repérer :
 - **SIMULATION CONTROL** : `TMax` (durée), `DT` (pas de temps), `InterpOrder`.
 - **FEATURE SWITCHES AND FLAGS** : quels modules sont actifs (`CompElast`, `CompInflow`,
@@ -39,7 +58,147 @@ Pour chaque section, notez ce que vous changeriez pour une nouvelle étude (`TMa
 temps, les degrés de liberté actifs, les fichiers d'entrée, la liste de sorties `OutList`) et ce
 qui reste identique d'un cas à l'autre dans ce tutoriel.
 
-## 3. Cas LHEEA 01 — dynamique structurelle de la tour seule (environ 20 min)
+### 3.2 Échauffement 1 — dynamique structurelle de la tour seule, cas E01 (environ 20 min)
+
+*D'après le cas 01 du tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), reconstruit sur `modeles/fixe/` — voir
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE). Théorie : section 6.1.*
+
+> **À compléter** : le cas `cas/E01/` (tour seule) est en cours de construction ; la commande ci-dessous en
+> donnera le lancement.
+
+```bash
+bash cas/run_cas.sh E01
+```
+
+Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simple du dépôt — s'il échoue,
+l'installation n'est pas correcte, reprenez la section 2.
+
+### 3.3 Échauffement 2 — éolienne libre en vent constant, cas E02 (environ 15 min)
+
+*D'après le cas 02 du tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), reconstruit sur `modeles/fixe/` — voir
+[`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE). Théorie : section 6.2.*
+
+> **À compléter** : le cas `cas/E02/` (rotor libre) est en cours de construction.
+
+```bash
+bash cas/run_cas.sh E02
+```
+
+Doit se terminer par `OpenFAST terminated normally.`.
+
+### 3.4 Régulation de la NREL 5 MW, à la main (environ 30 min)
+
+*Théorie : section 6.3.*
+
+Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
+puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
+vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1, 1½, 2, 2½, 3), **avec l'`Ω` attendu dans chaque région** :
+loi `λ*·V/R` en Region 2, **équilibre des couples** en Region 1½ (la fiche F1 donne la loi de la rampe du
+contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **frontières intérieures** (1½/2 et 2/2½) sont à trouver ; 3 m/s (cut-in) et 11,4 m/s (vent nominal, début de la Region 3) sont des données publiées. C'est la question Q0.1 du rendu R0.
+
+### 3.5 Cas F01 et F02 — éolienne fixe (environ 45 min)
+
+*Théorie : sections 6.4 et 6.5.*
+
+Les cas de référence `cas/F01` et `cas/F02` sont l'éolienne fixe sur monopieu OC3 (`modeles/fixe/`). Vous les
+**lancez et les lisez sans les modifier**.
+
+| Cas | Vent | Ce qu'on regarde |
+|---|---|---|
+| F01 | constant 7,5 m/s | régime établi, poussée, moment en pied de tour |
+| F02 | échelon de 5 à 20 m/s | passage d'une zone de régulation à l'autre, temps de réaction du calage des pales |
+
+**Étape 1 — lancer F01.** Ouvrez `cas/F01/main.fst` (lecture seule) et repérez `TMax`, `DT` et les noms des fichiers
+pointés. Puis, depuis la racine du dépôt :
+
+```bash
+cd cas
+bash run_cas.sh F01
+cd ..
+```
+
+**Vous devez voir** : `OK en NN s -> .../F01/main.outb` (de quelques dizaines de secondes à 2 min pour 200 s
+simulées). En cas d'échec, lisez la **fin** de `cas/F01/run.log` : OpenFAST y écrit la ligne fautive. Le dossier
+`cas/F01/` ne contient presque rien (`main.fst`, `config_inflow.dat`) : tout le reste est dans `modeles/fixe/`
+(règle de résolution des chemins : [`../../cas/README.md`](../../cas/README.md)).
+
+**Étape 2 — lire le résultat sans se tromper.** Le début d'une simulation n'est pas de la physique : le rotor part de
+l'arrêt. **Regardez la courbe avant de calculer une statistique.**
+
+```python
+import matplotlib.pyplot as plt
+from s9gm import lire
+
+df, unites = lire.lire("cas/F01/main.outb")
+print(list(df.columns))                      # les canaux disponibles
+df.plot(x="Time", y="RotSpeed"); plt.show()  # 1) regarder
+```
+
+1. **Repérez** l'instant où `RotSpeed` cesse d'évoluer : c'est votre `t_transitoire`.
+2. **Écrivez-le** (valeur et raison) avant de calculer :
+
+```python
+print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<votre valeur, en s>))
+print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=0))   # pour comparer
+```
+
+`lire.statistiques` **refuse** de tourner sans `t_transitoire` : c'est voulu. **Vous devez voir** : sans écarter le
+transitoire, la moyenne de `RotSpeed` est tirée vers 0 et l'écart-type est très grand ; après, l'écart-type est quasi
+nul (régime établi). Cet écart est la mesure de ce que vous évitez en écartant le début.
+
+**À faire à la main, avant de regarder le résultat** : `Ω = TSR·V/R` pour F01 (**identifiez d'abord la région** avec
+les seuils de la fiche F1 : être sous le régime nominal de 12,1 tr/min ne suffit pas à choisir la loi à appliquer),
+puis comparez au `RotSpeed` observé en régime établi et à la fréquence 1P visible sur `RootMyb1` (fréquence =
+`RotSpeed` / 60). Pour le moment en pied de tour (`TwrBsMyt`) : estimez la poussée du rotor par la théorie du disque
+actuateur (fiche F1) et comparez `TwrBsMyt` ≈ poussée × (hauteur du moyeu − `TowerBsHt`), à ±20 %. `TwrBsMyt` est le
+moment **au pied de la tour** : le bras de levier se compte depuis ce pied, dont la hauteur `TowerBsHt` se lit dans
+`modeles/fixe/config_elastodyn.dat`, et non depuis le niveau de la mer ni depuis le sol (le modèle complet inclut
+aussi le poids de la nacelle et de la tour en flexion, d'où l'écart toléré).
+
+**Étape 3 — F02, ce qui change d'un cas à l'autre.**
+
+```bash
+cd cas && bash run_cas.sh F02 && cd ..
+```
+
+Comparez les deux cas : `diff cas/F01/main.fst cas/F02/main.fst` (seul `TMax` change) puis
+`diff cas/F01/config_inflow.dat cas/F02/config_inflow.dat` (le type de vent, sa vitesse et son exposant de profil
+changent : c'est là que se décrit le vent). Dans F02, tracez ensemble `Wind1VelX`, `RotSpeed` et `BldPitch1`.
+**Questions** : à quel instant le calage des pales s'écarte-t-il de zéro ? À quel vent cela correspond-il, d'après
+la fiche F1 ? La puissance se stabilise-t-elle ou continue-t-elle de croître avec le vent ?
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `openfast introuvable` | environnement non activé | `micromamba activate s9gm-fowt` (dans **chaque** nouveau terminal) |
+| `le controleur DISCON n'est pas compile` | étape `build_discon.sh` oubliée | la lancer depuis la racine du dépôt |
+| `run.log` se termine par une erreur de lecture | un fichier de `cas/` ou `modeles/` a été modifié par erreur | `git status` puis `git restore <fichier>` ; ne modifiez jamais `cas/` ni `modeles/` |
+
+## 4. Post-traiter
+
+La démarche complète, du `.outb` aux statistiques, aux figures et au DEL, est dans
+[`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Ce qui est propre à cette séance :
+
+- choisir et justifier `t_transitoire` en regardant la courbe de `RotSpeed` (étape 2 ci-dessus) ;
+- comparer les statistiques avec et sans transitoire ;
+- repérer la fréquence 1P (`RotSpeed / 60`) sur le spectre de `RootMyb1`, après avoir écarté le transitoire ; le pic
+  3P de la tour se déduit en multipliant par trois.
+
+## 5. Ce qu'on rend
+
+**Rendu R0 — première partie** (à finir hors séance si besoin), dans `rendus/` :
+
+- Q0.1 — Tableau de régulation à la main et comparaison avec le cas F02.
+- Q0.2 — Vérifications à la main de F01 (1P, poussée, moment en pied de tour) : écarts et explication.
+
+Les questions Q0.3 à Q0.6 portent sur la [séance 0b](../0b/README.md), pas sur celle-ci. Les valeurs numériques de F01
+et F02 répondent à ces questions : ne les cherchez pas dans ce dépôt, calculez-les.
+
+## 6. Théorie à lire
+
+Fiche F1 — Aéro-régulation ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)), puis les cinq
+blocs ci-dessous, dans l'ordre des étapes de la section 3.
+
+### 6.1 Tour seule (E01)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §1, adapté — voir
 [`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
@@ -67,15 +226,7 @@ qui reste identique d'un cas à l'autre dans ce tutoriel.
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §1 (voir NOTICE pour le détail des
    adaptations v3.2.1→v5.0.0, `ADAPTATION_LHEEA.md`).
 
-```bash
-cd annexes/lheea/01_TowerStructure/1_Configuration
-openfast main.fst
-```
-
-Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simple du dépôt — s'il
-échoue, l'installation n'est pas correcte, reprenez l'étape 1.
-
-## 4. Cas LHEEA 02 — éolienne libre en vent constant (environ 15 min)
+### 6.2 Éolienne libre en vent constant (E02)
 
 *D'après le tutoriel OpenFAST Quickstart du LHEEA (Apache-2.0), §2, adapté — voir
 [`../../annexes/lheea/NOTICE`](../../annexes/lheea/NOTICE).*
@@ -100,14 +251,7 @@ Doit se terminer par `OpenFAST terminated normally.`. C'est le cas le plus simpl
    un fonctionnement réel — c'est l'objet du bloc suivant.
 5. **Renvois** — tutoriel OpenFAST Quickstart du LHEEA §2 ; fiche F1 (régulation, bloc suivant).
 
-```bash
-cd annexes/lheea/02_FreeRotatingWT/1_Configuration
-openfast main.fst
-```
-
-Doit se terminer par `OpenFAST terminated normally.`.
-
-## 5. Régulation de la NREL 5 MW, à la main (environ 30 min)
+### 6.3 Régulation de la NREL 5 MW
 
 ### Bloc Théorie
 
@@ -140,13 +284,7 @@ Doit se terminer par `OpenFAST terminated normally.`.
 5. **Renvois** — fiche F1, section « Minimum vital » et « Ordre de grandeur » ; Jonkman 2009,
    §7.2 p.19 et Tab. 7-2 p.27 (paramètres numériques).
 
-Avec la fiche F1 : R = 63 m, vitesse de bout de pale maximale 80 m/s, régime nominal 12,1 tr/min,
-puissance nominale 5 MW, TSR optimal 7,55 (Jonkman 2009). Construisez le tableau vitesse de vent →
-vitesse de rotation → puissance, et identifiez les zones de fonctionnement (Region 1, 1½, 2, 2½, 3), **avec l'`Ω` attendu dans chaque région** :
-loi `λ*·V/R` en Region 2, **équilibre des couples** en Region 1½ (la fiche F1 donne la loi de la rampe du
-contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **frontières intérieures** (1½/2 et 2/2½) sont à trouver ; 3 m/s (cut-in) et 11,4 m/s (vent nominal, début de la Region 3) sont des données publiées. C'est la question Q0.1 du rendu R0.
-
-## 6. Cas F01 et F02 — éolienne fixe (environ 45 min)
+### 6.4 Plausibilité des sorties (F01 et F02)
 
 ### Bloc Théorie
 
@@ -168,10 +306,12 @@ contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **
    que la configuration est correcte (un transitoire mal filtré peut produire le même symptôme
    qu'une vraie erreur), et cette vérification stationnaire ne valide rien sur la dynamique de
    F02 (échelon), qui demande une lecture différente (temps de réaction du calage).
-5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `annexes/outils/lire_outb.py` (option
-   `t_min`, pour écarter le transitoire).
+5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `s9gm/POST-TRAITER.md` (choix de
+   `t_transitoire`, pour écarter le transitoire).
 
-### Bloc Théorie — fréquence 1P
+### 6.5 Fréquence 1P
+
+### Bloc Théorie
 
 1. **Question physique** — Q0.2 demande de repérer la fréquence de rotation 1P sur le moment
    d'emplanture d'une pale : pourquoi cette fréquence apparaît-elle, et pourquoi la tour ne
@@ -196,28 +336,3 @@ contrôleur, la courbe `Cp(λ)` du modèle à calage nul et la méthode). Les **
 5. **Renvois** — fiche F1 (ligne « Fréquence 1P ») ; Jonkman 2009, p.15 (fréquences propres de la
    tour placées entre 1P et 3P sur le diagramme de Campbell) ; `RootMyb1` : liste des sorties
    d'OpenFAST (`OutListParameters.xlsx`).
-
-```bash
-cd cas
-bash run_cas.sh F01
-bash run_cas.sh F02
-```
-
-| Cas | Vent | Ce qu'on regarde |
-|---|---|---|
-| F01 | constant 7,5 m/s | régime établi, poussée, moment en pied de tour |
-| F02 | échelon de 5 à 20 m/s | passage d'une zone de régulation à l'autre, temps de réaction du calage des pales |
-
-Voir `cas/README.md` pour la méthode de vérification à la main (fréquence 1P,
-poussée, `TwrBsMyt`).
-
-## 7. Rendu R0 (à finir hors séance si besoin)
-
-Questions Q0.1 et Q0.2 de l'énoncé (section « Phase 0 », rendu R0) : tableau de régulation à la
-main comparé à F02, et vérifications à la main de F01. Les questions Q0.3 à Q0.5 portent sur la
-séance 0b, pas sur celle-ci.
-
-## Séance suivante
-
-[`seances/0b/`](../0b/README.md) : cas LHEEA pilotés, monopieu et flottant, puis construction de
-vos propres cas (F03-F05, D00-D05).
