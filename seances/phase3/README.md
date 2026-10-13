@@ -225,7 +225,7 @@ pd.DataFrame({"grandeur": ["DEL_long_terme_tour", "dommage_annuel", "dommage_x_D
               "valeur": [del_tour_lt, D_an, verdict["dommage_x_dff"], verdict["marge"], verdict["ok"]]}).to_csv("results/phase3_bilan.csv", index=False)
 ```
 
-**Vous devez voir** : le DEL long terme de la tour et des trois lignes, le dommage annuel, la durée de vie estimée **sans** coefficient de sécurité, puis le verdict `D · DFF ≤ 1` sur votre durée de service. **Le DFF est imposé** (l'ENONCE ne le fixe pas : il vous est donné en séance ; la durée de service de référence qui l'accompagne ne figure pas non plus dans l'ENONCE) ; ne le choisissez pas vous-mêmes. Un verdict `ok = True` ne dit pas que la tour tient en fatigue : relisez
+**Vous devez voir** : le DEL long terme de la tour et des trois lignes, le dommage annuel, la durée de vie estimée **sans** coefficient de sécurité, puis le verdict `D · DFF ≤ 1` sur votre durée de service. **Le DFF et la durée de service sont des paramètres que vous justifiez avec la norme** (DNV-RP-C203 renvoie à la norme de structure pour le DFF : citez l'édition, le tableau et la page, et dites quelles conséquences d'une rupture et quelle inspectabilité vous avez retenues) ; l'ENONCE ne les fixe pas, et la consigne n'en donne aucun. Comme pour `IECturbc`, ce qui est noté est la justification et la source, pas le nombre. Un verdict `ok = True` ne dit pas que la tour tient en fatigue : relisez
 « ce que le modèle ne permet pas de conclure » dans le bloc Théorie de `miner`.
 
 | Symptôme | Cause | Geste |
@@ -310,21 +310,11 @@ print("DEL du signal, basses fréquences, hautes fréquences :", del_de(my), del
 | `KeyError: 'TwrBsMxt'` | canal absent | `print(list(df.columns))` |
 | `ValueError` du filtre (`Wn`) | `fc` hors de `]0 ; f_Nyquist[` avec `f_Nyquist = 1/(2·dt)` | choisissez `fc` dans ce domaine |
 
-### Point 7 — Confrontation à une référence de 50 ans
+### Point 7 — Confrontation à un DEL de référence
 
-Une référence de 50 ans d'états de mer réels, simulés pour la même éolienne sur le même site, est annoncée par la consigne d'origine : comparer le DEL long terme de votre LCT de 10 à 15 cas au DEL de cette référence mesurerait la qualité de votre binning et de votre lumping. **Ni cette référence ni sa source ne sont dans ce dépôt** (les données ERA5 de `data/metocean/` couvrent 1979-2000 et ne contiennent pas de simulation OpenFAST). **Ce DEL de référence
-n'est pas dans ce dépôt** : aucun fichier de ce type n'est déposé dans `data/` à ce jour, et cette consigne n'en invente pas la valeur. **Aucune commande n'est donc donnée pour ce point** tant que l'enseignant n'a pas déposé le fichier et sa source. Ce que vous pouvez préparer d'ici là : votre DEL long terme (étape 4), la liste des choix de binning et de lumping que vous avez faits (phase 1), et ce que
-vous attendez de l'écart.
-
-**Temps mesurés** (rejeu des commandes dans un clone neuf, machine de développement du cours à 16 cœurs, cas de **300 s simulées** ; la salle sera plus lente, et un cas de 600 s dure environ le double) :
-
-| Étape | Durée mesurée |
-|---|---|
-| Étape 1, tests de la copie | quelques secondes |
-| Étape 2, 12 cas de la LCT : TurbSim à la suite (environ 107 s par cas), puis 12 OpenFAST en parallèle | ≈ 2150 s (36 min) |
-| Étapes 3 à 6 (rainflow, DEL, dommage, export, limites) | moins de 1 s au total |
-
-À 12 calculs simultanés, chaque OpenFAST de 300 s prend ≈ 830 s : la machine partage sa mémoire entre les cœurs. Prévoyez la campagne de 600 s (étape 2) en **temps de machine hors séance**.
+Le DEL long terme de votre LCT de 10 à 15 cas (étape 4) est confronté à un **DEL de référence**, **calculé par l'enseignant sur les 251 classes de la feuille `DLC12`** du classeur FLOATECH (`data/metocean/`, Papi, Perignon et Bianchini, *J. Phys. Conf. Ser.* 2385 (2022) 012117, § 2.3.2), avec le même modèle, les mêmes canaux et les mêmes `m` et `N_ref` que votre chaîne. **Ce DEL est communiqué en séance** : elle n'est pas dans ce dépôt, et ce dépôt n'en donne aucune commande.
+L'écart mesure ce que vos choix de **binning** et de **lumping** (phase 1) font perdre : expliquez-le (classes écartées, valeur représentative de chaque classe, état de mer qui domine le dommage), et dites ce qu'il faudrait changer dans votre LCT pour le réduire.
+Ce que vous pouvez préparer avant la séance : votre DEL long terme, la liste de vos choix de binning et de lumping, et ce que vous attendez de l'écart (signe, ordre de grandeur).
 
 ## 4. Post-traiter
 

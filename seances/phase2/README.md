@@ -86,7 +86,7 @@ print("périodes de pic Tp de votre LCT : de", et["Tp"].min(), "à", et["Tp"].ma
 
 **Vous devez voir** : trois dossiers de lâcher, pour chacun le nombre de pics de la réponse et la période moyenne entre pics, puis l'étendue des `Tp` de votre scatter diagram. Pour chaque mode,
 **dites si la période propre tombe dans cette étendue ou à côté, et ce que cela implique** (une période propre dans la gamme de la houle excite le flotteur ; la comparaison au scatter, pas
-la valeur seule, est ce qui compte). **Comparez aux périodes propres publiées** (**référence fournie** : [`data/periodes_lacher_reference.md`](../../data/periodes_lacher_reference.md), valeurs mesurées de Coulling et al. 2013, source et page citées) ; vous pouvez aussi confronter à `s9gm.hydro` (séance 0b). Un écart se **chiffre et s'attribue**, il ne se constate pas.
+la valeur seule, est ce qui compte). **Comparez aux périodes propres publiées** (valeurs de référence données dans [`data/periodes_lacher_reference.md`](../../data/periodes_lacher_reference.md), valeurs mesurées de Coulling et al. 2013, source et page citées) ; vous pouvez aussi confronter à `s9gm.hydro` (séance 0b). Un écart se **chiffre et s'attribue**, il ne se constate pas.
 
 | Symptôme | Cause | Geste |
 |---|---|---|

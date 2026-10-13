@@ -18,7 +18,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 Les trois groupes mettent leurs résultats en commun dans **un seul tableau de sensibilité** : pour chaque famille de paramètres, l'effet sur le dommage en pied de tour, le dommage aux chaumards et les extrêmes. Question finale : **pour un projet réel sur ce site, quelles études de sensibilité demanderiez-vous au bureau d'études, et lesquelles jugeriez-vous inutiles ?**
 
 **Le point commun est le cas `D01`** (cas de référence de la phase 2, `cas/D01`, le même pour les trois groupes) ; **la sensibilité de chaque groupe, elle, part de la LCT du groupe** (phase 2, étape 3). La synthèse rapporte donc l'effet de chaque variation au cas `D01` lancé **par chaque groupe** : si les trois `D01` ne s'accordent pas, il y a un défaut de méthode à trouver **avant** toute comparaison de familles.
-Ce dépôt ne fixe pas **comment** les groupes échangent leurs fichiers : chaque groupe dépose le fichier de synthèse de son groupe dans le dossier commun que l'enseignant indique, et chacun rapatrie les trois dans `rendus/groupes/` (dossier ignoré par git).
+Les groupes échangent leurs fichiers par **dépôt sur Vega**, avec un **nom imposé par groupe** : `synthese_<groupe>.csv` (celui que l'étape 1 écrit dans `rendus/`). Chacun rapatrie les trois fichiers dans `rendus/groupes/` (dossier ignoré par git).
 Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les phases précédentes dans `results/` (`results/phase3_parametres.json`, `results/D01`, `results/phase2/S*`, `results/lct_sensibilite.csv`, `results/phase4_uls.csv`).
 Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas.
 

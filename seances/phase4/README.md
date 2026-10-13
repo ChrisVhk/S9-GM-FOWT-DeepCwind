@@ -125,7 +125,7 @@ lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal="results/
 ### Étape 3 — Extrêmes et charge de rupture de la ligne (point 2)
 
 Pour chaque cas : le maximum de chaque tension de chaumard, celui du moment en pied de tour, les mouvements maximaux du flotteur ; puis le rapport de la tension maximale à la **charge de rupture de la ligne** divisée par le **coefficient de sécurité que vous retenez**.
-**La charge de rupture de la ligne n'est pas dans ce dépôt** : `data/geometrie_deepcwind.md` la déclare ouverte, et aucune source locale ne la donne. Vous la recevez de l'enseignant avec sa source (ou vous la calculez et la marquez « hypothèse », avec votre formule et la source de ses données). Le coefficient de sécurité est le vôtre, à justifier (norme d'ancrage citée).
+**La charge de rupture de la ligne n'est pas dans ce dépôt** : `data/geometrie_deepcwind.md` la déclare ouverte, et aucune source locale ne la donne. **Vous la justifiez avec la norme** : la charge de rupture (nature de la chaîne, diamètre, classe, formule ou tableau de la norme, avec son édition et sa page) **et** le coefficient de sécurité (norme d'ancrage, classe de conséquence), comme vous l'avez fait pour `IECturbc`. Une valeur sans source se marque « hypothèse ». Ce qui est noté est la justification et la source, pas le nombre.
 
 ```python
 from pathlib import Path

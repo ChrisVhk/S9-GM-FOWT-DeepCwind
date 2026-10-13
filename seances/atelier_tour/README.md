@@ -260,8 +260,8 @@ sur d'éventuels effets de séquence (Miner suppose le dommage indépendant de l
 ci-dessus suppose aussi un exposant `m` unique, alors que la courbe S-N réelle est bilinéaire (un
 coude, voir §3) : c'est l'hypothèse « monopente » que cite la [phase 3](../phase3/README.md) (point 6) parmi
 les limites du DEL. Il ne dit pas non plus si la distribution de vent utilisée est représentative
-d'une vie de 20-25 ans — voir la [phase 3](../phase3/README.md), point 7 (confrontation à une référence de
-50 ans).
+d'une vie de 20-25 ans — voir la [phase 3](../phase3/README.md), point 7 (confrontation à un DEL de
+référence).
 
 **Renvois** : lexique de la chaîne de charges dans l'`ENONCE.md` (définitions DEL court/long
 terme) ; onglet `Long term DEL` du classeur ; [phase 3](../phase3/README.md) où vous programmerez ce

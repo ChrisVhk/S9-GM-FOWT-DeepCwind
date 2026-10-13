@@ -469,7 +469,7 @@ Comparer, sur un même état de mer, l'effort dans une entretoise obtenu au nive
 ### Étape 9 — Niveau D : assemblage, éléments finis locaux (lecture d'une étude publiée)
 
 À partir de l'**étude publiée** sur l'assemblage colonne-entretoise d'une semi-submersible, expliquer la chaîne *efforts globaux → modèle local éléments finis → SCF au point chaud → S-N → durée de vie*, et discuter les ordres de grandeur obtenus.
-**Cette étude n'est pas dans ce dépôt** (`annexes/papers/` ne la contient pas) : elle vous est remise avec sa source. Aucune commande : c'est un travail de lecture et de discussion.
+L'étude est : Ø. Fredheim, *Fatigue Analysis of Column-Brace Connection in a Semi-submersible Wind Turbine*, mémoire de master, NTNU, 2012, lien permanent <https://hdl.handle.net/11250/238200>. **Elle n'est pas redistribuée dans ce dépôt** (sa licence n'est pas confirmée) : vous la lisez à son adresse. Aucune commande : c'est un travail de lecture et de discussion.
 
 Rappel : aux niveaux A, B et C on obtient une contrainte **nominale**. Le SCF reste indispensable, et il faut savoir justifier d'où il vient.
 
