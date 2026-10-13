@@ -24,7 +24,7 @@ Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas.
 
 ### Étape 1 — La synthèse de votre groupe (un fichier, au format commun)
 
-Pour `D01` et pour chaque cas de votre sensibilité (`results/phase2/S*`) : le dommage de fatigue en pied de tour **rapporté à une heure** (même courbe S-N, même section, même `SCF` que la phase 3), le DEL de la tour, le DEL de la ligne la plus chargée, le maximum du moment en pied de tour et de la tension de chaumard. Pour chaque cas ULS (phase 4) : le maximum de la tension et du moment en pied. Le format est **le même pour les trois groupes** : c'est ce qui permet de les rassembler.
+Pour `D01` et pour chaque cas de votre sensibilité (`results/phase2/S*`) : le dommage de fatigue en pied de tour **rapporté à une heure** (même courbe S-N, même section, même `SCF` que la phase 3), le DEL de la tour, le DEL de la ligne la plus chargée, le maximum du moment en pied de tour, de la tension de chaumard et des mouvements du flotteur (`PtfmSurge`, `PtfmHeave`, `PtfmPitch`). Pour chaque cas ULS (phase 4) : le maximum de la tension et du moment en pied. Le format est **le même pour les trois groupes** : c'est ce qui permet de les rassembler.
 
 ```python
 import json
@@ -62,11 +62,13 @@ for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]
                    "dommage_tour_par_heure": fatigue.miner(r["etendue"], r["compte"], courbe, t=P["t_paroi"] * 1e3, t_ref=P["T_REF"]) * 3600 / T,
                    "DEL_tour_MPa": fatigue.del_court_terme(r["etendue"], r["compte"], P["M_TOUR"], P["F_EQ"] * T),
                    "DEL_ligne_max_N": max(del_lignes),
-                   "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[f"FAIRTEN{k}"].max() for k in (1, 2, 3)))})
+                   "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[f"FAIRTEN{k}"].max() for k in (1, 2, 3))),
+                   **{f"max_{c}": float(u[c].abs().max()) for c in ("PtfmSurge", "PtfmHeave", "PtfmPitch")}})
 uls = pd.read_csv("results/phase4_uls.csv")
 for _, x in uls.iterrows():
     lignes.append({"groupe": GROUPE, "famille": FAMILLE, "type": "extrême", "cas": x["cas"], "variation": "",
-                   "max_TwrBsMyt_kNm": x["max_TwrBsMyt_kNm"], "max_tension_N": x["max_tension"]})
+                   "max_TwrBsMyt_kNm": x["max_TwrBsMyt_kNm"], "max_tension_N": x["max_tension"],
+                   **{c: x[c] for c in ("max_PtfmSurge", "max_PtfmHeave", "max_PtfmPitch")}})
 Path("rendus").mkdir(exist_ok=True)
 pd.DataFrame(lignes).to_csv(f"rendus/synthese_{GROUPE}.csv", index=False)
 print(pd.DataFrame(lignes).round(4).to_string(index=False))
@@ -111,13 +113,16 @@ for g, bloc in tout.groupby("groupe"):
                        "dommage_tour_relatif": x["dommage_tour_par_heure"] / ref["dommage_tour_par_heure"],
                        "DEL_ligne_relatif": x["DEL_ligne_max_N"] / ref["DEL_ligne_max_N"],
                        "max_moment_relatif": x["max_TwrBsMyt_kNm"] / ref["max_TwrBsMyt_kNm"],
-                       "max_tension_relatif": x["max_tension_N"] / ref["max_tension_N"]})
+                       "max_tension_relatif": x["max_tension_N"] / ref["max_tension_N"],
+                       "max_PtfmSurge_relatif": x["max_PtfmSurge"] / ref["max_PtfmSurge"],
+                       "max_PtfmHeave_relatif": x["max_PtfmHeave"] / ref["max_PtfmHeave"],
+                       "max_PtfmPitch_relatif": x["max_PtfmPitch"] / ref["max_PtfmPitch"]})
 synthese = pd.DataFrame(lignes)
 synthese.to_csv("rendus/tableau_synthese.csv", index=False)
 print(synthese.round(3).to_string(index=False))
 ```
 
-**Vous devez voir** : la liste des fichiers rassemblés (trois), l'écart relatif des trois `D01` à leur moyenne et le verdict de cohérence à **votre** tolérance, puis le **tableau de synthèse** : une ligne par variation, avec ses quatre effets **relatifs au `D01` de son groupe** (1 = pas d'effet), écrit dans `rendus/tableau_synthese.csv`.
+**Vous devez voir** : la liste des fichiers rassemblés (trois), l'écart relatif des trois `D01` à leur moyenne et le verdict de cohérence à **votre** tolérance, puis le **tableau de synthèse** : une ligne par variation, avec ses sept effets **relatifs au `D01` de son groupe** (1 = pas d'effet), écrit dans `rendus/tableau_synthese.csv`.
 Si le verdict est `False`, **cherchez pourquoi avant de continuer** (version d'OpenFAST, modèle modifié par erreur, fenêtre différente) ; ne le contournez pas en élargissant la tolérance sans le dire.
 
 | Symptôme | Cause | Geste |
@@ -138,7 +143,8 @@ from s9gm import visu
 
 synthese = pd.read_csv("rendus/tableau_synthese.csv")
 EFFETS = [("dommage_tour_relatif", "dommage du pied de tour / D01"), ("DEL_ligne_relatif", "DEL de la ligne / D01"),
-          ("max_moment_relatif", "moment max en pied / D01"), ("max_tension_relatif", "tension max / D01")]
+          ("max_moment_relatif", "moment max en pied / D01"), ("max_tension_relatif", "tension max / D01"),
+           ("max_PtfmSurge_relatif", "cavalement max / D01"), ("max_PtfmPitch_relatif", "tangage max / D01")]
 panneaux = []
 for colonne, etiquette in EFFETS:
     courbes = []
@@ -152,11 +158,11 @@ fig.savefig("rendus/synthese_sensibilite.png", dpi=150, facecolor="white")
 print("figure : rendus/synthese_sensibilite.png")
 ```
 
-**Vous devez voir** : la figure `rendus/synthese_sensibilite.png`, quatre panneaux (un par effet), une couleur et une forme de point par famille, la ligne de provenance en pied. **Lisez-la** : quelle famille déplace le plus le dommage du pied de tour ? Celui des lignes ? Les extrêmes ? Y en a-t-il une dont l'effet est dans le bruit d'une seule réalisation (phase 2, étape 5) ?
+**Vous devez voir** : la figure `rendus/synthese_sensibilite.png`, six panneaux (un par effet), une couleur et une forme de point par famille, la ligne de provenance en pied. **Lisez-la** : quelle famille déplace le plus le dommage du pied de tour ? Celui des lignes ? Les extrêmes ? Y en a-t-il une dont l'effet est dans le bruit d'une seule réalisation (phase 2, étape 5) ?
 
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `ValueError` de `tracer_courbes` | plus de six panneaux, ou provenance manquante | quatre panneaux ici ; `cas`, `modele` et `etat` sont obligatoires |
+| `ValueError` de `tracer_courbes` | plus de six panneaux, ou provenance manquante | six panneaux ici ; `cas`, `modele` et `etat` sont obligatoires |
 | une seule famille tracée | les trois fichiers n'ont pas des `famille` distincts | vérifiez la colonne `famille` de chaque fichier de synthèse |
 
 ### Étape 4 — Rédiger la synthèse et préparer la soutenance

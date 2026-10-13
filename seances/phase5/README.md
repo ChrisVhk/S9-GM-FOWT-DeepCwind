@@ -28,8 +28,9 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 *Les renvois « §n » à l'atelier tour (§2, §4, §9b, §10) suivent la correspondance donnée au début de sa [consigne](../atelier_tour/README.md).*
 
-Les six points de l'ENONCE sont repris ci-dessous, avec leurs commandes. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les blocs précédents ou par les phases 3 et 4, dans `results/` :
+Les étapes ci-dessous suivent ce que l'ENONCE exige (§3, §3 bis, §4) ; la numérotation « point n » est celle de la consigne de la phase. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les blocs précédents ou par les phases 3 et 4, dans `results/` :
 `results/phase3_parametres.json` (vos choix de la phase 3 : diamètre et épaisseur au pied, `SCF`, exposants, courbe S-N, DFF), `results/phase3/` et `results/phase4/` (vos sorties), `results/etats_phase1.csv` (vos occurrences). Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, chacune se justifie dans votre rendu.
+**Partage séance / maison.** En séance : l'étape 1 et le lancement du second passage de l'atelier sur vos propres données (étapes 2 et 3). À la maison : la fin de ce second passage (sections FLS/ULS au-delà de la première jauge, étape 2 ; ≈ 3 h) et la boucle de dimensionnement (étapes 4 et 5 ; ≈ 2 h).
 **Ce qui est proposé aux trois groupes : les niveaux A et B et le domaine de validité des SCF. Le niveau C (groupe centre) est « sous réserve de faisabilité » et n'a pas de commande ici.**
 
 ### Étape 1 — Votre copie du squelette `s9gm.structure`, et les tests qui doivent passer
@@ -179,7 +180,7 @@ Le tableau complet (`results/phase5_tour_epaisseurs.csv`) dit **quel critère di
 
 À chaque jauge (pied, milieu, sommet), **trois DEL, à comparer deux à deux** (atelier tour, §9b) : (1) **la méthode de l'atelier** : `DEL(effort tranchant) × bras de levier + DEL(moment)`, deux DEL combinés après coup ; (2) **le calcul exact du même modèle de transport** : le signal combiné point par point, `effort tranchant(t) × bras + moment(t)`, puis **un seul** rainflow ;
 (3) **le DEL du moment mesuré à la jauge** (`TwHt<N>MLyt`). L'effort tranchant et le moment sont ceux du **palier d'orientation** en tête de tour (`YawBrFxp`, `YawBrMyp`), le bras de levier est la différence entre la hauteur de la tour et celle de la jauge. **1 contre 2** isole le coût de l'hypothèse de concomitance ; **2 contre 3** isole ce que le transport statique ne capture pas (poids propre, inertie, mouvements du flotteur).
-**Ne comparez pas 1 et 3 directement.** L'exposant `m = 4` est celui de la branche principale, `m = 3` et `m = 5` ceux de la sensibilité (consigne de la phase).
+**Ne comparez pas 1 et 3 directement.** Les exposants sont ceux de **cette consigne** (reprise de la consigne d'origine de la phase) : `m = 4` pour la branche principale, `m = 3` et `m = 5` pour la sensibilité ; si l'exposant de votre courbe S-N de la phase 3 diffère, dites pourquoi vous gardez ceux-ci.
 
 ```python
 import json

@@ -7,6 +7,10 @@ Consigne autonome de la phase. Le cadre du projet (objectifs, évaluation, règl
 
 Fatigue : rainflow, S-N, Miner, DEL court et long terme. Volume indicatif : 8 h. Rendu : **R3**.
 
+**Pourquoi** : un bureau d'études doit dire si la tour et les lignes d'ancrage tiennent leur durée de service, et quel état de mer les use le plus ; le DEL permet de comparer des cas sans refaire tout le calcul de dommage, au prix d'hypothèses qu'il faut savoir dire.
+
+**À la main d'abord** : avant tout rainflow, écrivez l'ordre de grandeur que vous attendez pour le DEL du moment en pied de tour de votre cas le plus chargé (à partir de l'écart-type de votre signal et de `m`) ; vous le confronterez au calcul de l'étape 3.
+
 **Travail personnel estimé** : ≈ 3 h — la fin du premier passage de l'atelier tour (étape 0 : `SCF = 2` et le comparatif avec `SCF = 1`) se termine à la maison ; le début (prise en main, `SCF = 1`) se fait en séance.
 
 ## 2. Avant de commencer
@@ -19,7 +23,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
-Les sept points de l'ENONCE, dans l'ordre. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits
+Les étapes de cette phase suivent ce que l'ENONCE exige (§3 bis, §4, §5) ; la numérotation « point n » est celle de la consigne de la phase, dont l'ENONCE renvoie ici. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits
 par les blocs précédents, dans `results/`. Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, et chacune se **justifie** dans votre note de calcul.
 Les états de mer, leurs occurrences et la durée de simulation viennent de **votre LCT validée** (phase 1) : `results/lct_phase1_cas.csv` et `results/etats_phase1.csv`.
 
@@ -57,6 +61,21 @@ for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_FA
                        env={**os.environ, **extra}, capture_output=True, text=True)
     print("==", etiquette)
     print("\n".join(r.stdout.strip().splitlines()[-8:]))
+
+# point de contrôle de l'ENONCE : DEL programmé = DEL de l'outil sur une sinusoïde (résultat connu à l'avance : 60 cycles d'étendue 100)
+import numpy as np
+from openfast_toolbox.tools.fatigue import equivalent_load
+
+sys.path.insert(0, "results/mon_s9gm")
+import fatigue
+
+t = np.linspace(0, 600, 24001)
+x = 50 * np.cos(2 * np.pi * t / 10)
+try:
+    r = fatigue.rainflow(x)
+    print("DEL de votre copie :", fatigue.del_court_terme(r["etendue"], r["compte"], 3, 600.0), "; DEL de l'outil :", equivalent_load(t, x, m=3, Teq=1.0))
+except NotImplementedError:
+    print("DEL de votre copie : pas encore programmé")
 ```
 
 **Vous devez voir**, dans la partie « squelette du dépôt » : des tests `xfailed` (attendus en échec : `NotImplementedError`) et des `passed` (les parties déjà écrites). Dans la partie « votre copie » : **tant que vos fonctions ne sont pas programmées, des `failed`** (la variable désigne alors votre copie : un trou n'est plus « attendu en échec ») ; **une fois les quatre programmées, `passed` pour tous les tests de `test_fatigue.py`, aucun `failed`, aucun `xfailed`**. Les tests sont des calculs
@@ -71,7 +90,7 @@ for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_FA
 
 ### Étape 2 — Lancer les cas de votre LCT (point 1)
 
-Votre LCT est validée : on lance maintenant ses cas. Un cas de 600 s prend environ 12 min de calcul sur la machine de développement (voir « Temps mesurés ») ; `coeurs` cas tournent en parallèle. **La durée** est un choix du projet (600 s dans l'énoncé de la phase 2) : la même pour tous les cas.
+Votre LCT est validée : on lance maintenant ses cas. Un cas de 600 s prend environ 12 min de calcul sur la machine de développement (voir « Temps mesurés ») ; `coeurs` cas tournent en parallèle. **La durée** est un choix du projet (600 s par cas : phase 1, point 3) : la même pour tous les cas.
 
 ```python
 import pandas as pd
@@ -96,7 +115,7 @@ lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal="results/
 
 ### Étape 3 — Du moment à la contrainte, rainflow, DEL court terme et dommage de chaque cas (points 1 à 5)
 
-Ce bloc enchaîne, pour **chaque cas** : la lecture de `TwrBsMyt` après le transitoire ; la contrainte nominale de flexion en pied de tour, multipliée par `SCF = 2` (hypothèse d'avant-projet de l'énoncé) ; le rainflow ; le DEL court terme ;
+Ce bloc enchaîne, pour **chaque cas** : la lecture de `TwrBsMyt` après le transitoire ; la contrainte nominale de flexion en pied de tour, multipliée par `SCF = 2` (hypothèse d'avant-projet du projet, déjà posée à l'étape 0 de l'atelier ; à justifier comme telle) ; le rainflow ; le DEL court terme ;
 le même DEL par l'outil d'`openfast_toolbox` ; le dommage de Miner ; puis le DEL court terme des tensions `FAIRTEN1` à `FAIRTEN3`. Il prépare aussi le tableau de la suite.
 
 **Ce que vous devez avoir décidé avant de lancer** (chaque valeur est à justifier dans votre note, avec sa source) :
@@ -125,7 +144,7 @@ AERO = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_
 D = float(FASTInputFile(AERO)["TowProp"][0][1])         # diamètre extérieur au pied (m), lu dans le fichier AeroDyn
 t_paroi = <votre épaisseur de paroi (m)>                 # à retrouver à partir de TMassDen et de votre masse volumique
 A, I, W = structure.section_tubulaire(D, t_paroi)
-SCF = 2                                                  # hypothèse d'avant-projet (énoncé)
+SCF = 2                                                  # hypothèse d'avant-projet (étape 0 de l'atelier tour)
 M_TOUR, M_LIGNE, F_EQ = <votre exposant m>, <votre exposant m de la ligne>, <votre f_eq (Hz)>
 T_TRANS, T_REF = <votre valeur>, <votre épaisseur de référence (mm)>
 DFF, SERVICE = <votre DFF>, <votre durée de service (ans)>           # imposés en séance (voir l'étape 4)
@@ -206,7 +225,7 @@ pd.DataFrame({"grandeur": ["DEL_long_terme_tour", "dommage_annuel", "dommage_x_D
               "valeur": [del_tour_lt, D_an, verdict["dommage_x_dff"], verdict["marge"], verdict["ok"]]}).to_csv("results/phase3_bilan.csv", index=False)
 ```
 
-**Vous devez voir** : le DEL long terme de la tour et des trois lignes, le dommage annuel, la durée de vie estimée **sans** coefficient de sécurité, puis le verdict `D · DFF ≤ 1` sur votre durée de service. **Le DFF est imposé** (l'énoncé ne le fixe pas : il vous est donné en séance, avec la durée de service de référence) ; ne le choisissez pas vous-mêmes. Un verdict `ok = True` ne dit pas que la tour tient en fatigue : relisez
+**Vous devez voir** : le DEL long terme de la tour et des trois lignes, le dommage annuel, la durée de vie estimée **sans** coefficient de sécurité, puis le verdict `D · DFF ≤ 1` sur votre durée de service. **Le DFF est imposé** (l'ENONCE ne le fixe pas : il vous est donné en séance ; la durée de service de référence qui l'accompagne ne figure pas non plus dans l'ENONCE) ; ne le choisissez pas vous-mêmes. Un verdict `ok = True` ne dit pas que la tour tient en fatigue : relisez
 « ce que le modèle ne permet pas de conclure » dans le bloc Théorie de `miner`.
 
 | Symptôme | Cause | Geste |
@@ -293,7 +312,7 @@ print("DEL du signal, basses fréquences, hautes fréquences :", del_de(my), del
 
 ### Point 7 — Confrontation à une référence de 50 ans
 
-Le projet FLOATECH a simulé la même éolienne OC4 sur le même site pendant 50 ans d'états de mer réels (environ 450 000 simulations d'une heure) : comparer le DEL long terme de votre LCT de 10 à 15 cas au DEL de cette référence mesure la qualité de votre binning et de votre lumping. **Ce DEL de référence
+Une référence de 50 ans d'états de mer réels, simulés pour la même éolienne sur le même site, est annoncée par la consigne d'origine : comparer le DEL long terme de votre LCT de 10 à 15 cas au DEL de cette référence mesurerait la qualité de votre binning et de votre lumping. **Ni cette référence ni sa source ne sont dans ce dépôt** (les données ERA5 de `data/metocean/` couvrent 1979-2000 et ne contiennent pas de simulation OpenFAST). **Ce DEL de référence
 n'est pas dans ce dépôt** : aucun fichier de ce type n'est déposé dans `data/` à ce jour, et cette consigne n'en invente pas la valeur. **Aucune commande n'est donc donnée pour ce point** tant que l'enseignant n'a pas déposé le fichier et sa source. Ce que vous pouvez préparer d'ici là : votre DEL long terme (étape 4), la liste des choix de binning et de lumping que vous avez faits (phase 1), et ce que
 vous attendez de l'écart.
 

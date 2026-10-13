@@ -7,6 +7,10 @@ Consigne autonome de la phase. Le cadre du projet (objectifs, évaluation, règl
 
 Extrêmes (ULS) et ancrage. Volume indicatif : 12 h. Rendu : **R4**.
 
+**Pourquoi** : une ligne d'ancrage se dimensionne sur son extrême ; le bureau d'études doit savoir quel cas la sollicite le plus et si une méthode quasi-statique, bien moins chère, suffit pour le dire.
+
+**À la main d'abord** : avant de lancer les cas ULS, estimez avec votre `raideur_horizontale` (à la main sur un cas, ou après l'étape 1) le déport que produit la poussée du rotor et la tension de chaumard qui en résulte ; vous la confronterez à l'étape 3.
+
 ## 2. Avant de commencer
 
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
@@ -17,7 +21,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
-Les quatre points de l'ENONCE. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits par les blocs précédents, dans `results/`.
+Les étapes de cette phase suivent ce que l'ENONCE exige (§3, §3 bis) ; la numérotation « point n » est celle de la consigne de la phase. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits par les blocs précédents, dans `results/`.
 Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, et chacune se justifie dans votre rendu. Vous partez de **vos lignes extrêmes** de la phase 1 (`results/extremes_phase1.csv`, DLC 6.1 et 1.6) et de votre LCT (`results/lct_phase1_cas.csv`).
 
 ### Étape 1 — Votre copie du squelette `s9gm.ancrage`, et les tests qui doivent passer
@@ -65,7 +69,7 @@ Pour **chaque ligne extrême** de votre phase 1, deux cas : la **référence** (
 Ce que l'outillage permet, et ce qu'il ne fait pas pour vous :
 - **DLC 1.6** (état de mer sévère, rotor en fonctionnement) : comme en phase 3, avec le gabarit TurbSim (vent de turbulence normale, `NTM`) à la vitesse `U_hub` de la ligne, et son état de mer ;
 - **DLC 6.1** (vent extrême, rotor à l'arrêt, état de mer extrême). **Le gabarit est un vent `NTM`** ; pour un vent extrême, la colonne `turbsim.IEC_WindType` prend `<x>EWM50` (ou `<x>EWM1`), où `x` est **la classe de la machine** (1, 2 ou 3 : votre choix, à justifier avec celui de la phase 1).
-  Deux conséquences que le test de cette consigne a mesurées : (i) **la colonne `turbsim.URef` n'a alors plus d'effet** : la vitesse moyenne vient de la classe `x` (lisez-la dans `results/phase4/<cas>/Wind/<cas>.sum`) ; (ii) **`IECturbc` doit être une lettre** (`A`, `B` ou `C`) : TurbSim refuse un pourcentage avec un vent extrême. Le rotor à l'arrêt se **modélise** ainsi : `elastodyn.GenDOF` à `False`,
+  Deux conséquences constatées en préparant cette consigne (à refaire : lisez le `.sum` produit et le message de TurbSim) : (i) **la colonne `turbsim.URef` n'a alors plus d'effet** : la vitesse moyenne vient de la classe `x` (lisez-la dans `results/phase4/<cas>/Wind/<cas>.sum`) ; (ii) **`IECturbc` doit être une lettre** (`A`, `B` ou `C`) : TurbSim refuse un pourcentage avec un vent extrême. Le rotor à l'arrêt se **modélise** ainsi : `elastodyn.GenDOF` à `False`,
   `elastodyn.RotSpeed` à 0, `elastodyn.BlPitch(1)`, `(2)`, `(3)` au calage de drapeau, et une **copie du fichier ServoDyn sous `results/`** où les trois `TPitManS` valent 0 (manœuvre de pas vers `BlPitchF` dès le début) ; la colonne `fst.ServoFile` pointe la copie. Ce n'est **ni un frein ni un arrêt d'urgence modélisés** : c'est une approximation à dire dans votre rendu.
   **L'azimut du rotor arrêté** (`elastodyn.Azimuth`) et le **désalignement** vent-houle sont des choix ; la houle reste à 0° (limite du modèle, phase 1).
 - **Le choix de la période de retour** (DLC 6.1), des **classes de vent** (DLC 1.6), la **hauteur de référence de `Uw`** et la justification du DLC 6.2 sont **les vôtres** : ils sont déjà faits dans `results/extremes_phase1.csv`. Ce bloc ne les décide pas ; il les lit.
@@ -169,13 +173,14 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from openfast_toolbox.io import FASTInputFile
 from s9gm import lire
 
 sys.path.insert(0, "results/mon_s9gm")
 import ancrage                                                # VOTRE copie complétée (étape 1)
 
 MOORDYN = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat"
-RHO = <votre masse volumique de l'eau (kg/m3)>               # `WtrDens` vaut « default » dans SeaState.dat : la valeur par défaut est dans le manuel SeaState, à citer
+RHO = float(FASTInputFile("modeles/flottant/main.fst")["WtrDens"])           # masse volumique de l'eau (kg/m3) du modèle ; `SeaState.dat` dit « default » (voir le manuel de SeaState)
 lignes_mooring = ancrage.lire_moordyn(MOORDYN, RHO)
 
 resultat = []
@@ -197,7 +202,7 @@ print(comparaison.round(3).to_string(index=False))
 ```
 
 **Vous devez voir** : une ligne par cas et par ligne ; les **moyennes** des deux approches proches (la tension moyenne est une affaire de position moyenne), les **maximums** qui s'écartent d'autant plus que le cas est dynamique. **Dites quand l'approche quasi-statique sous-estime le maximum**
-(signe de `ecart_max_relatif`), et ce que la dynamique de la ligne apporte que la caténaire n'a pas : c'est la question de l'ENONCE, et le **groupe centre** la prolonge à l'étape 5.
+(signe de `ecart_max_relatif`), et ce que la dynamique de la ligne apporte que la caténaire n'a pas : c'est la question du groupe centre dans l'ENONCE ; **tous les groupes** la traitent ici (elle éclaire leur variante), et le **groupe centre** la prolonge à l'étape 5.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
@@ -209,7 +214,7 @@ print(comparaison.round(3).to_string(index=False))
 
 Le groupe centre relance le **même cas extrême** avec l'ancrage quasi-statique (MAP++), toutes choses égales par ailleurs, et compare les tensions. **Correspondance des canaux, établie** : MAP++ nomme les trois tensions de chaumard `T[1]`, `T[2]`, `T[3]`, et `T[i]` correspond à `FAIRTEN` *i* de MoorDyn (`T[1]` ↔ `FAIRTEN1`, `T[2]` ↔ `FAIRTEN2`, `T[3]` ↔ `FAIRTEN3`).
 La raison : le fichier MAP ne décrit qu'**une** ligne (celle du chaumard à 60°) et la répète par `repeat 240 120` ; MAP++ numérote la première répétition à +120° (cap 180°, ligne 2 de MoorDyn) et la seconde à +240° (cap 300°, ligne 3 de MoorDyn).
-**Comment cela a été établi** (vous pouvez le refaire : le bloc ci-dessous le vérifie sur deux calculs de 5 s) : un flotteur décalé de 10 m en **cavalement** tend la ligne du cap 180° ; décalé de 10 m en **embardée**, il tend la ligne du cap 300° ; dans les deux calculs, les tensions initiales de MAP++ sont dans le même ordre que celles de MoorDyn (à 0,4 % près).
+**Comment cela a été établi** (vous pouvez le refaire : le bloc ci-dessous le vérifie sur deux calculs de 5 s) : un flotteur décalé de 10 m en **cavalement** tend la ligne du cap 180° ; décalé de 10 m en **embardée**, il tend la ligne du cap 300° ; dans les deux calculs, la ligne la plus tendue est la même avec MAP++ et avec MoorDyn, et les tensions initiales concordent à moins d'un demi-pour-cent.
 
 ```python
 import pandas as pd
@@ -230,12 +235,12 @@ for axe, cle in (("cavalement", "elastodyn.PtfmSurge"), ("embardee", "elastodyn.
     mp, _ = lire.lire(f"results/phase4_correspondance_{axe}/{axe}_MAP/main.outb")
     t_md = md.loc[0, ["FAIRTEN1", "FAIRTEN2", "FAIRTEN3"]].to_numpy(dtype=float)
     t_mp = mp.loc[0, ["T[1]", "T[2]", "T[3]"]].to_numpy(dtype=float)
-    ordre[axe] = (t_md.argsort().tolist(), t_mp.argsort().tolist())
+    ordre[axe] = (int(t_md.argmax()), int(t_mp.argmax()))                  # la ligne la plus tendue (les deux autres sont symétriques : leur ordre ne discrimine pas)
     print(axe, "MoorDyn :", t_md.round(0), "MAP++ :", t_mp.round(0))
-print("même ordre des trois lignes dans les deux calculs ?", {a: o[0] == o[1] for a, o in ordre.items()})
+print("même ligne la plus tendue dans les deux calculs ?", {a: o[0] == o[1] for a, o in ordre.items()})
 ```
 
-**Vous devez voir** : pour chaque axe, les trois tensions initiales de MoorDyn et de MAP++ (proches, au demi-pour-cent), et `True` pour les deux axes (même ordre des trois lignes). Les cas sont sans vent ni houle : c'est une vérification d'indexation, pas un cas d'étude.
+**Vous devez voir** : pour chaque axe, les trois tensions initiales de MoorDyn et de MAP++ (proches, à moins d'un demi-pour-cent), et `True` pour les deux axes (même ligne la plus tendue). Les cas sont sans vent ni houle : c'est une vérification d'indexation, pas un cas d'étude.
 
 Puis, pour votre étude, **relancez votre cas extrême le plus pénalisant** avec MAP++ : dans `results/lct_phase4.csv`, recopiez la ligne du cas, nommez-la `<cas>_MAP`, et fixez `fst.CompMooring` à 1 et `fst.MooringFile` au fichier `…MAP.dat`
 (chemin relatif au dossier du cas : `../../../modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_MAP.dat`). Comparez ensuite `T[i]` à `FAIRTEN i` comme à l'étape 3 : **quand l'approche quasi-statique sous-estime-t-elle les tensions ?**
@@ -244,7 +249,7 @@ Puis, pour votre étude, **relancez votre cas extrême le plus pénalisant** ave
 |---|---|---|
 | `KeyError: 'T[1]'` | le cas n'a pas été lancé avec MAP++ | `fst.CompMooring` doit valoir 1 et le fichier être le `…MAP.dat` |
 | OpenFAST : « … MAP.dat was not found » | chemin relatif au dossier du cas | un cas sous `results/<dossier>/<cas>` : `../../../modeles/…` |
-| `False` à la vérification d'ordre | indexation différente de celle de cette consigne | ne comparez pas avant d'avoir trouvé pourquoi : ouvrez les deux fichiers de lignes |
+| `False` à la vérification de la ligne la plus tendue | indexation différente de celle de cette consigne | ne comparez pas avant d'avoir trouvé pourquoi : ouvrez les deux fichiers de lignes |
 
 ### Étape 6 — Rainflow des tensions de chaumard
 
