@@ -98,14 +98,50 @@ def test_phase_3_etapes_de_l_enonce_et_renvoi_a_l_atelier():
     assert "<votre DFF>" in c and "<votre exposant m>" in c
 
 
-def test_phase_3_le_del_de_reference_de_50_ans_n_a_pas_de_commande_sans_fichier_depose():
-    """L'énoncé dit « DEL de référence fourni » : aucun fichier de ce nom n'est dans le dépôt. La consigne le dit au lieu d'inventer."""
+def test_phase_3_point_7_confronte_a_un_del_de_reference_calcule_sur_les_classes_floatech_sans_valeur_dans_le_public():
+    """Le DEL de référence est calculé sur les 251 classes de la feuille DLC12 (Papi et al., § 2.3.2) et communiqué en séance :
+    la consigne le dit, ne contient aucune valeur de DEL, et ne parle ni de « 50 ans simulés » ni de simulations FLOATECH."""
     t = plat(texte(3))
-    assert "50 ans" in t
+    i = t.index("Point 7")
+    pt7 = t[i:i + 2500]
+    for mot in ("251 classes", "DLC12", "communiqué en séance", "binning", "lumping"):
+        assert mot in pt7, mot
     assert not (RACINE / "data" / "del_reference_50ans.csv").exists()
-    i = t.index("50 ans")
-    voisinage = t[i - 200: i + 1500].lower()
-    assert "n'est pas dans ce dépôt" in voisinage or "pas déposé" in voisinage or "pas encore déposé" in voisinage
+    assert not re.search(r"\d+[.,]?\d*\s*(?:MPa|kN)", pt7), "valeur de DEL écrite"
+
+
+def test_la_reference_de_50_ans_simules_n_existe_plus_nulle_part_dans_le_public():
+    """Garde : la « référence de 50 ans » était une erreur (50 ans est la période de retour des états SSS et ESS, pas une durée simulée)."""
+    import subprocess
+    r = subprocess.run(["git", "grep", "-n", "-i", "-e", "450 000", "-e", "50 ans d'états", "-e", "référence fournie", "-e", "référence de 50 ans",
+                        "--", ".", ":!s9gm/tests/test_phases_3_6_contenu.py"], cwd=RACINE, capture_output=True, text=True)
+    assert r.stdout == "", r.stdout
+
+
+@pytest.mark.parametrize("n,mots", [
+    (3, ("DFF", "durée de service", "DNV", "justifiez")),
+    (4, ("charge de rupture", "coefficient de sécurité", "norme", "justifiez")),
+])
+def test_dff_duree_de_service_charge_de_rupture_sont_des_parametres_a_justifier_avec_la_norme(n, mots):
+    t = plat(texte(n))
+    for mot in mots:
+        assert mot in t, mot
+    assert "il vous est donné en séance" not in t and "Vous la recevez de l'enseignant" not in t
+    assert not re.search(r"\b(?:DFF|coefficient de sécurité)\s*(?:=|vaut|de)\s*\d", t)
+
+
+def test_phase_5_niveau_d_cite_le_memoire_sans_le_redistribuer():
+    t = plat(texte(5))
+    assert "Fredheim" in t and "NTNU" in t and "2012" in t
+    assert "https://hdl.handle.net/11250/238200" in t
+    assert "redistribu" in t.lower()
+    assert not list((RACINE / "annexes" / "papers").glob("*redheim*"))
+
+
+def test_phase_6_l_echange_se_fait_par_depot_sur_vega_sous_un_nom_impose():
+    t = plat(texte(6))
+    assert "Vega" in t and "synthese_<groupe>.csv" in t
+    assert "ne fixe pas comment" not in t
 
 
 # ---- phase 4 -----------------------------------------------------------------------------------------------------------

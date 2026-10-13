@@ -69,7 +69,7 @@ def test_les_limites_du_modele_sont_dites():
     t = _plat(_texte()).lower()
     assert "direction de houle" in t and "0°" in t                           # WaveDir : cap 0° seulement (WAMIT du second ordre)
     assert "hydrodyn" in t and ("copie" in t or "copiez" in t)               # théorie potentielle vs Morison : copie locale du fichier
-    assert "data/periodes_lacher_reference.md" in t and "référence fournie" in t   # périodes publiées : fournies, sourcées
+    assert "data/periodes_lacher_reference.md" in t and "valeurs de référence" in t   # périodes publiées : données dans le dépôt, sourcées
     assert "désalignement" in t and "question de discussion" in t               # limite du modèle, pas un oubli
 
 
