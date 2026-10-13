@@ -312,7 +312,7 @@ print("DEL du signal, basses fréquences, hautes fréquences :", del_de(my), del
 
 ### Point 7 — Confrontation à un DEL de référence
 
-Le DEL long terme de votre LCT de 10 à 15 cas (étape 4) est confronté à un **DEL de référence**, **calculé par l'enseignant sur les 251 classes de la feuille `DLC12`** du classeur FLOATECH (`data/metocean/`, Papi, Perignon et Bianchini, *J. Phys. Conf. Ser.* 2385 (2022) 012117, § 2.3.2), avec le même modèle, les mêmes canaux et les mêmes `m` et `N_ref` que votre chaîne. **Ce DEL est communiqué en séance** : elle n'est pas dans ce dépôt, et ce dépôt n'en donne aucune commande.
+Le DEL long terme de votre LCT de 10 à 15 cas (étape 4) est confronté à un **DEL de référence**, **calculé par l'enseignant sur les classes de la feuille `DLC12`** du classeur FLOATECH (`data/metocean/`, Papi, Perignon et Bianchini, *J. Phys. Conf. Ser.* 2385 (2022) 012117, § 2.3.2), avec le même modèle, les mêmes canaux et les mêmes `m` et `N_ref` que votre chaîne. **Ce DEL est communiqué en séance** : elle n'est pas dans ce dépôt, et ce dépôt n'en donne aucune commande.
 L'écart mesure ce que vos choix de **binning** et de **lumping** (phase 1) font perdre : expliquez-le (classes écartées, valeur représentative de chaque classe, état de mer qui domine le dommage), et dites ce qu'il faudrait changer dans votre LCT pour le réduire.
 Ce que vous pouvez préparer avant la séance : votre DEL long terme, la liste de vos choix de binning et de lumping, et ce que vous attendez de l'écart (signe, ordre de grandeur).
 
