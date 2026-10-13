@@ -99,15 +99,16 @@ def test_phase_3_etapes_de_l_enonce_et_renvoi_a_l_atelier():
 
 
 def test_phase_3_point_7_confronte_a_un_del_de_reference_calcule_sur_les_classes_floatech_sans_valeur_dans_le_public():
-    """Le DEL de référence est calculé sur les 251 classes de la feuille DLC12 (Papi et al., § 2.3.2) et communiqué en séance :
+    """Le DEL de référence est calculé sur les classes de la feuille DLC12 (Papi et al.) et communiqué en séance :
     la consigne le dit, ne contient aucune valeur de DEL, et ne parle ni de « 50 ans simulés » ni de simulations FLOATECH."""
     t = plat(texte(3))
     i = t.index("Point 7")
     pt7 = t[i:i + 2500]
-    for mot in ("251 classes", "DLC12", "communiqué en séance", "binning", "lumping"):
+    for mot in ("classes de la feuille", "DLC12", "communiqué en séance", "binning", "lumping"):
         assert mot in pt7, mot
     assert not (RACINE / "data" / "del_reference_50ans.csv").exists()
     assert not re.search(r"\d+[.,]?\d*\s*(?:MPa|kN)", pt7), "valeur de DEL écrite"
+    assert "251" not in pt7 and "252" not in pt7, "nombre de classes non établi dans le public"
 
 
 def test_la_reference_de_50_ans_simules_n_existe_plus_nulle_part_dans_le_public():
@@ -200,6 +201,6 @@ def test_phase_6_question_finale_et_soutenance_conservees():
 
 
 def test_phase_6_la_synthese_sait_lire_les_tensions_de_map_comme_celles_de_moordyn():
-    """Le groupe centre compare MoorDyn et MAP++ : ses cas de sensibilité portent `T[i]` et non `FAIRTEN i` (défaut trouvé au rejeu du corrigé)."""
+    """Le groupe centre compare MoorDyn et MAP++ : ses cas de sensibilité portent `T[i]` et non `FAIRTEN i` (défaut trouvé au rejeu)."""
     c = code(6)
     assert 'T[1]' in c and 'FAIRTEN' in c
