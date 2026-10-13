@@ -52,9 +52,10 @@ for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]
     T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
     sigma = P["SCF"] * structure.contrainte_flexion(u["TwrBsMyt"].to_numpy() * 1e3, P["D"], I) / 1e6
     r = fatigue.rainflow(sigma)
+    tensions = [c for c in ("FAIRTEN1", "FAIRTEN2", "FAIRTEN3") if c in u.columns] or ["T[1]", "T[2]", "T[3]"]     # MAP++ : T[i] ↔ FAIRTEN i (phase 4)
     del_lignes = []
-    for k in (1, 2, 3):
-        rl = fatigue.rainflow(u[f"FAIRTEN{k}"].to_numpy())
+    for tension in tensions:
+        rl = fatigue.rainflow(u[tension].to_numpy())
         del_lignes.append(fatigue.del_court_terme(rl["etendue"], rl["compte"], P["M_LIGNE"], P["F_EQ"] * T))
     variation = "" if dossier.name == "D01" else "; ".join(f"{c} = {sens.loc[dossier.name, c]}" for c in variables)
     lignes.append({"groupe": GROUPE, "famille": FAMILLE, "type": "point commun" if dossier.name == "D01" else "sensibilité",
@@ -62,7 +63,7 @@ for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]
                    "dommage_tour_par_heure": fatigue.miner(r["etendue"], r["compte"], courbe, t=P["t_paroi"] * 1e3, t_ref=P["T_REF"]) * 3600 / T,
                    "DEL_tour_MPa": fatigue.del_court_terme(r["etendue"], r["compte"], P["M_TOUR"], P["F_EQ"] * T),
                    "DEL_ligne_max_N": max(del_lignes),
-                   "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[f"FAIRTEN{k}"].max() for k in (1, 2, 3))),
+                   "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[t].max() for t in tensions)),
                    **{f"max_{c}": float(u[c].abs().max()) for c in ("PtfmSurge", "PtfmHeave", "PtfmPitch")}})
 uls = pd.read_csv("results/phase4_uls.csv")
 for _, x in uls.iterrows():
