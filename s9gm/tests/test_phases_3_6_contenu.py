@@ -197,3 +197,9 @@ def test_phase_6_question_finale_et_soutenance_conservees():
     t = plat(texte(6))
     assert "quelles études de sensibilité demanderiez-vous au bureau d'études" in t
     assert "15 min" in t and "10 min" in t
+
+
+def test_phase_6_la_synthese_sait_lire_les_tensions_de_map_comme_celles_de_moordyn():
+    """Le groupe centre compare MoorDyn et MAP++ : ses cas de sensibilité portent `T[i]` et non `FAIRTEN i` (défaut trouvé au rejeu du corrigé)."""
+    c = code(6)
+    assert 'T[1]' in c and 'FAIRTEN' in c
