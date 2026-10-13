@@ -170,6 +170,8 @@ print("figure : rendus/synthese_sensibilite.png")
 Rien à calculer de plus : le tableau (`rendus/tableau_synthese.csv`) et la figure disent ce que les trois groupes ont mesuré. Votre soutenance (voir « Ce qu'on rend ») répond à la **question finale** : pour un projet réel sur ce site, **quelles études de sensibilité demanderiez-vous au bureau d'études, et lesquelles jugeriez-vous inutiles ?**
 Chaque réponse s'appuie sur une ligne du tableau (un effet chiffré, relatif à `D01`), dit **ce que cet effet ne permet pas de conclure** (une réalisation, un site, un modèle sans la souplesse du flotteur, une houle à 0°), et nomme ce qu'il faudrait faire de plus pour trancher.
 
+**Temps mesurés** : les trois étapes de calcul (synthèse du groupe, rassemblement, figure) prennent moins de 1 s ; les simulations qu'elles lisent (`D01`, la sensibilité) sont celles des phases 2 à 4.
+
 ## 4. Post-traiter
 
 La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Cette phase met en commun des résultats déjà post-traités : voir la section 3 (`rendus/tableau_synthese.csv`, `rendus/synthese_sensibilite.png`).

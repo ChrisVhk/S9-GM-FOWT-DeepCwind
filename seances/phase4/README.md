@@ -259,6 +259,15 @@ Le rainflow et le DEL des tensions `FAIRTEN1` à `FAIRTEN3` sont dans la [phase 
 
 Pour votre famille de paramètres (vent ; mer et courant), écrivez ce qui, dans la variante de l'étape 2, **pilote l'extrême d'ancrage** : comparez, cas par cas, la tension maximale de la variante à celle de la référence (`results/phase4_uls.csv`), et rattachez l'écart à un mécanisme physique (effort de dérive moyen, mouvement lent, effort de rotor) que vous **appuyez sur une grandeur de vos sorties** (position moyenne du flotteur, spectre du cavalement, effort du rotor), pas sur une intuition.
 
+**Temps mesurés** (rejeu des commandes dans un clone neuf, machine de développement du cours à 16 cœurs, cas de **300 s simulées** ; la salle sera plus lente, et un cas de 600 s dure environ le double) :
+
+| Étape | Durée mesurée |
+|---|---|
+| Étape 2, 6 cas ULS (3 lignes extrêmes × référence et variante) : TurbSim à la suite, puis OpenFAST en parallèle | ≈ 1180 s (20 min) |
+| Étape 3 (tableau ULS) | ≈ 1 s |
+| Étape 4 (caténaire quasi-statique, 6 cas × 3 lignes) | ≈ 1 s |
+| Étape 5, vérification MAP++ / MoorDyn (4 calculs de 5 s) | ≈ 44 s |
+
 ## 4. Post-traiter
 
 La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Tensions maximales des lignes et mouvements maximaux du flotteur : étape 3 de la section 3 (`results/phase4_uls.csv`) ; comparaison à la caténaire : étape 4.

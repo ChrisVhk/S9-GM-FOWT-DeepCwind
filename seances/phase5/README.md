@@ -473,6 +473,14 @@ Comparer, sur un même état de mer, l'effort dans une entretoise obtenu au nive
 
 Rappel : aux niveaux A, B et C on obtient une contrainte **nominale**. Le SCF reste indispensable, et il faut savoir justifier d'où il vient.
 
+**Temps mesurés** (rejeu des commandes dans un clone neuf, machine de développement du cours à 16 cœurs, cas de **300 s simulées** ; la salle sera plus lente, et un cas de 600 s dure environ le double) :
+
+| Étape | Durée mesurée |
+|---|---|
+| Étapes 2 et 3 (section, fatigue et extrême à trois hauteurs, somme des DEL) | moins de 2 s |
+| Étape 4, boucle de dimensionnement : 2 calculs OpenFAST en parallèle | ≈ 580 s (10 min) |
+| Étapes 5 à 7 (Rayleigh, entretoise, domaine des SCF) | moins de 1 s |
+
 ## 4. Post-traiter
 
 La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Contraintes de section, effort dans l'entretoise, DEL de tour : voir la section 3 (étapes 2 à 7), avec votre copie de `structure` et de `fatigue` sous `results/mon_s9gm/`.

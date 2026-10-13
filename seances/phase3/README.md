@@ -90,7 +90,7 @@ except NotImplementedError:
 
 ### Étape 2 — Lancer les cas de votre LCT (point 1)
 
-Votre LCT est validée : on lance maintenant ses cas. Un cas de 600 s prend environ 12 min de calcul sur la machine de développement (voir « Temps mesurés ») ; `coeurs` cas tournent en parallèle. **La durée** est un choix du projet (600 s par cas : phase 1, point 3) : la même pour tous les cas.
+Votre LCT est validée : on lance maintenant ses cas. Un cas de 600 s prend environ 12 min de calcul sur la machine de développement quand il tourne presque seul (mesure de la phase 2) ; `coeurs` cas tournent en parallèle, plus lentement chacun (voir « Temps mesurés » en fin de section). **La durée** est un choix du projet (600 s par cas : phase 1, point 3) : la même pour tous les cas.
 
 ```python
 import pandas as pd
@@ -315,6 +315,16 @@ print("DEL du signal, basses fréquences, hautes fréquences :", del_de(my), del
 Une référence de 50 ans d'états de mer réels, simulés pour la même éolienne sur le même site, est annoncée par la consigne d'origine : comparer le DEL long terme de votre LCT de 10 à 15 cas au DEL de cette référence mesurerait la qualité de votre binning et de votre lumping. **Ni cette référence ni sa source ne sont dans ce dépôt** (les données ERA5 de `data/metocean/` couvrent 1979-2000 et ne contiennent pas de simulation OpenFAST). **Ce DEL de référence
 n'est pas dans ce dépôt** : aucun fichier de ce type n'est déposé dans `data/` à ce jour, et cette consigne n'en invente pas la valeur. **Aucune commande n'est donc donnée pour ce point** tant que l'enseignant n'a pas déposé le fichier et sa source. Ce que vous pouvez préparer d'ici là : votre DEL long terme (étape 4), la liste des choix de binning et de lumping que vous avez faits (phase 1), et ce que
 vous attendez de l'écart.
+
+**Temps mesurés** (rejeu des commandes dans un clone neuf, machine de développement du cours à 16 cœurs, cas de **300 s simulées** ; la salle sera plus lente, et un cas de 600 s dure environ le double) :
+
+| Étape | Durée mesurée |
+|---|---|
+| Étape 1, tests de la copie | quelques secondes |
+| Étape 2, 12 cas de la LCT : TurbSim à la suite (environ 107 s par cas), puis 12 OpenFAST en parallèle | ≈ 2150 s (36 min) |
+| Étapes 3 à 6 (rainflow, DEL, dommage, export, limites) | moins de 1 s au total |
+
+À 12 calculs simultanés, chaque OpenFAST de 300 s prend ≈ 830 s : la machine partage sa mémoire entre les cœurs. Prévoyez la campagne de 600 s (étape 2) en **temps de machine hors séance**.
 
 ## 4. Post-traiter
 
