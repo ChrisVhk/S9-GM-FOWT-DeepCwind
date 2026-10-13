@@ -27,25 +27,25 @@ AVEC_SOLUTIONS = pytest.mark.skipif(not SOLUTIONS, reason="versions complètes d
 COMPAGNONS = {"structure.py": ("efthymiou_c203.json",)}       # données lues par la version complète de l'enseignant (bornes de la norme, jamais dans le dépôt)
 PHASE = {n: RACINE / "seances" / f"phase{n}" / "README.md" for n in (3, 4, 5, 6)}
 
-# Valeurs d'essai neutres : propres au TEST. Courbe S-N d'école (non DNV), mêmes valeurs que `test_fatigue.py`.
+# Valeurs d'essai : propres au TEST, choisies pour ne reproduire aucune valeur de norme ni du modèle (le test ne vérifie aucun nombre).
 ESSAI = {
     "<votre durée>": "300",
     "<votre nombre de coeurs>": "12",
     "<votre valeur>": "60",
     "<votre épaisseur de paroi (m)>": "0.06",
-    "<votre exposant m>": "4",
-    "<votre exposant m de la ligne>": "3",
+    "<votre exposant m>": "3.5",
+    "<votre exposant m de la ligne>": "3.7",
     "<votre f_eq (Hz)>": "1.0",
-    "<votre épaisseur de référence (mm)>": "25",
+    "<votre épaisseur de référence (mm)>": "30",
     "<votre log ā1>": "12.0",
     "<votre pente m1>": "3.0",
-    "<votre log ā2>": "15.0",
-    "<votre pente m2>": "5.0",
-    "<votre nombre de cycles au coude>": "1e7",
-    "<votre exposant d'épaisseur k>": "0.2",
+    "<votre log ā2>": "14.2",
+    "<votre pente m2>": "4.6",
+    "<votre nombre de cycles au coude>": "5e6",
+    "<votre exposant d'épaisseur k>": "0.1",
     "<votre source S-N (norme, tableau, page)>": "courbe d'école, non DNV",
-    "<votre DFF>": "3.0",
-    "<votre durée de service (ans)>": "25",
+    "<votre DFF>": "2.5",
+    "<votre durée de service (ans)>": "30",
     "<votre fréquence de coupure (Hz)>": "0.2",
 }
 
@@ -85,7 +85,7 @@ def _avec_squelette(phase, depot, module, essai, apres):
     assert code == 0 and "passed" in copie and "xfailed" not in copie and "failed" not in copie, "sur la copie complétée :\n" + sortie[-2500:]
     code, sortie, t3 = parcours.rejouer(readme, depot, essai, delai=7200, etapes=apres)
     assert code == 0, sortie[-4000:]
-    return {**t1, **t2, **t3}
+    return {**t1, **t2, **t3}, sortie
 
 
 @pytest.mark.slow
@@ -120,13 +120,12 @@ def test_rejeu_phase_3(depot):
 ESSAI_4 = {
     **ESSAI,
     "<votre graine>": "5000",
-    "<votre classe de la machine>": "1",
-    "<votre catégorie (lettre)>": "B",
+    "<votre classe de la machine>": "3",
+    "<votre catégorie (lettre)>": "C",
     "<votre colonne de variation>": "seastate.WavePkShp",
     "<votre valeur de variation>": "5.0",
     "<votre charge de rupture (N)>": "1.0e7",              # valeur d'essai du TEST, sans rapport avec la ligne réelle
     "<votre coefficient de sécurité>": "1.5",
-    "<votre masse volumique de l'eau (kg/m3)>": "1025",
 }
 
 
@@ -135,7 +134,8 @@ ESSAI_4 = {
 @AVEC_SOLUTIONS
 @requiert_openfast
 def test_rejeu_phase_4(depot):
-    temps = _avec_squelette(4, depot, "ancrage.py", ESSAI_4, apres=[3, 4, 5, 6])
+    temps, sortie = _avec_squelette(4, depot, "ancrage.py", ESSAI_4, apres=[3, 4, 5, 6])
+    assert "{'cavalement': True, 'embardee': True}" in sortie, sortie[-1500:]      # la correspondance MAP++ / MoorDyn
     res = Path(depot) / "results"
     for f in ("lct_phase4.csv", "phase4_uls.csv", "phase4_quasi_statique.csv"):
         assert (res / f).is_file(), f
@@ -146,9 +146,9 @@ def test_rejeu_phase_4(depot):
 ESSAI_5 = {
     **ESSAI_4,
     "<votre épaisseur minimale (m)>": "0.02", "<votre épaisseur maximale (m)>": "0.12", "<votre pas d'épaisseur (m)>": "0.02",
-    "<votre limite d'élasticité (MPa)>": "355", "<votre coefficient partiel>": "1.1",
+    "<votre limite d'élasticité (MPa)>": "300", "<votre coefficient partiel>": "1.0",
     "<votre épaisseur retenue au pied (m)>": "0.05",
-    "<votre masse en tête (kg)>": "350000", "<votre vitesse minimale (rpm)>": "6.9", "<votre vitesse nominale (rpm)>": "12.1",
+    "<votre masse en tête (kg)>": "300000", "<votre vitesse minimale (rpm)>": "5.0", "<votre vitesse nominale (rpm)>": "10.0",
     "<votre effort d'écartement ΔF (N)>": "1.0e6", "<votre angle φ (°)>": "30", "<votre partage>": "0.5",
     "<votre diamètre d'entretoise (m)>": "1.6", "<votre épaisseur d'entretoise (m)>": "0.03", "<votre contrainte admissible (MPa)>": "200",
     "<votre d (m)>": "6.0", "<votre D (m)>": "12.0", "<votre τ>": "0.5", "<votre γ>": "12", "<votre α>": "8", "<votre θ (°)>": "60",
@@ -165,7 +165,7 @@ def test_rejeu_phase_5(depot):
     assert cas3 and (res / "phase4").is_dir(), "les phases 3 et 4 doivent avoir été rejouées dans ce dépôt"
     essai = {**ESSAI_5, "<votre cas de fatigue>": cas3[len(cas3) // 2], "<votre cas ULS>": "X61"}
     # étape 1 (copie, tests), puis blocs 3 à 9 (le bloc 5 relance deux cas)
-    temps = _avec_squelette(5, depot, "structure.py", essai, apres=[3, 4, 5, 6, 7, 8, 9])
+    temps, _ = _avec_squelette(5, depot, "structure.py", essai, apres=[3, 4, 5, 6, 7, 8, 9])
     for f in ("phase5_tour_epaisseurs.csv", "phase5_somme_des_DEL.csv", "phase5_boucle.csv"):
         assert (res / f).is_file(), f
     assert (res / "tour_dimensionnee.dat").is_file() and len(list((res / "phase5").glob("*/main.outb"))) == 2
@@ -176,6 +176,8 @@ def test_rejeu_phase_5(depot):
 @REJEU
 @requiert_openfast
 def test_rejeu_phase_6(depot):
+    if not (Path(depot) / "results" / "phase3_parametres.json").is_file():
+        pytest.skip("la phase 3 doit avoir été rejouée dans ce dépôt (results/phase3_parametres.json)")
     import subprocess
     import pandas as pd
     from .test_phase2_parcours import ESSAI as ESSAI_2, FAMILLES, _numero_bloc_sensibilite

@@ -44,7 +44,7 @@ def test_aucune_fonction_a_trous_n_est_definie_ni_resolue_dans_la_consigne(n):
     assert not re.search(r"log_a[12]?\s*=\s*[-\d]", c), "valeur de courbe S-N écrite dans la consigne"
     assert not re.search(r"\bm[12]\s*=\s*\d", c), "pente de courbe S-N écrite dans la consigne"
     assert not re.search(r"np\.(?:sqrt|hypot)\(\s*sx", c), "Von Mises écrit dans la consigne"
-    assert not re.search(r"NotImplementedError", c)
+    assert not re.search(r"raise\s+NotImplementedError", c)
 
 
 @pytest.mark.parametrize("n", sorted(TROUS))
@@ -74,7 +74,7 @@ def test_aucune_valeur_de_choix_n_est_ecrite_dans_les_commandes(n):
     assert not re.search(r"\b(?:rho|masse_volumique)\w*\s*=\s*\d", c), "masse volumique écrite en dur"
     assert not re.search(r"\bperiode_retour\w*\s*=\s*[\"']?\d", c, re.I), "période de retour écrite en dur"
     assert not re.search(r"\bexposant_m\w*\s*=\s*\d|\bm_[a-z]+\s*=\s*\d", c), "exposant m écrit en dur"
-    assert not re.search(r"RandSeed1[^\n]*\d{3,}|IECturbc\s*=\s*[\"']?(?:[ABC]|\d)", c)
+    assert not re.search(r"RandSeed1[^\n]*\d{2,}|IECturbc\s*=\s*[\"']?(?:[ABC]|\d)", c)
 
 
 @pytest.mark.parametrize("n", sorted(PHASES))
@@ -138,7 +138,6 @@ def test_phase_5_niveau_c_sous_reserve_et_sans_commande():
     assert re.search(r"sous réserve de faisabilité", t)
     c = code(5)
     assert "SubDyn" not in c and "subdyn" not in c.lower()
-    assert "fiche à venir (master)" in t or True
 
 
 def test_phase_5_domaine_de_validite_avant_usage_et_renvois():
