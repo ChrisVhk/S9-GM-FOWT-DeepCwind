@@ -1,5 +1,5 @@
-"""Tests de s9gm.ancrage (squelette public). Critères écrits AVANT le code : `_Reserve/S9_T4_ancrage/CRITERE_ancrage.md`
-du dépôt d'enseignement (commit ecb0ca8). Aucune valeur d'essai ni de document de définition ici : seulement des contrôles
+"""Tests de s9gm.ancrage (squelette public). Critères écrits AVANT le code.
+Aucune valeur d'essai ni de document de définition ici : seulement des contrôles
 indépendants que vous pouvez refaire à la main (intégration de la ligne, limite inextensible, symétrie, raideur).
 
 Tant que les trous de `s9gm/ancrage.py` (`catenaire_elastique`, `raideur_horizontale`) ne sont pas complétés, les tests qui

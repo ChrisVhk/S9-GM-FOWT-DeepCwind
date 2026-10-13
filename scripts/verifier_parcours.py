@@ -8,8 +8,10 @@
   edition     R-7  aucune consigne (seances/**/*.md, cas/README.md, INSTALLATION.md) ne demande d'éditer un fichier SUIVI par git :
                pas de verbe d'édition à côté d'un chemin suivi (sauf copie sous results/ ou mention « lecture seule »), pas d'éditeur
                ni de `sed -i` lancé sur un fichier suivi. L'étudiant ne modifie que des dossiers ignorés par git.
-  completer   R-8  aucune consigne de phase 1 ou 2 (seances/phase1, seances/phase2) ne contient encore « à compléter » (commandes non écrites)
+  completer   R-8  aucune consigne de phase 1 à 6 (seances/phase1 à phase6) ne contient encore « à compléter » (commandes non écrites)
                ni « en attente d'arbitrage » ; « fiche à venir (master) » reste permis
+  registre    R-9  aucun fichier suivi ne cite un numéro de registre interne (E-123), un chemin de coulisses ou le nom du dépôt privé
+               (exceptions listées et justifiées dans EXCEPTIONS_REGISTRE)
   anciens     R-2  aucun ancien chemin cité hors annexes/, hors TRANSITION.md et CHANGELOG, hors ce script et son test
   format      R-4  chaque seances/*/README.md porte les 6 titres « ## » du format commun, dans l'ordre, et eux seuls
   porte       R-5  le README.md racine renvoie à chaque séance et à la page de post-traitement ; aucun autre fichier ne se
@@ -17,9 +19,9 @@
   transition  R-6  clone de l'état ANCIEN (par défaut origin/main), travail d'étudiant simulé, `git pull` de l'état NOUVEAU
                (par défaut HEAD) : aucun conflit, aucun fichier d'étudiant perdu, anciens emplacements nommés dans TRANSITION.md
 
-Usage : python scripts/verifier_parcours.py {liens|chemins|edition|completer|anciens|format|porte|transition|tout} [--racine DOSSIER]
+Usage : python scripts/verifier_parcours.py {liens|chemins|edition|completer|anciens|format|porte|registre|transition|tout} [--racine DOSSIER]
         python scripts/verifier_parcours.py --autotest      (chaque contrôle doit voir une faute plantée)
-Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5, R-7, R-8 (R-6 se lance à part).
+Sortie : une ligne par écart, code 1 s'il y en a, 0 sinon. `tout` enchaîne R-1, R-1b, R-2, R-4, R-5, R-7, R-8, R-9 (R-6 se lance à part).
 """
 import argparse
 import hashlib
@@ -204,12 +206,12 @@ def _est_suivi(jeton, racine, depuis, f_suivis):
     return False
 
 
-PHASES_COMPLETES = ("seances/phase1/README.md", "seances/phase2/README.md")
+PHASES_COMPLETES = tuple(f"seances/phase{i}/README.md" for i in range(1, 7))
 MARQUEUR_TROU = re.compile(r"à compléter|a completer|en attente d.arbitrage", re.IGNORECASE)
 
 
 def completer(racine):
-    """R-8 : les consignes des phases 1 et 2 n'ont plus de trou annoncé (« fiche à venir (master) » n'en est pas un)."""
+    """R-8 : les consignes des phases 1 à 6 n'ont plus de trou annoncé (« fiche à venir (master) » n'en est pas un)."""
     racine = Path(racine).resolve()
     ecarts = []
     for f in PHASES_COMPLETES:
@@ -220,6 +222,37 @@ def completer(racine):
         for n, ligne in enumerate(chemin.read_text(encoding="utf-8").splitlines(), start=1):
             if MARQUEUR_TROU.search(ligne):
                 ecarts.append(f"{f}:{n}: trou annoncé : « {ligne.strip()[:90]} »")
+    return ecarts
+
+
+# ---- R-9 : le public ne parle ni de registres internes ni de coulisses ----------------------------------------------------
+MOTIF_REGISTRE = re.compile(r"(?<![0-9A-Za-z.])E-\d{2,3}\b|_Coulisses|\bcoulisses/|ENSM-Enseignement|_Reserve/|dépôt d.enseignement")
+EXCEPTIONS_REGISTRE = {
+    "scripts/verifier_parcours.py": "ce contrôle contient les motifs qu'il cherche",
+    "s9gm/tests/test_verifier_parcours.py": "ses tests plantent les motifs que R-9 doit voir",
+    "LICENSE": "texte de licence reproduit tel quel, hors de notre rédaction",
+    "LICENSE-docs": "texte de licence reproduit tel quel, hors de notre rédaction",
+}
+EXCEPTIONS_PREFIXES_REGISTRE = ("PROVENANCE", "CHANGELOG")   # historiques d'origine des fichiers : ils peuvent citer l'ancien nom des dépôts
+BINAIRES = {".xlsx", ".png", ".jpg", ".pdf", ".gz", ".so", ".outb", ".bts", ".docx", ".pptx", ".bundle", ".zip", ".mp4", ".gif"}
+
+
+def registre(racine):
+    """R-9 : aucun fichier suivi du dépôt public ne cite un numéro de registre interne (`E-123`), un chemin de coulisses
+    ou le nom du dépôt privé (dont `_Reserve/` et « dépôt d'enseignement »). Les exceptions sont `EXCEPTIONS_REGISTRE` (chacune justifiée). Les flottants (`1.2E-05`) ne comptent pas."""
+    racine = Path(racine).resolve()
+    ecarts = []
+    for f in suivis(racine):
+        if f in EXCEPTIONS_REGISTRE or Path(f).name.startswith(EXCEPTIONS_PREFIXES_REGISTRE) or Path(f).suffix in BINAIRES:
+            continue
+        try:
+            texte = (racine / f).read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for n, ligne in enumerate(texte.split("\n"), start=1):
+            t = MOTIF_REGISTRE.search(ligne)
+            if t:
+                ecarts.append(f"{f}:{n}: référence interne « {t.group(0)} »")
     return ecarts
 
 
@@ -388,7 +421,7 @@ def transition(racine, ancien="origin/main", nouveau="HEAD", fichiers_etudiant=N
     return ecarts
 
 
-CONTROLES = {"liens": liens, "chemins": chemins, "edition": edition, "completer": completer, "anciens": anciens, "format": format_seances, "porte": porte_unique}
+CONTROLES = {"liens": liens, "chemins": chemins, "edition": edition, "completer": completer, "anciens": anciens, "format": format_seances, "porte": porte_unique, "registre": registre}
 
 
 # ---- autotest : chaque contrôle doit voir une faute plantée ------------------------------------------------------------
@@ -452,6 +485,10 @@ def autotest():
                                  ("fiche à venir", "F2 : *fiche à venir (master)*.\n", True), ("texte complet", "bash cas/run_cas.sh D00\n", True)]:
             fich = {f: texte for f in PHASES_COMPLETES}
             attendre(f"completer ({nom})", completer(_depot_jouet(d / ("r8_" + str(abs(hash(nom)))), fich)), vide)
+        # R-9 : référence interne dans un fichier suivi
+        for nom, texte, vide in [("numéro de registre", "# voir E-164\n", False), ("flottant", "1.2E-05 3E-100\n", True),
+                                 ("dépôt privé", "# ENSM-Enseignement\n", False), ("texte neutre", "# rien\n", True)]:
+            attendre(f"registre ({nom})", registre(_depot_jouet(d / ("r9_" + str(abs(hash(nom)))), {"s9gm/a.py": texte})), vide)
         # R-2
         for nom, texte, vide in [("tutorials/ cité", "voir tutorials/lheea/\n", False), ("models/ cité", "models/oc4_rtest\n", False),
                                  ("modeles/ nouveau", "modeles/oc4_rtest\n", True), ("annexes/papers nouveau", "annexes/papers/x.md\n", True),

@@ -38,7 +38,7 @@
    replier une oscillation plus rapide que `VTK_fps / 2` (Shannon), jusqu'à faire paraître un rotor
    immobile ou à l'envers.
 5. **Renvois** — fiche F1 (lire une courbe de régulation sans en connaître la valeur) ;
-   `NOTE_GABARIT_PPTX.md` du dépôt d'enseignement (tableau de charte) ; `seances/0a/README.md`
+   la charte graphique du cours (tableau de charte) ; `seances/0a/README.md`
    (vérifications à la main avant de regarder la valeur). Animation : fiche F1 aussi, seule fiche
    existante, qui donne `Ω = λ·V/R` pour prévoir l'angle par image ; voir le bloc de `_rendu_vtk.py`.
 """

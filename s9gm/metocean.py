@@ -119,8 +119,8 @@ voir `data/metocean/floatech_wob.metadata.json` et `PROVENANCE.md`.
    restituée (moyenne sous le site, maximum au-dessus, pondération `m = 2` à égalité).
 4. **Ce que le modèle ne permet pas de conclure** — qu'une énergie conservée suffise : la période, la direction
    et la corrélation vent/houle peuvent être déformées sans que `E` le montre.
-5. **Renvois** — fiche F2 (énergie de la houle) ; `CRITERE_energie_houle.md` du dépôt d'enseignement (écrit avant
-   l'essai) ; phase 1 de l'énoncé.
+5. **Renvois** — fiche F2 (énergie de la houle) ; le critère d'énergie de houle, écrit avant l'essai
+   (voir `s9gm/tests/test_metocean.py`) ; phase 1 de l'énoncé.
 
 ### Bloc Théorie
 

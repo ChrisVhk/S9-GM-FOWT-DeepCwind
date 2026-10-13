@@ -1,5 +1,4 @@
-"""Tests de s9gm.fatigue (squelette public). Critères écrits AVANT le code : `_Reserve/S9_T3_fatigue/CRITERE_fatigue.md`
-du dépôt d'enseignement (commit 883eae1). Courbe S-N d'école (log ā = 12, m = 3), **valeurs non DNV**.
+"""Tests de s9gm.fatigue (squelette public). Critères écrits AVANT le code. Courbe S-N d'école (log ā = 12, m = 3), **valeurs non DNV**.
 
 Tant que les trous de `s9gm/fatigue.py` (`rainflow`, `del_court_terme`, `del_long_terme`, `miner`) ne sont pas
 complétés, les tests qui les appellent sont « attendus en échec » (xfail, NotImplementedError). Contre la version

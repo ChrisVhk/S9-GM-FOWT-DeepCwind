@@ -1,5 +1,4 @@
-"""Falsificateurs de s9gm.hydro. Critères et tolérances écrits AVANT le code : `_Reserve/S9_T4_hydro/CRITERE_hydro.md`
-du dépôt d'enseignement (commit 953a372). Les tests comparent à des fichiers de modèle publics (`marin_semi.hst`,
+"""Falsificateurs de s9gm.hydro. Critères et tolérances écrits AVANT le code. Les tests comparent à des fichiers de modèle publics (`marin_semi.hst`,
 `marin_semi.1`, HydroDyn et ElastoDyn de `modeles/oc4_rtest`) et à deux publications (Coulling et al. 2013, Tab. XIII ;
 DNV-RP-C205 §3.2.2.4) ; aucune valeur de corrigé n'est écrite ici.
 

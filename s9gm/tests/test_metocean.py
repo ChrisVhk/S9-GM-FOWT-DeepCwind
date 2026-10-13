@@ -1,7 +1,6 @@
 """Falsificateurs de s9gm.metocean.
 
-Critère d'énergie de houle écrit AVANT l'essai : `_Reserve/S9_T2_metocean/CRITERE_energie_houle.md` du dépôt
-d'enseignement (commit e46f86d), reproduit ici. Aucune tolérance n'est ajustée après coup.
+Critère d'énergie de houle écrit AVANT l'essai, reproduit ici. Aucune tolérance n'est ajustée après coup.
 
 Variables tenues égales : la table FLOATECH lue (mêmes P, mêmes classes), le pas du binning de départ, la
 formule E = Σ P·Hs², la hauteur de vent (100 m), la normalisation Σ P = 1.
@@ -97,7 +96,7 @@ def test_energie_moyenne_sous_le_site_dans_la_tolerance(t, record_property):    
     if abs(r["ecart_relatif"]) > TOL_MOYENNE:             # le critère dit : résultat, pas échec du module
         import warnings
         warnings.warn(f"lumping « moyenne » non comparable en énergie : écart relatif {r['ecart_relatif']:+.3f} "
-                      f"> {TOL_MOYENNE} (critère CRITERE_energie_houle.md, point 2)")
+                      f"> {TOL_MOYENNE} (critère d'énergie de houle, point 2)")
 
 
 def test_energie_maximum_au_dessus_du_site(t):                       # critère 3 : pas de borne supérieure

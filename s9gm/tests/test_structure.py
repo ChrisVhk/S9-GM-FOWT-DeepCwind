@@ -1,5 +1,4 @@
-"""Tests de s9gm.structure (squelette public). Critères écrits AVANT le code : `_Reserve/S9_T4_structure/CRITERE_structure.md`
-du dépôt d'enseignement (commit 37e746c).
+"""Tests de s9gm.structure (squelette public). Critères écrits AVANT le code.
 
 Les trous (`von_mises`, `verifier_domaine_efthymiou`, `scf_ty_*`) font échouer (xfail, NotImplementedError) les tests
 qui les appellent tant qu'ils ne sont pas complétés ; contre la version complète de l'enseignant
