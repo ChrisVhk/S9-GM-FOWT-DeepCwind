@@ -17,15 +17,160 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 Les trois groupes mettent leurs résultats en commun dans **un seul tableau de sensibilité** : pour chaque famille de paramètres, l'effet sur le dommage en pied de tour, le dommage aux chaumards et les extrêmes. Question finale : **pour un projet réel sur ce site, quelles études de sensibilité demanderiez-vous au bureau d'études, et lesquelles jugeriez-vous inutiles ?**
 
-> **À compléter** : les commandes exactes de cette phase ne sont pas encore écrites.
+**Le point commun est le cas `D01`** (cas de référence de la phase 2, `cas/D01`, le même pour les trois groupes) ; **la sensibilité de chaque groupe, elle, part de la LCT du groupe** (phase 2, étape 3). La synthèse rapporte donc l'effet de chaque variation au cas `D01` lancé **par chaque groupe** : si les trois `D01` ne s'accordent pas, il y a un défaut de méthode à trouver **avant** toute comparaison de familles.
+Ce dépôt ne fixe pas **comment** les groupes échangent leurs fichiers : chaque groupe dépose le fichier de synthèse de son groupe dans le dossier commun que l'enseignant indique, et chacun rapatrie les trois dans `rendus/groupes/` (dossier ignoré par git).
+Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les phases précédentes dans `results/` (`results/phase3_parametres.json`, `results/D01`, `results/phase2/S*`, `results/lct_sensibilite.csv`, `results/phase4_uls.csv`).
+Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas.
+
+### Étape 1 — La synthèse de votre groupe (un fichier, au format commun)
+
+Pour `D01` et pour chaque cas de votre sensibilité (`results/phase2/S*`) : le dommage de fatigue en pied de tour **rapporté à une heure** (même courbe S-N, même section, même `SCF` que la phase 3), le DEL de la tour, le DEL de la ligne la plus chargée, le maximum du moment en pied de tour et de la tension de chaumard. Pour chaque cas ULS (phase 4) : le maximum de la tension et du moment en pied. Le format est **le même pour les trois groupes** : c'est ce qui permet de les rassembler.
+
+```python
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from s9gm import lire, structure
+
+sys.path.insert(0, "results/mon_s9gm")
+import fatigue
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+GROUPE, FAMILLE = "<votre groupe>", "<votre famille de paramètres>"
+courbe = fatigue.CourbeSN(**P["sn"])
+A, I, W = structure.section_tubulaire(P["D"], P["t_paroi"])
+sens = pd.read_csv("results/lct_sensibilite.csv").set_index("cas")
+variables = [c for c in sens.columns if c != "cas" and sens[c].astype(str).nunique() > 1]         # ce qui varie dans votre sensibilité
+
+lignes = []
+for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]:
+    df, unites = lire.lire(dossier / "main.outb")
+    u = df[df["Time"] >= P["T_TRANS"]]
+    T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
+    sigma = P["SCF"] * structure.contrainte_flexion(u["TwrBsMyt"].to_numpy() * 1e3, P["D"], I) / 1e6
+    r = fatigue.rainflow(sigma)
+    del_lignes = []
+    for k in (1, 2, 3):
+        rl = fatigue.rainflow(u[f"FAIRTEN{k}"].to_numpy())
+        del_lignes.append(fatigue.del_court_terme(rl["etendue"], rl["compte"], P["M_LIGNE"], P["F_EQ"] * T))
+    variation = "" if dossier.name == "D01" else "; ".join(f"{c} = {sens.loc[dossier.name, c]}" for c in variables)
+    lignes.append({"groupe": GROUPE, "famille": FAMILLE, "type": "point commun" if dossier.name == "D01" else "sensibilité",
+                   "cas": dossier.name, "variation": variation,
+                   "dommage_tour_par_heure": fatigue.miner(r["etendue"], r["compte"], courbe, t=P["t_paroi"] * 1e3, t_ref=P["T_REF"]) * 3600 / T,
+                   "DEL_tour_MPa": fatigue.del_court_terme(r["etendue"], r["compte"], P["M_TOUR"], P["F_EQ"] * T),
+                   "DEL_ligne_max_N": max(del_lignes),
+                   "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[f"FAIRTEN{k}"].max() for k in (1, 2, 3)))})
+uls = pd.read_csv("results/phase4_uls.csv")
+for _, x in uls.iterrows():
+    lignes.append({"groupe": GROUPE, "famille": FAMILLE, "type": "extrême", "cas": x["cas"], "variation": "",
+                   "max_TwrBsMyt_kNm": x["max_TwrBsMyt_kNm"], "max_tension_N": x["max_tension"]})
+Path("rendus").mkdir(exist_ok=True)
+pd.DataFrame(lignes).to_csv(f"rendus/synthese_{GROUPE}.csv", index=False)
+print(pd.DataFrame(lignes).round(4).to_string(index=False))
+```
+
+**Vous devez voir** : une ligne pour `D01` (type `point commun`), une par cas de votre sensibilité, une par cas ULS, et le fichier `rendus/synthese_<groupe>.csv`. **Transmettez ce fichier** aux deux autres groupes : c'est lui qui est rassemblé à l'étape suivante.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `FileNotFoundError … results/D01/main.outb` | le cas de référence n'a pas été lancé | `bash cas/run_cas.sh D01` (phase 2, étape 1) |
+| aucune ligne `sensibilité` | pas de `results/phase2/S*` | phase 2, étape 3 |
+| `FileNotFoundError … phase4_uls.csv` | la phase 4 n'est pas terminée | phase 4, étape 3 |
+| `KeyError … phase3_parametres.json` | la phase 3 n'a pas été faite avec ces commandes | refaites la phase 3, étape 3 |
+
+### Étape 2 — Rassembler les trois groupes, vérifier le point commun
+
+Vous rassemblez les trois fichiers de synthèse. **Avant** de comparer les familles, **contrôlez le point commun** : les trois `D01` donnent des **maximums** de moment et de tension (`max_TwrBsMyt_kNm`, `max_tension_N`) qui ne dépendent que d'OpenFAST, pas de votre post-traitement. Ils doivent concorder ; **écrivez la tolérance** à laquelle vous les jugez identiques et **pourquoi** (même modèle, même version, même cas : ce qui reste est de l'arrondi).
+Les dommages et les DEL, eux, dépendent de **vos choix** (section, courbe S-N) : ils **ne se comparent pas** d'un groupe à l'autre en valeur absolue, mais **rapportés au `D01` de leur groupe**.
+
+```python
+from pathlib import Path
+
+import pandas as pd
+
+fichiers = sorted(Path("rendus/groupes").glob("*.csv"))
+print("fichiers rassemblés :", [f.name for f in fichiers])
+tout = pd.concat([pd.read_csv(f) for f in fichiers], ignore_index=True)
+
+commun = tout[tout["type"] == "point commun"].set_index("groupe")
+TOLERANCE = <votre tolérance relative sur D01>
+ecart = commun[["max_TwrBsMyt_kNm", "max_tension_N"]].apply(lambda c: (c - c.mean()).abs() / c.mean())
+print("écart relatif des trois D01 à leur moyenne :")
+print(ecart.round(6).to_string())
+print("point commun cohérent à la tolérance retenue ?", bool((ecart <= TOLERANCE).all().all()))
+
+# effet de chaque variation, rapporté au D01 du même groupe
+lignes = []
+for g, bloc in tout.groupby("groupe"):
+    ref = bloc[bloc["type"] == "point commun"].iloc[0]
+    for _, x in bloc[bloc["type"] == "sensibilité"].iterrows():
+        lignes.append({"groupe": g, "famille": x["famille"], "cas": x["cas"], "variation": x["variation"],
+                       "dommage_tour_relatif": x["dommage_tour_par_heure"] / ref["dommage_tour_par_heure"],
+                       "DEL_ligne_relatif": x["DEL_ligne_max_N"] / ref["DEL_ligne_max_N"],
+                       "max_moment_relatif": x["max_TwrBsMyt_kNm"] / ref["max_TwrBsMyt_kNm"],
+                       "max_tension_relatif": x["max_tension_N"] / ref["max_tension_N"]})
+synthese = pd.DataFrame(lignes)
+synthese.to_csv("rendus/tableau_synthese.csv", index=False)
+print(synthese.round(3).to_string(index=False))
+```
+
+**Vous devez voir** : la liste des fichiers rassemblés (trois), l'écart relatif des trois `D01` à leur moyenne et le verdict de cohérence à **votre** tolérance, puis le **tableau de synthèse** : une ligne par variation, avec ses quatre effets **relatifs au `D01` de son groupe** (1 = pas d'effet), écrit dans `rendus/tableau_synthese.csv`.
+Si le verdict est `False`, **cherchez pourquoi avant de continuer** (version d'OpenFAST, modèle modifié par erreur, fenêtre différente) ; ne le contournez pas en élargissant la tolérance sans le dire.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `ValueError: No objects to concatenate` | `rendus/groupes/` est vide | déposez-y les trois fichiers `synthese_<groupe>.csv` |
+| `IndexError` sur `ref` | un groupe n'a pas de ligne `point commun` | son fichier n'a pas été produit par l'étape 1 |
+| écarts relatifs de `D01` de plusieurs % | cas ou version différents d'un groupe à l'autre | comparez `main.fst` et `openfast -v` de chaque groupe |
+
+### Étape 3 — Les figures de la synthèse
+
+Une figure par effet, **une courbe par famille**, avec la ligne de provenance de `s9gm.visu` (cas, modèle, état). Une figure sans ordonnée lisible ne se discute pas : vérifiez les échelles avant de la mettre dans la soutenance.
+
+```python
+from pathlib import Path
+
+import pandas as pd
+from s9gm import visu
+
+synthese = pd.read_csv("rendus/tableau_synthese.csv")
+EFFETS = [("dommage_tour_relatif", "dommage du pied de tour / D01"), ("DEL_ligne_relatif", "DEL de la ligne / D01"),
+          ("max_moment_relatif", "moment max en pied / D01"), ("max_tension_relatif", "tension max / D01")]
+panneaux = []
+for colonne, etiquette in EFFETS:
+    courbes = []
+    for famille, g in synthese.groupby("famille"):
+        courbes.append({"label": famille, "x": list(range(1, len(g) + 1)), "y": g[colonne].to_numpy(), "style": "points"})
+    panneaux.append({"ylabel": etiquette, "courbes": courbes})
+fig = visu.tracer_courbes(panneaux, xlabel="variation (rang dans la sensibilité du groupe)", cas="D01 et sensibilités de chaque groupe",
+                          modele="flottant", etat="<votre date de rejeu>", titre="Effet de chaque famille de paramètres")
+Path("rendus").mkdir(exist_ok=True)
+fig.savefig("rendus/synthese_sensibilite.png", dpi=150, facecolor="white")
+print("figure : rendus/synthese_sensibilite.png")
+```
+
+**Vous devez voir** : la figure `rendus/synthese_sensibilite.png`, quatre panneaux (un par effet), une couleur et une forme de point par famille, la ligne de provenance en pied. **Lisez-la** : quelle famille déplace le plus le dommage du pied de tour ? Celui des lignes ? Les extrêmes ? Y en a-t-il une dont l'effet est dans le bruit d'une seule réalisation (phase 2, étape 5) ?
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `ValueError` de `tracer_courbes` | plus de six panneaux, ou provenance manquante | quatre panneaux ici ; `cas`, `modele` et `etat` sont obligatoires |
+| une seule famille tracée | les trois fichiers n'ont pas des `famille` distincts | vérifiez la colonne `famille` de chaque fichier de synthèse |
+
+### Étape 4 — Rédiger la synthèse et préparer la soutenance
+
+Rien à calculer de plus : le tableau (`rendus/tableau_synthese.csv`) et la figure disent ce que les trois groupes ont mesuré. Votre soutenance (voir « Ce qu'on rend ») répond à la **question finale** : pour un projet réel sur ce site, **quelles études de sensibilité demanderiez-vous au bureau d'études, et lesquelles jugeriez-vous inutiles ?**
+Chaque réponse s'appuie sur une ligne du tableau (un effet chiffré, relatif à `D01`), dit **ce que cet effet ne permet pas de conclure** (une réalisation, un site, un modèle sans la souplesse du flotteur, une houle à 0°), et nomme ce qu'il faudrait faire de plus pour trancher.
 
 ## 4. Post-traiter
 
-La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Cette phase met en commun des résultats déjà post-traités : voir la section 3.
+La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Cette phase met en commun des résultats déjà post-traités : voir la section 3 (`rendus/tableau_synthese.csv`, `rendus/synthese_sensibilite.png`).
 
 ## 5. Ce qu'on rend
 
-Soutenance par groupe : 15 min + 10 min de questions.
+Soutenance par groupe : 15 min + 10 min de questions. Appuyez-la sur `rendus/tableau_synthese.csv` et sur la figure de la synthèse, avec le contrôle du point commun `D01`.
 
 ## 6. Théorie à lire
 

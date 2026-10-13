@@ -28,85 +28,457 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 *Les renvois « §n » à l'atelier tour (§2, §4, §9b, §10) suivent la correspondance donnée au début de sa [consigne](../atelier_tour/README.md).*
 
-1. **Tour (niveau A), atelier tour second passage, avec vos données.** Même méthode qu'à la Phase
-   3 (étape 0), mais toutes les entrées sont désormais les vôtres, pour **chaque groupe** :
-   - **géométrie de départ** = tour OC4 du modèle de référence — longueur et base lues dans le
-     fichier ElastoDyn principal (`TowerHt`, `TowerBsHt`), diamètres extérieurs lus dans le fichier
-     AeroDyn de la tour (`TwrDiam`/`TwrElev`), épaisseurs retrouvées comme au point 2 de la Phase 3
-     (à partir de `TMassDen` et d'une masse volumique justifiée) — rien n'est présumé ;
-   - **DEL court terme** par cas de votre LCT (sur les canaux de pied ou de tête de tour que vous
-     aurez identifiés au §4/§9b du tutoriel atelier tour, exposant `m = 4` pour la branche
-     principale et `m = 3`/`5` pour la sensibilité) — un outil dédié sera annoncé en séance, sinon
-     reprenez le programme du point 5 de la Phase 3 ;
-   - **occurrences `Oⱼ`** = celles de **votre** LCT de la Phase 1 (table conjointe vent × houle ×
-     courant), pas la loi de Weibull propre au classeur de l'atelier (voir
-     [`seances/atelier_tour/`](../atelier_tour/README.md), §2) ;
-   - **efforts extrêmes** = vos cas DLC 1.6 et 6.1 de la Phase 4 (ceci complète l'ULS du niveau A,
-     qui restait partiel avec les seules données de l'atelier) ;
-   - **test de l'hypothèse « somme des DEL »** (théorie au §4, exercice concret au §9b de
-     `seances/atelier_tour/`) avec les jauges de tour OpenFAST, à **trois hauteurs** (pied, milieu,
-     sommet) : à chacune, trois DEL à comparer deux à deux, pas directement entre les extrêmes —
-     la méthode de l'atelier (deux DEL combinés après coup) contre le calcul exact du même modèle
-     de transport (un seul rainflow sur le signal combiné point par point) isole le coût de
-     l'hypothèse de concomitance ; ce calcul exact contre le DEL mesuré directement à la jauge
-     isole ce que le modèle de transport statique ne capture pas (poids propre et inertie de la
-     tour, mouvements du flotteur en tangage, absents du classeur de l'atelier qui suppose une
-     tour sur base fixe). Commentez les deux écarts et leur sens, et s'ils sont les mêmes aux trois
-     hauteurs.
+Les six points de l'ENONCE sont repris ci-dessous, avec leurs commandes. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les blocs précédents ou par les phases 3 et 4, dans `results/` :
+`results/phase3_parametres.json` (vos choix de la phase 3 : diamètre et épaisseur au pied, `SCF`, exposants, courbe S-N, DFF), `results/phase3/` et `results/phase4/` (vos sorties), `results/etats_phase1.csv` (vos occurrences). Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, chacune se justifie dans votre rendu.
+**Ce qui est proposé aux trois groupes : les niveaux A et B et le domaine de validité des SCF. Le niveau C (groupe centre) est « sous réserve de faisabilité » et n'a pas de commande ici.**
 
-   Vérifier la section résultante en FLS (contrainte de flexion × SCF = 2 vs contrainte admissible
-   en fatigue) et en ULS (Von Mises vs limite élastique). Ajuster l'épaisseur pour satisfaire les
-   deux critères à masse minimale.
-2. **Boucle de dimensionnement, une itération.** Réinjectez les `R`, `S`, `T` (masse linéique,
-   raideurs) de la tour dimensionnée au point 1 dans le fichier tour d'ElastoDyn, et relancez
-   **un** nouveau calcul OpenFAST : un cas de fatigue représentatif (celui qui dimensionnait au
-   point 1) et le cas ULS dimensionnant. Commentez la variation des efforts obtenus par rapport au
-   premier passage.
-   > **Point dur, à régler avant de lancer ce calcul** : ElastoDyn ne demande pas seulement `R`,
-   > `S`, `T` par station, mais aussi les **formes modales** de la tour (coefficients polynomiaux
-   > `TwFAM1Sh(2-5)` etc., qui décrivent la déformée assumée du premier mode). Aucun outil de
-   > calcul de ces coefficients à partir d'une nouvelle distribution de masse/raideur n'est
-   > disponible dans l'environnement du cours (ni BModes, ni d'équivalent dans `openfast_toolbox` —
-   > son module `linearization` analyse un modèle déjà construit, via la linéarisation d'OpenFAST
-   > lui-même, mais ne calcule pas de nouveaux coefficients d'entrée). **Approximation retenue** :
-   > conservez les
-   > coefficients polynomiaux d'origine tels quels, et dites-le explicitement comme une
-   > approximation.
-   >
-   > Pour en estimer l'ordre de grandeur sur la fréquence propre (sans attendre un résultat
-   > garanti), un quotient de Rayleigh, en réutilisant la **même** déformée assumée `φ(x)` (celle
-   > des coefficients d'origine) mais évaluée avec la **nouvelle** distribution de raideur `EI(x)`
-   > et de masse linéique `m(x)` :
-   > `f² ∝ [∫EI(x)·φ''(x)²dx] / [∫m(x)·φ(x)²dx + M_tête·φ(L)²]`
-   > — le terme `M_tête·φ(L)²` (masse du rotor + moyeu + nacelle en tête, très supérieure à la
-   > masse de la tour elle-même : à relever dans le fichier ElastoDyn principal, `NacMass`,
-   > `HubMass`, et la masse des pales) **ne doit pas être oublié**, il domine le dénominateur pour
-   > une éolienne. Attention à l'interprétation : le principe de Rayleigh garantit qu'une déformée
-   > assumée différente de la vraie déformée propre **d'une même structure** surestime sa fréquence
-   > — il ne garantit **pas** que la fréquence obtenue ainsi pour la tour redimensionnée encadre sa
-   > vraie nouvelle fréquence (ce sont deux structures différentes). Ce calcul donne donc un ordre
-   > de grandeur de l'effet de l'approximation, pas une borne garantie. Si l'écart avec la fréquence
-   > d'origine est significatif, dites-le et discutez-en — ce point ne demande pas de corriger
-   > l'approximation, seulement d'en estimer l'effet.
+### Étape 1 — Votre copie du squelette `s9gm.structure`, et les tests qui doivent passer
 
-   Comparez les fréquences propres de la tour (avant/après l'itération) aux fréquences 1P et 3P du
-   rotor (voir `seances/atelier_tour/`, §10, point non couvert par l'atelier — à faire ici).
-3. **Entretoise (niveau B)** : estimer l'effort d'écartement des colonnes pour la houle la plus pénalisante (longueur d'onde de l'ordre de deux fois l'entraxe des colonnes), en déduire l'effort axial et la contrainte nominale dans l'entretoise. Comparer à une contrainte admissible.
-4. **Domaine de validité du SCF** : relever dans le document de définition OC4 les diamètres des entretoises, des colonnes déportées et de la colonne centrale ; calculer β = d/D pour chaque jonction ; dire si les formules paramétriques d'Efthymiou (établies pour les jackets) s'appliquent. Conclure sur ce qu'il faut faire quand elles ne s'appliquent pas.
-5. **Groupe centre (niveau C)** : comparer, sur un même état de mer, l'effort dans une entretoise obtenu au niveau B et la série temporelle du modèle flexible. Expliquer pourquoi la répartition des efforts hydrodynamiques (potentiels ramenés en un point / Morison répartis) conditionne la validité du résultat.
-6. **Assemblage (niveau D)** : à partir de l'étude publiée fournie (assemblage colonne-entretoise d'une semi-submersible), expliquer la chaîne *efforts globaux → modèle local éléments finis → SCF au point chaud → S-N → durée de vie*, et discuter les ordres de grandeur obtenus.
+`s9gm/structure.py` est un **squelette** : `section_tubulaire`, `contrainte_flexion` et `effort_axial_entretoise` sont écrits ; cinq fonctions sont à programmer par vous : `von_mises`, `verifier_domaine_efthymiou` (qui lève `HorsDomaineError`), et les trois SCF d'Efthymiou, `scf_ty_axial_encastre`, `scf_ty_flexion_plan`, `scf_ty_flexion_hors_plan`.
+Le bloc « Théorie » du module donne le modèle et ses renvois ; **les bornes et les équations se lisent dans DNV-RP-C203, annexe B** (tableau B-1 : édition et page à citer) : le module n'en contient aucune valeur. Vous travaillez sur **une copie sous `results/`**.
+
+```python
+import shutil
+from pathlib import Path
+
+Path("results/mon_s9gm").mkdir(parents=True, exist_ok=True)
+shutil.copy("s9gm/structure.py", "results/mon_s9gm/structure.py")
+print("votre copie : results/mon_s9gm/structure.py (cinq trous : von_mises, verifier_domaine_efthymiou, scf_ty_axial_encastre, scf_ty_flexion_plan, scf_ty_flexion_hors_plan)")
+```
+
+Programmez les cinq fonctions dans `results/mon_s9gm/structure.py`, puis lancez les tests du dépôt **sur votre copie** :
+
+```python
+import os
+import subprocess
+import sys
+
+for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_STRUCTURE_COMPLET": "results/mon_s9gm"})):
+    r = subprocess.run([sys.executable, "-m", "pytest", "s9gm/tests/test_structure.py", "-q", "-p", "no:cacheprovider", "--tb=line"],
+                       env={**os.environ, **extra}, capture_output=True, text=True)
+    print("==", etiquette)
+    print("\n".join(r.stdout.strip().splitlines()[-8:]))
+```
+
+**Vous devez voir**, dans la partie « squelette du dépôt » : des tests `xfailed` (attendus en échec) et des `passed` (les parties écrites). Dans la partie « votre copie » : **des `failed` tant que vos cinq fonctions ne sont pas programmées, puis `passed` pour tous les tests de `test_structure.py`, aucun `failed`, aucun `xfailed`**.
+Les tests de Von Mises sont des cas à résultat connu (traction pure, cisaillement pur, état hydrostatique) ; ceux des SCF vérifient le domaine de validité et le sens des résultats, **pas des valeurs de la norme**.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `failed` dans « votre copie » sur un test de domaine | `HorsDomaineError` ne nomme pas le paramètre, sa valeur et la borne | le message doit contenir les trois |
+| `failed` sur un SCF « supérieur à un » | une équation mal recopiée | relisez le tableau B-1, avec l'édition que vous citez |
+| `FileNotFoundError` | la copie n'existe pas | refaites le premier bloc |
+
+### Étape 2 — Tour, niveau A : section, FLS, ULS, épaisseur minimale (point 1)
+
+Ce que vous avez déjà fait en phase 3, avec **le même modèle de section** (mêmes `D`, mêmes `SCF`, même courbe S-N, mêmes `DFF` et durée de service : lus dans `results/phase3_parametres.json`), mais sur **trois hauteurs de la tour** et avec un **critère d'extrême** en plus. Le bloc :
+1. déduit la masse volumique effective **de votre épaisseur de la phase 3** (`TMassDen` du pied divisée par l'aire de votre section) et en tire l'épaisseur à chaque station du fichier tour, à `D` lu dans le fichier AeroDyn de la tour ;
+2. calcule le **dommage annuel de fatigue** (rainflow du moment résultant à chaque jauge, `SCF`, courbe S-N, occurrences de votre LCT) pour une **grille d'épaisseurs** ;
+3. calcule la **contrainte de Von Mises maximale en extrême** (cas DLC 6.1 et 1.6 de la phase 4) pour la même grille : flexion seule aux jauges ; au **pied**, flexion, effort normal, cisaillement et torsion à partir des canaux de pied ;
+4. retient, à chaque hauteur, **la plus petite épaisseur qui satisfait les deux critères** (masse minimale à diamètre imposé).
+
+Vos choix : la **limite d'élasticité** et le **coefficient partiel** (norme citée), la grille d'épaisseurs. Les trois jauges (`TwHt1`, `TwHt5`, `TwHt9`) sont à 11,94 m, 50,74 m et 85,66 m au-dessus du niveau de la mer ([atelier tour](../atelier_tour/README.md), §9b) : la 9 est un nœud de calcul, pas le sommet de la tour.
+
+```python
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from openfast_toolbox.io import FASTInputFile
+from s9gm import lire
+
+sys.path.insert(0, "results/mon_s9gm")
+import fatigue
+import structure                                                  # VOS copies complétées (phase 3, étape 1 ; étape 1 ci-dessus)
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
+stations = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")["TowProp"]     # HtFract, TMassDen, TwFAStif, TwSSStif
+aero = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]                          # TwrElev, TwrDiam, …
+
+# 1. section à chaque station : masse volumique effective déduite de VOTRE épaisseur au pied (phase 3)
+z_st = BASE + stations[:, 0] * (HT_TOUR - BASE)
+D_st = np.interp(z_st, aero[:, 0], aero[:, 1])
+A0 = structure.section_tubulaire(P["D"], P["t_paroi"])[0]
+RHO = stations[0, 1] / A0
+t_st = (D_st - np.sqrt(D_st ** 2 - 4 * stations[:, 1] / (np.pi * RHO))) / 2          # A = π t (D − t)  =>  t en fonction de D et de la masse linéique
+print("masse volumique effective (kg/m3) :", round(RHO, 1), "; épaisseur au pied et au sommet (m) :", t_st[0].round(4), t_st[-1].round(4))
+
+JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro de jauge -> hauteur au-dessus du niveau de la mer (m)
+GRILLE = np.arange(<votre épaisseur minimale (m)>, <votre épaisseur maximale (m)>, <votre pas d'épaisseur (m)>)
+LIMITE, GAMMA = <votre limite d'élasticité (MPa)>, <votre coefficient partiel>
+courbe = fatigue.CourbeSN(**P["sn"])
+etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+
+# 2. fatigue : le rainflow du moment ne dépend pas de l'épaisseur ; seule l'échelle des contraintes en dépend
+cycles = {}                                                          # (cas, jauge) -> (étendues de moment en N·m, comptes, durée utile)
+for dossier in sorted(Path("results/phase3").glob("*")):
+    df, unites = lire.lire(dossier / "main.outb")
+    assert unites["TwHt1MLxt"] == "kN-m", unites["TwHt1MLxt"]
+    u = df[df["Time"] >= P["T_TRANS"]]
+    T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
+    for j in JAUGES:
+        m_res = np.hypot(u[f"TwHt{j}MLxt"].to_numpy(), u[f"TwHt{j}MLyt"].to_numpy()) * 1e3
+        r = fatigue.rainflow(m_res)
+        cycles[(dossier.name, j)] = (r["etendue"].to_numpy(), r["compte"].to_numpy(), T)
+
+# 3. extrême : Von Mises maximal, par cas ULS
+extremes = {}
+for dossier in sorted(Path("results/phase4").glob("*")):
+    df, _ = lire.lire(dossier / "main.outb")
+    u = df[df["Time"] >= P["T_TRANS"]]
+    extremes[dossier.name] = u
+
+lignes = []
+for j, z in JAUGES.items():
+    D = float(np.interp(z, z_st, D_st))
+    for t in GRILLE:
+        A, I, W = structure.section_tubulaire(D, t)
+        d_an = 0.0
+        for (cas, jj), (ranges, comptes, T) in cycles.items():
+            if jj != j:
+                continue
+            sigma = P["SCF"] * structure.contrainte_flexion(ranges, D, I) / 1e6              # MPa : étendues de contrainte
+            d_an += fatigue.miner(sigma, comptes, courbe, t=t * 1e3, t_ref=P["T_REF"]) * etats.loc[cas, "O_h"] * 3600 / T
+        verdict_fls = fatigue.dff_verif(d_an * P["SERVICE"], P["DFF"])
+        vm_max = 0.0
+        for cas, u in extremes.items():
+            m_res = np.hypot(u[f"TwHt{j}MLxt"].to_numpy(), u[f"TwHt{j}MLyt"].to_numpy()) * 1e3
+            sx = structure.contrainte_flexion(m_res, D, I) / 1e6
+            tau = 0.0
+            if j == 1:                                                                         # au pied : effort normal, cisaillement et torsion
+                sx = sx - u["TwrBsFzt"].to_numpy() * 1e3 / A / 1e6
+                v = np.hypot(u["TwrBsFxt"].to_numpy(), u["TwrBsFyt"].to_numpy()) * 1e3
+                tau = 2 * v / A / 1e6 + np.abs(u["TwrBsMzt"].to_numpy()) * 1e3 * (D / 2) / (2 * I) / 1e6      # tube mince : τ max = 2V/A ; torsion : T·(D/2)/J, J = 2I
+            vm_max = max(vm_max, float(np.max([structure.von_mises(a, 0.0, 0.0, b) for a, b in zip(sx, np.broadcast_to(tau, sx.shape))])))
+        lignes.append({"jauge": j, "z_m": z, "D_m": round(D, 4), "t_m": round(float(t), 4), "dommage_annuel": d_an, "fls_ok": verdict_fls["ok"],
+                       "vm_max_MPa": vm_max, "uls_ok": vm_max <= LIMITE / GAMMA})
+res = pd.DataFrame(lignes)
+res.to_csv("results/phase5_tour_epaisseurs.csv", index=False)
+ok = res[res["fls_ok"] & res["uls_ok"]].groupby("jauge")["t_m"].min()
+print("épaisseur minimale qui satisfait FLS et ULS, par jauge (m) :")
+print(ok.to_string() if len(ok) else "aucune épaisseur de la grille ne convient : élargissez la grille")
+```
+
+**Vous devez voir** : la masse volumique effective et les épaisseurs aux deux extrémités ; puis, par jauge, **la plus petite épaisseur de votre grille qui satisfait le critère de fatigue (`D·DFF ≤ 1`) et le critère d'extrême (Von Mises ≤ limite / coefficient partiel)**, ou le message qu'aucune ne convient.
+Le tableau complet (`results/phase5_tour_epaisseurs.csv`) dit **quel critère dimensionne** à chaque hauteur : dites-le, et dites ce que l'**atelier tour** vous avait montré sur le poids de `SCF = 1` contre `SCF = 2` sur ce choix. **Point de contrôle de l'ENONCE** : le domaine de validité de chaque formule est vérifié avant usage (flexion de poutre mince : `D/t` ; `SCF` de la tour : détail soudé de la courbe S-N, pas Efthymiou).
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `KeyError: 'TwHt1MLxt'` | canal de jauge absent de la sortie | `print(list(df.columns))` ; les jauges sont dans l'`OutList` d'ElastoDyn de `modeles/flottant` |
+| `AssertionError` sur l'unité | `TwHt…` n'est pas en `kN-m` | adaptez la conversion et dites-le |
+| `ValueError : section invalide` | une épaisseur de la grille ≥ `D/2` | resserrez la grille |
+| `NotImplementedError` | un trou n'est pas programmé | étape 1 ; phase 3, étape 1 |
+| la grille n'a aucune épaisseur valable | grille trop étroite, ou critère trop sévère | élargissez ; si rien ne convient, dites pourquoi |
+
+### Étape 3 — Tour, niveau A : test de l'hypothèse « somme des DEL » à trois hauteurs (point 1)
+
+À chaque jauge (pied, milieu, sommet), **trois DEL, à comparer deux à deux** (atelier tour, §9b) : (1) **la méthode de l'atelier** : `DEL(effort tranchant) × bras de levier + DEL(moment)`, deux DEL combinés après coup ; (2) **le calcul exact du même modèle de transport** : le signal combiné point par point, `effort tranchant(t) × bras + moment(t)`, puis **un seul** rainflow ;
+(3) **le DEL du moment mesuré à la jauge** (`TwHt<N>MLyt`). L'effort tranchant et le moment sont ceux du **palier d'orientation** en tête de tour (`YawBrFxp`, `YawBrMyp`), le bras de levier est la différence entre la hauteur de la tour et celle de la jauge. **1 contre 2** isole le coût de l'hypothèse de concomitance ; **2 contre 3** isole ce que le transport statique ne capture pas (poids propre, inertie, mouvements du flotteur).
+**Ne comparez pas 1 et 3 directement.** L'exposant `m = 4` est celui de la branche principale, `m = 3` et `m = 5` ceux de la sensibilité (consigne de la phase).
+
+```python
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from openfast_toolbox.io import FASTInputFile
+from s9gm import lire
+
+sys.path.insert(0, "results/mon_s9gm")
+import fatigue
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+HT_TOUR = float(FASTInputFile("modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")["TowerHt"])
+JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro de jauge -> hauteur (m), atelier tour §9b
+etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+
+lignes = []
+for dossier in sorted(Path("results/phase3").glob("*")):
+    df, unites = lire.lire(dossier / "main.outb")
+    assert unites["YawBrFxp"] == "kN" and unites["YawBrMyp"] == "kN-m"
+    u = df[df["Time"] >= P["T_TRANS"]]
+    T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
+    fx, myb = u["YawBrFxp"].to_numpy(), u["YawBrMyp"].to_numpy()
+
+    def del_de(x, m):
+        r = fatigue.rainflow(x)
+        return fatigue.del_court_terme(r["etendue"], r["compte"], m, P["F_EQ"] * T)
+
+    for j, z in JAUGES.items():
+        bras = HT_TOUR - z
+        mesure = u[f"TwHt{j}MLyt"].to_numpy()
+        for m in (4, 3, 5):                                            # 4 : branche principale ; 3 et 5 : sensibilité
+            lignes.append({"cas": dossier.name, "jauge": j, "m": m,
+                           "DEL_atelier": bras * del_de(fx, m) + del_de(myb, m),            # (1) deux DEL combinés après coup
+                           "DEL_exact": del_de(myb + fx * bras, m),                           # (2) un seul rainflow sur le signal combiné
+                           "DEL_jauge": del_de(mesure, m)})                                   # (3) le moment mesuré à la jauge
+res = pd.DataFrame(lignes)
+cas = sorted(res["cas"].unique())
+O = (etats.loc[cas, "O_pct"] / 100.0).to_numpy()                      # occurrences de votre LCT, somme = 1
+long_terme = []
+for (j, m), g in res.groupby(["jauge", "m"]):
+    g = g.set_index("cas").loc[cas]
+    ligne = {"jauge": j, "m": m}
+    for col in ("DEL_atelier", "DEL_exact", "DEL_jauge"):
+        ligne[col] = fatigue.del_long_terme(g[col].to_numpy(), O, m)
+    ligne["1_contre_2"] = ligne["DEL_atelier"] / ligne["DEL_exact"] - 1          # coût de l'hypothèse de concomitance
+    ligne["2_contre_3"] = ligne["DEL_exact"] / ligne["DEL_jauge"] - 1            # ce que le transport statique ne capture pas
+    long_terme.append(ligne)
+tab = pd.DataFrame(long_terme)
+tab.to_csv("results/phase5_somme_des_DEL.csv", index=False)
+print(tab.round(3).to_string(index=False))
+```
+
+**Vous devez voir** : un tableau long terme par jauge et par exposant `m`, avec les trois DEL et les deux écarts relatifs. Commentez **le signe de chaque écart** et **comment il varie avec la hauteur** : l'hypothèse de concomitance coûte-t-elle la même chose partout ? La part « transport incomplet » est-elle plus grande en pied ou en tête ?
+Le DEL du moment est exprimé en **kN·m** (pas en contrainte) : les rapports ne dépendent pas de l'épaisseur.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `AssertionError` sur les unités | `YawBrFxp` ou `YawBrMyp` n'est pas en `kN` / `kN-m` | `print(unites)` ; adaptez le bras et dites-le |
+| `1_contre_2` et `2_contre_3` énormes | signe du bras ou repère | vérifiez que le signal combiné suit la jauge (corrélation proche de 1 au sommet) avant de lire le DEL |
+
+### Étape 4 — Boucle de dimensionnement : une itération (point 2)
+
+Vous réinjectez dans le fichier tour d'ElastoDyn les `R`, `S`, `T` (masse linéique et raideurs de flexion, avant-arrière puis latérale) **de la tour dimensionnée**, et vous relancez **deux** cas : un cas de fatigue représentatif (celui qui dimensionnait à l'étape 2) et le cas ULS dimensionnant.
+**Simplifications à dire** : (i) la tour dimensionnée est la tour d'origine dont **tout le profil d'épaisseur est multiplié par le rapport** entre l'épaisseur retenue au pied et celle de la phase 3 (vous pouvez raffiner : un profil par tronçon) ; (ii) le module d'Young effectif est celui que donne la raideur du pied d'origine pour sa section ;
+(iii) **les coefficients de la déformée assumée (`TwFAM1Sh`, …) restent ceux d'origine** : **aucun outil de calcul de ces coefficients** (ni BModes, ni équivalent dans `openfast_toolbox`, dont le module `linearization` analyse un modèle déjà construit) n'est disponible dans l'environnement du cours. **Approximation à écrire explicitement**, et à estimer à l'étape suivante.
+
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from openfast_toolbox.io import FASTInputFile
+from s9gm import cas, lancer
+
+sys.path.insert(0, "results/mon_s9gm")
+import structure
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+TOUR = MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat"
+ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
+stations = FASTInputFile(TOUR)["TowProp"]
+aero = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]
+D_st = np.interp(BASE + stations[:, 0] * (HT_TOUR - BASE), aero[:, 0], aero[:, 1])
+
+A0, I0, _ = structure.section_tubulaire(P["D"], P["t_paroi"])
+RHO = stations[0, 1] / A0                                          # masse volumique effective (étape 2)
+E_EFF = stations[0, 2] / I0                                        # module d'Young effectif : raideur du pied / inertie de votre section
+t_st = (D_st - np.sqrt(D_st ** 2 - 4 * stations[:, 1] / (np.pi * RHO))) / 2
+facteur = <votre épaisseur retenue au pied (m)> / P["t_paroi"]
+t_new = t_st * facteur
+A_new = np.array([structure.section_tubulaire(d, t)[0] for d, t in zip(D_st, t_new)])
+I_new = np.array([structure.section_tubulaire(d, t)[1] for d, t in zip(D_st, t_new)])
+
+# fichier tour dimensionné : on remplace seulement les lignes du tableau (HtFract, TMassDen, TwFAStif, TwSSStif)
+lignes = Path(TOUR).read_text(encoding="utf-8").split("\n")
+i0 = next(i for i, l in enumerate(lignes) if "HtFract" in l) + 2
+for k in range(len(stations)):
+    lignes[i0 + k] = f"{stations[k, 0]:.7E}  {RHO * A_new[k]:.7E}  {E_EFF * I_new[k]:.7E}  {E_EFF * I_new[k]:.7E}"
+Path("results/tour_dimensionnee.dat").write_text("\n".join(lignes), encoding="utf-8")
+print("masse linéique au pied, avant / après (kg/m) :", stations[0, 1].round(1), (RHO * A_new[0]).round(1))
+
+# deux cas : fatigue représentatif (étape 2) et ULS dimensionnant ; mêmes lignes de LCT qu'aux phases 3 et 4, tour remplacée
+l3 = pd.read_csv("results/lct_phase3.csv")
+l4 = pd.read_csv("results/lct_phase4.csv")
+lct = pd.concat([l3[l3["cas"] == "<votre cas de fatigue>"], l4[l4["cas"] == "<votre cas ULS>"]], ignore_index=True)
+lct["elastodyn.TwrFile"] = "../../tour_dimensionnee.dat"          # un cas vit sous results/phase5/<cas>
+lct.to_csv("results/lct_phase5.csv", index=False)
+dossiers = cas.generer_serie("results/lct_phase5.csv", "modeles/flottant", "results/phase5", turbsim_inp="seances/0b/turbsim_gabarit.inp")
+lancer.lancer_serie(dossiers, coeurs=2, journal="results/phase5_journal.csv")
+```
+
+Puis la comparaison, avant / après, **sur la même fenêtre** :
+
+```python
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+from s9gm import lire
+
+sys.path.insert(0, "results/mon_s9gm")
+import fatigue
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+lignes = []
+for dossier in sorted(Path("results/phase5").glob("*")):
+    for etat, chemin in (("avant", Path("results/phase3") / dossier.name), ("avant", Path("results/phase4") / dossier.name), ("après", dossier)):
+        if not (chemin / "main.outb").is_file():
+            continue
+        df, _ = lire.lire(chemin / "main.outb")
+        u = df[df["Time"] >= P["T_TRANS"]]
+        T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
+        r = fatigue.rainflow(u["TwrBsMyt"].to_numpy())
+        lignes.append({"cas": dossier.name, "etat": etat, "max_TwrBsMyt": float(u["TwrBsMyt"].abs().max()),
+                       "DEL_TwrBsMyt": fatigue.del_court_terme(r["etendue"], r["compte"], P["M_TOUR"], P["F_EQ"] * T),
+                       "max_TTDspFA": float(u["TTDspFA"].abs().max())})
+comparaison = pd.DataFrame(lignes)
+comparaison.to_csv("results/phase5_boucle.csv", index=False)
+print(comparaison.round(3).to_string(index=False))
+```
+
+**Vous devez voir** : le fichier `results/tour_dimensionnee.dat`, deux cas lancés dans `results/phase5/`, et un tableau avant / après du maximum et du DEL du moment en pied de tour, et du déplacement de tête. **Commentez la variation des efforts obtenue par rapport au premier passage** (une tour plus mince est plus souple : que deviennent le moment, le déplacement, la fréquence propre ?), et dites si l'**approximation (iii)** peut l'expliquer.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| OpenFAST : « … tour_dimensionnee.dat was not found » | chemin de `elastodyn.TwrFile` faux | un cas vit sous `results/phase5/<cas>` : `../../tour_dimensionnee.dat` |
+| ElastoDyn : erreur de lecture du tableau | le tableau a été mal réécrit | comparez `results/tour_dimensionnee.dat` au fichier d'origine : seules les trois dernières colonnes et la masse changent |
+| `IndexError` sur `lct[...]` / lignes vides | le nom du cas ne figure pas dans `lct_phase3.csv` ou `lct_phase4.csv` | `print(l3["cas"].tolist(), l4["cas"].tolist())` |
+| résultats « avant » absents | cas d'origine absent de `results/phase3` ou `results/phase4` | seul le cas lancé dans `results/phase5` a un « avant » correspondant |
+
+### Étape 5 — Fréquence propre de la tour : effet de l'approximation, et lecture du diagramme 1P / 3P (point 2)
+
+Pour estimer l'effet de l'approximation (iii) **sans attendre un résultat garanti**, un **quotient de Rayleigh**, en réutilisant la **même** déformée assumée `φ(x)` (celle des coefficients d'origine `TwFAM1Sh(2…6)`) mais évaluée avec la **nouvelle** distribution de raideur `EI(x)` et de masse linéique `m(x)` :
+`f² ∝ [∫EI(x)·φ''(x)²dx] / [∫m(x)·φ(x)²dx + M_tête·φ(L)²]`. Le terme `M_tête·φ(L)²` (masse du rotor, du moyeu et de la nacelle en tête : `NacMass`, `HubMass` et la masse des pales, à relever ou intégrer dans les fichiers du modèle) **ne doit pas être oublié** : il domine le dénominateur pour une éolienne.
+**Interprétation** : le principe de Rayleigh garantit qu'une déformée assumée différente de la vraie déformée propre **d'une même structure** surestime sa fréquence ; il **ne garantit pas** que la fréquence obtenue pour la tour redimensionnée encadre sa vraie nouvelle fréquence (deux structures différentes). C'est un **ordre de grandeur** de l'effet de l'approximation, pas une borne.
+
+```python
+import json
+from pathlib import Path
+
+import numpy as np
+from openfast_toolbox.io import FASTInputFile
+
+P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+L = float(ed["TowerHt"]) - float(ed["TowerBsHt"])
+origine = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")
+nouvelle = FASTInputFile("results/tour_dimensionnee.dat")
+c = np.array([origine[f"TwFAM1Sh({i})"] for i in range(2, 7)], dtype=float)         # déformée assumée du 1er mode avant-arrière : Σ cᵢ (x/L)^i
+
+def rayleigh(tour, masse_tete):
+    x = tour["TowProp"][:, 0]                                                       # HtFract = x/L
+    m, ei = tour["TowProp"][:, 1], tour["TowProp"][:, 2]
+    phi = sum(ci * x ** i for ci, i in zip(c, range(2, 7)))
+    phi2 = sum(ci * i * (i - 1) * x ** (i - 2) for ci, i in zip(c, range(2, 7))) / L ** 2
+    num = np.trapezoid(ei * phi2 ** 2, x * L)
+    den = np.trapezoid(m * phi ** 2, x * L) + masse_tete * phi[-1] ** 2
+    return float(np.sqrt(num / den) / (2 * np.pi))
+
+M_TETE = <votre masse en tête (kg)>                                                 # nacelle + moyeu + pales, à relever dans les fichiers du modèle
+f0, f1 = rayleigh(origine, M_TETE), rayleigh(nouvelle, M_TETE)
+print("fréquence du 1er mode avant-arrière, tour d'origine et dimensionnée (Hz) :", round(f0, 4), round(f1, 4))
+print("1P (Hz), de la vitesse minimale à la vitesse nominale :", <votre vitesse minimale (rpm)> / 60, <votre vitesse nominale (rpm)> / 60)
+print("3P (Hz), de la vitesse minimale à la vitesse nominale :", 3 * <votre vitesse minimale (rpm)> / 60, 3 * <votre vitesse nominale (rpm)> / 60)
+```
+
+**Vous devez voir** : les fréquences de la tour avant et après l'itération, et les bandes `1P` et `3P` du rotor. **Placez la fréquence de la tour par rapport à ces bandes** (voir `seances/atelier_tour/`, §10, point non couvert par l'atelier : à faire ici) : tombe-t-elle dans une bande, entre deux, au-dessus ? Que change l'itération ?
+Si l'écart avec la fréquence d'origine est significatif, **dites-le et discutez-en** : ce point ne demande pas de corriger l'approximation, seulement d'en estimer l'effet. *Le résultat est un ordre de grandeur sur la tour seule (sans la souplesse du flotteur), pas la fréquence du système couplé.*
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `AttributeError: … trapezoid` | version de NumPy plus ancienne | remplacez par `np.trapz` |
+| fréquence très éloignée d'une valeur plausible pour la tour | masse en tête oubliée ou unités | `M_TETE` en kg ; `EI` en N·m² ; `x · L` en mètres |
+
+### Étape 6 — Entretoise, niveau B : effort d'écartement, effort axial, contrainte nominale (point 3)
+
+Estimez **à la main** l'**effort d'écartement** (*split / squeeze*) des colonnes pour la houle la plus pénalisante : **longueur d'onde de l'ordre de deux fois l'entraxe** des colonnes déportées (50 m, `data/geometrie_deepcwind.md`). Le bloc vous aide à **choisir l'état de mer** (celui de votre LCT ou de vos extrêmes dont la longueur d'onde approche `2 × entraxe`) ; **l'estimation de l'effort d'écartement `ΔF` est la vôtre**
+(efforts d'inertie de Morison sur les colonnes, F4 ; votre classeur d'architecture de la [séance 0b](../0b/README.md) vous donne les diamètres et les coefficients). Le bloc en déduit l'**effort axial** de l'entretoise (`structure.effort_axial_entretoise`, écrit : **le partage de l'effort entre entretoises est un choix à justifier**) et la **contrainte nominale**.
+
+```python
+import sys
+
+import numpy as np
+import pandas as pd
+from s9gm import hydro
+
+sys.path.insert(0, "results/mon_s9gm")
+import structure
+
+PROFONDEUR, ENTRAXE = 200.0, 50.0                                     # m : `WtrDpth` du modèle ; entraxe des colonnes déportées (data/geometrie_deepcwind.md)
+etats = pd.read_csv("results/etats_phase1.csv")
+ext = pd.read_csv("results/extremes_phase1.csv")
+tous = pd.concat([etats[["cas", "Hs", "Tp"]], ext[["cas", "Hs", "Tp"]]], ignore_index=True)
+tous["longueur_d_onde_m"] = [hydro.longueur_onde(tp, PROFONDEUR) for tp in tous["Tp"]]
+tous["ecart_a_2_entraxes"] = (tous["longueur_d_onde_m"] - 2 * ENTRAXE).abs()
+print(tous.sort_values("ecart_a_2_entraxes").head(5).round(2).to_string(index=False))
+
+DELTA_F = <votre effort d'écartement ΔF (N)>                          # votre estimation à la main, pour la houle que vous avez retenue
+PHI, PARTAGE = <votre angle φ (°)>, <votre partage>                   # angle de l'entretoise avec la direction de l'effort ; part de l'effort reprise par l'entretoise
+N = structure.effort_axial_entretoise(DELTA_F, PHI, partage=PARTAGE)
+A, I, W = structure.section_tubulaire(<votre diamètre d'entretoise (m)>, <votre épaisseur d'entretoise (m)>)
+sigma = N / A / 1e6                                                   # contrainte nominale axiale (MPa)
+print("effort axial (N) :", N, "; contrainte nominale (MPa) :", sigma, "; rapport à l'admissible :", sigma / <votre contrainte admissible (MPa)>)
+```
+
+**Vous devez voir** : les cinq états de mer dont la longueur d'onde est la plus proche de `2 × entraxe`, puis l'effort axial, la contrainte nominale et son rapport à la contrainte admissible. **Comparez à une contrainte admissible** que vous **justifiez** (norme citée), et dites ce que **vous n'avez pas pris en compte** (flexion de l'entretoise, effort de la houle sur l'entretoise elle-même, SCF : étape suivante).
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `ValueError : partage = … : doit être entre 0 et 1` | `partage` hors de [0 ; 1] | un partage entre 0 et 1, justifié |
+| `ValueError : section invalide` | diamètre ou épaisseur d'entretoise (unités) | mètres tous les deux ; relisez votre classeur 0b |
+| longueurs d'onde toutes très loin de `2 × entraxe` | période pic de vos états hors de la gamme | dites-le : votre LCT ne contient pas l'état résonant, et ce que cela change |
+
+### Étape 7 — Domaine de validité du SCF : β, τ, γ, α, θ de chaque jonction (point 4)
+
+Relevez dans le **document de définition OC4** (voir [`annexes/papers/`](../../annexes/papers/REFERENCES.md) et votre classeur d'architecture de la [séance 0b](../0b/README.md)) les **diamètres** des entretoises, des colonnes déportées et de la colonne centrale ; calculez **β = d/D** pour chaque jonction, et les autres paramètres que demande le domaine de validité
+(τ, γ, α, θ : leurs définitions sont dans DNV-RP-C203, annexe B). Le bloc contrôle le domaine **avant** d'appliquer les formules, et **dit quel paramètre sort de quelle borne**.
+
+```python
+import sys
+
+sys.path.insert(0, "results/mon_s9gm")
+import structure
+
+JONCTIONS = {
+    "entretoise / colonne déportée": dict(d=<votre d (m)>, D=<votre D (m)>, tau=<votre τ>, gamma=<votre γ>, alpha=<votre α>, theta_deg=<votre θ (°)>),
+    "entretoise / colonne centrale": dict(d=<votre d (m)>, D=<votre D (m)>, tau=<votre τ>, gamma=<votre γ>, alpha=<votre α>, theta_deg=<votre θ (°)>),
+    "entretoise / colonne de base": dict(d=<votre d (m)>, D=<votre D (m)>, tau=<votre τ>, gamma=<votre γ>, alpha=<votre α>, theta_deg=<votre θ (°)>),
+}
+for nom, j in JONCTIONS.items():
+    beta = j["d"] / j["D"]
+    try:
+        structure.verifier_domaine_efthymiou(beta, j["tau"], j["gamma"], j["alpha"], j["theta_deg"])
+    except structure.HorsDomaineError as e:
+        print(f"{nom} : β = {beta:.3f} — HORS DOMAINE : {e}")
+        continue
+    scf = structure.scf_ty_axial_encastre(beta, j["tau"], j["gamma"], j["alpha"], j["theta_deg"])
+    print(f"{nom} : β = {beta:.3f} — dans le domaine ; SCF axial : {scf}")
+```
+
+**Vous devez voir** : une ligne par jonction avec son `β` et soit un **message d'hors-domaine qui nomme le paramètre, sa valeur et la borne violée**, soit les SCF calculés. **Point de contrôle de l'ENONCE** : le domaine est vérifié **avant** tout usage ; piège : appliquer un SCF hors de son domaine. Les formules paramétriques d'Efthymiou sont établies pour des jonctions de jackets (**sans** colonne de grand diamètre ni entretoise élancée) :
+**dites si elles s'appliquent à ces jonctions**, et, quand elles ne s'appliquent pas, **ce qu'il faut faire** (un modèle local en éléments finis, niveau D ; un SCF publié pour la géométrie réelle ; une marge) — sans rendre un SCF hors domaine.
+
+| Symptôme | Cause | Geste |
+|---|---|---|
+| `NotImplementedError` | un trou n'est pas programmé | étape 1 |
+| tous les SCF sont « dans le domaine » | bornes mal lues ou paramètres mal calculés | relisez la définition de chaque paramètre (annexe B) et recalculez à la main une jonction |
+| un SCF inférieur à 1 | équation recopiée à l'envers | un SCF de jonction soudée est supérieur à 1 : relisez l'équation |
+
+### Étape 8 — Niveau C (groupe centre) : flotteur flexible en poutres — **sous réserve de faisabilité**
+
+Comparer, sur un même état de mer, l'effort dans une entretoise obtenu au niveau B et la série temporelle du modèle flexible (SubDyn couplé au flotteur), et expliquer pourquoi la répartition des efforts hydrodynamiques (potentiels ramenés en un point / Morison répartis) conditionne la validité du résultat.
+**Ce niveau est sous réserve de faisabilité** : le flotteur flexible n'est pas dans le modèle du dépôt, et sa faisabilité n'est pas établie. **Aucune commande n'est donnée** ; elle sera écrite si la faisabilité est établie. Ce que vous pouvez préparer d'ici là : votre estimation de niveau B (étape 6) et la liste de ce qu'un modèle flexible en changerait.
+
+### Étape 9 — Niveau D : assemblage, éléments finis locaux (lecture d'une étude publiée)
+
+À partir de l'**étude publiée** sur l'assemblage colonne-entretoise d'une semi-submersible, expliquer la chaîne *efforts globaux → modèle local éléments finis → SCF au point chaud → S-N → durée de vie*, et discuter les ordres de grandeur obtenus.
+**Cette étude n'est pas dans ce dépôt** (`annexes/papers/` ne la contient pas) : elle vous est remise avec sa source. Aucune commande : c'est un travail de lecture et de discussion.
 
 Rappel : aux niveaux A, B et C on obtient une contrainte **nominale**. Le SCF reste indispensable, et il faut savoir justifier d'où il vient.
 
-> **À compléter** : les commandes exactes de cette phase ne sont pas encore écrites (outil : `s9gm/structure.py` (squelette : à compléter par vous)).
-
 ## 4. Post-traiter
 
-La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Contraintes de section, effort dans l'entretoise, DEL de tour : voir la section 3, avec `s9gm/structure.py` et `s9gm/fatigue.py`.
+La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans [`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Contraintes de section, effort dans l'entretoise, DEL de tour : voir la section 3 (étapes 2 à 7), avec votre copie de `structure` et de `fatigue` sous `results/mon_s9gm/`.
 
 ## 5. Ce qu'on rend
 
-**Rendu R5** : note de vérification de la tour (premier passage et itération), calcul d'entretoise (niveau B), tableau β et conclusion sur le SCF ; groupe centre : comparaison B / C.
+**Rendu R5** : note de vérification de la tour (premier passage et itération, avec l'approximation de la déformée dite et son effet estimé), test de l'hypothèse « somme des DEL » à trois hauteurs, calcul d'entretoise (niveau B), tableau β et conclusion sur le SCF ; groupe centre : la comparaison B / C n'est due **que si** sa faisabilité est établie (sous réserve) ; votre copie de `structure` complétée et le résultat de ses tests.
 
 ## 6. Théorie à lire
 
