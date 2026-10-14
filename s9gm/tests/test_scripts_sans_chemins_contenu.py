@@ -89,3 +89,36 @@ def test_chaque_commande_du_tutoriel_est_executee_dans_un_dossier_temporaire(tmp
         script = prelude + "set -e\n" + "\n".join(c.replace("~/S9-GM-FOWT-DeepCwind", str(RACINE)) for c in commandes) + "\n"
         r = subprocess.run(["bash", "-c", script], cwd=tmp_path, capture_output=True, text=True, timeout=300)
         assert r.returncode == 0, f"bloc {k} :\n{script}\n{r.stderr[-800:]}"
+
+
+def _noms_de_chemin(arbre):
+    """Noms liés à un chemin `pathlib` : importés de `s9gm.chemins` ou assignés d'une expression `X / "…"`."""
+    import ast
+    noms = set()
+    for n in ast.walk(arbre):
+        if isinstance(n, ast.ImportFrom) and n.module == "s9gm.chemins":
+            noms.update(a.asname or a.name for a in n.names)
+    for n in ast.walk(arbre):
+        if isinstance(n, ast.Assign) and isinstance(n.value, ast.BinOp) and isinstance(n.value.op, ast.Div):
+            noms.update(t.id for t in n.targets if isinstance(t, ast.Name))
+    return noms
+
+
+@pytest.mark.parametrize("readme", PHASES, ids=lambda p: p.parent.name)
+def test_un_chemin_pathlib_ne_se_concatene_pas_a_une_chaine(readme):
+    """Un `Path` plus une chaîne lève `TypeError` : le rejeu de la phase 5 l'a révélé (`MODELE + "….dat"`)."""
+    import ast
+    fautes = []
+    for langue, code in parcours.blocs(readme.read_text(encoding="utf-8")):
+        if langue != "python":
+            continue
+        try:
+            arbre = ast.parse(re.sub(r"<votre[^>\n]*>", "0", code))
+        except SyntaxError:        # bloc à trous : couvert par les autres tests
+            continue
+        chemins = _noms_de_chemin(arbre)
+        for n in ast.walk(arbre):
+            if (isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add) and isinstance(n.left, ast.Name)
+                    and n.left.id in chemins and isinstance(n.right, ast.Constant) and isinstance(n.right.value, str)):
+                fautes.append(f"{n.left.id} + {n.right.value!r} (ligne {n.lineno} du bloc)")
+    assert not fautes, fautes
