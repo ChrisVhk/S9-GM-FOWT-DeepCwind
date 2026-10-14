@@ -9,6 +9,8 @@ Simulations de référence, lâchers, étude de sensibilité par groupe. Volume 
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
 **À lire avant la séance : F5 (Hydrodynamique potentielle), F6 (Aérodynamique et amortissement négatif)** — dès qu'elles sont publiées.
@@ -34,11 +36,12 @@ varie à la fois** (point de contrôle de l'ENONCE : conclure sur une seule seed
 ```python
 import subprocess
 from s9gm import lire
+from s9gm.chemins import CAS, RESULTS
 
 REF = "D01"                                                 # le cas de référence commun aux trois groupes
-subprocess.run(["bash", "cas/run_cas.sh", REF], check=True)  # copie le cas sous results/ et le lance (300 s simulées)
+subprocess.run(["bash", CAS / "run_cas.sh", REF], check=True)  # copie le cas sous results/ et le lance (300 s simulées)
 
-df, unites = lire.lire(f"results/{REF}/main.outb")
+df, unites = lire.lire(RESULTS / REF / "main.outb")
 df.plot(x="Time", y="PtfmSurge")                           # regardez la courbe AVANT de choisir le transitoire
 print(df.loc[df["Time"] == 0, ["FAIRTEN1", "FAIRTEN2", "FAIRTEN3"]])    # tensions des lignes à t = 0 : flotteur non déplacé, lignes à l'équilibre statique
 print(lire.statistiques(df, ["PtfmSurge", "PtfmHeave", "PtfmPitch", "FAIRTEN1", "FAIRTEN2", "FAIRTEN3"], t_transitoire=<votre valeur>))
@@ -62,6 +65,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 from s9gm import cas, lancer, lire
+from s9gm.chemins import MODELES, RESULTS
 
 DUREE = <votre durée de lâcher (s)>              # assez longue pour plusieurs périodes de chaque mode (le surge est le plus lent)
 lach = pd.DataFrame({
@@ -70,17 +74,17 @@ lach = pd.DataFrame({
     "elastodyn.PtfmSurge": [<votre déplacement de surge (m)>, 0, 0],
     "elastodyn.PtfmHeave": [0, <votre déplacement de heave (m)>, 0],
     "elastodyn.PtfmPitch": [0, 0, <votre rotation de pitch (°)>]})
-lach.to_csv("results/lct_lachers.csv", index=False)
-dossiers = cas.generer_serie("results/lct_lachers.csv", "modeles/flottant", "results/phase2_lachers")
-lancer.lancer_serie(dossiers, coeurs=3, journal="results/phase2_lachers_journal.csv")
+lach.to_csv(RESULTS / "lct_lachers.csv", index=False)
+dossiers = cas.generer_serie(RESULTS / "lct_lachers.csv", MODELES / "flottant", RESULTS / "phase2_lachers")
+lancer.lancer_serie(dossiers, coeurs=3, journal=RESULTS / "phase2_lachers_journal.csv")
 
 for nom, canal in (("surge", "PtfmSurge"), ("heave", "PtfmHeave"), ("pitch", "PtfmPitch")):
-    df, _ = lire.lire(f"results/phase2_lachers/LAC_{nom}/main.outb")
+    df, _ = lire.lire(RESULTS / "phase2_lachers" / f"LAC_{nom}" / "main.outb")
     t, y = df["Time"].to_numpy(), df[canal].to_numpy()
     pics, _ = find_peaks(y)
     print(nom, ":", len(pics), "pics ;", "période moyenne entre pics (s) :", float(np.diff(t[pics]).mean()) if len(pics) > 1 else "pas assez de pics")
 
-et = pd.read_csv("results/etats_phase1.csv")      # les états de mer de votre LCT (phase 1)
+et = pd.read_csv(RESULTS / "etats_phase1.csv")      # les états de mer de votre LCT (phase 1)
 print("périodes de pic Tp de votre LCT : de", et["Tp"].min(), "à", et["Tp"].max(), "s")
 ```
 
@@ -113,9 +117,10 @@ paramètre se fait varier par **une colonne de la LCT** :
 ```python
 import pandas as pd
 from s9gm import cas, lancer
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
-GABARIT = "seances/0b/turbsim_gabarit.inp"
-lct = pd.read_csv("results/lct_phase1_cas.csv")           # la LCT de votre groupe (phase 1)
+GABARIT = SEANCES / "0b" / "turbsim_gabarit.inp"
+lct = pd.read_csv(RESULTS / "lct_phase1_cas.csv")           # la LCT de votre groupe (phase 1)
 base = lct.iloc[[<indice du cas de base>]]                 # le cas de base : tout le reste est fixé à la référence
 variations = <vos variations>                              # {colonne de LCT : [valeurs]} : des listes de même longueur, au moins deux valeurs
 n = len(next(iter(variations.values())))
@@ -123,9 +128,9 @@ sens = pd.concat([base.assign(cas=f"S{j:02d}") for j in range(n)], ignore_index=
 for colonne, valeurs in variations.items():
     sens[colonne] = valeurs
 sens["fst.TMax"] = <votre durée de simulation (s)>        # 300 s en séance, 600 s hors séance (étape 5)
-sens.to_csv("results/lct_sensibilite.csv", index=False)
-dossiers = cas.generer_serie("results/lct_sensibilite.csv", "modeles/flottant", "results/phase2", turbsim_inp=GABARIT)
-lancer.lancer_serie(dossiers, coeurs=<vos coeurs>, journal="results/phase2_journal.csv")
+sens.to_csv(RESULTS / "lct_sensibilite.csv", index=False)
+dossiers = cas.generer_serie(RESULTS / "lct_sensibilite.csv", MODELES / "flottant", RESULTS / "phase2", turbsim_inp=GABARIT)
+lancer.lancer_serie(dossiers, coeurs=<vos coeurs>, journal=RESULTS / "phase2_journal.csv")
 ```
 
 **Vous devez voir** : autant de dossiers `results/phase2/S00`, `S01`, … que de valeurs, chacun avec son `main.outb`, `termine` dans le journal. **Seule la famille de votre groupe varie** : relisez
@@ -153,10 +158,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import welch
 from s9gm import lire, visu
+from s9gm.chemins import RESULTS
 
 CANAUX = ["TwrBsMyt", "FAIRTEN1", "FAIRTEN2", "FAIRTEN3", "PtfmSurge", "PtfmHeave", "PtfmPitch"]
 stats, series = {}, {}
-for d in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]:      # D01 : le point commun aux trois groupes
+for d in [RESULTS / "D01", *sorted((RESULTS / "phase2").glob("S*"))]:      # D01 : le point commun aux trois groupes
     df, _ = lire.lire(d / "main.outb")
     series[d.name] = df
     presents = [c for c in CANAUX if c in df.columns]        # avec MAP++, les tensions s'appellent T[1], T[2], T[3] (voir ci-dessous)
@@ -165,12 +171,12 @@ for d in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]:     
 
 for canal in ("TwrBsMyt", "PtfmPitch"):
     fig = visu.tracer_statistiques(stats, canal, modele="flottant", etat="rejoué le JJ/MM", titre=f"{canal} : effet du paramètre")
-    fig.savefig(f"results/phase2_{canal}.png", dpi=150, facecolor="white")
+    fig.savefig(RESULTS / f"phase2_{canal}.png", dpi=150, facecolor="white")
 
 dernier = sorted(series)[-1]
 fig = visu.tracer_series(series[dernier], ["TwrBsMyt", "PtfmPitch"], cas=dernier, modele="flottant",
                          etat="rejoué le JJ/MM", t_transitoire=<votre valeur>)
-fig.savefig("results/phase2_series.png", dpi=150, facecolor="white")
+fig.savefig(RESULTS / "phase2_series.png", dpi=150, facecolor="white")
 
 plt.figure()
 for nom, df in series.items():
@@ -179,7 +185,7 @@ for nom, df in series.items():
     f, P = welch(y - y.mean(), fs=1 / dt, nperseg=min(len(y), 512))
     plt.semilogy(f, P, label=nom)
 plt.xlabel("f (Hz)"); plt.ylabel("densité spectrale"); plt.legend()
-plt.savefig("results/phase2_spectres.png", dpi=150)
+plt.savefig(RESULTS / "phase2_spectres.png", dpi=150)
 ```
 
 **Vous devez voir** : un tableau de statistiques par cas (moyenne, écart-type, min, max), deux figures de comparaison (une barre par cas : moyenne, ± écart-type, min–max), une figure de séries temporelles avec le
@@ -201,18 +207,19 @@ permettent pas de conclure** (une seule seed ? durée trop courte ? autre param�
 import numpy as np
 import pandas as pd
 from s9gm import cas, lancer, lire
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
-lct = pd.read_csv("results/lct_phase1_cas.csv")
+lct = pd.read_csv(RESULTS / "lct_phase1_cas.csv")
 base = lct.iloc[[<indice du cas de base>]]
 deux = pd.concat([base.assign(cas="T300"), base.assign(cas="T600")], ignore_index=True)
 deux["fst.TMax"] = [300, 600]                                   # 300 s en séance ; 600 s pour la maison ou la salle C09
-deux.to_csv("results/lct_300_600.csv", index=False)
-dossiers = cas.generer_serie("results/lct_300_600.csv", "modeles/flottant", "results/phase2_300_600",
-                             turbsim_inp="seances/0b/turbsim_gabarit.inp")
-lancer.lancer_serie(dossiers, coeurs=2, journal="results/phase2_300_600_journal.csv")
+deux.to_csv(RESULTS / "lct_300_600.csv", index=False)
+dossiers = cas.generer_serie(RESULTS / "lct_300_600.csv", MODELES / "flottant", RESULTS / "phase2_300_600",
+                             turbsim_inp=SEANCES / "0b" / "turbsim_gabarit.inp")
+lancer.lancer_serie(dossiers, coeurs=2, journal=RESULTS / "phase2_300_600_journal.csv")
 
-a, _ = lire.lire("results/phase2_300_600/T300/main.outb")
-b, _ = lire.lire("results/phase2_300_600/T600/main.outb")
+a, _ = lire.lire(RESULTS / "phase2_300_600" / "T300" / "main.outb")
+b, _ = lire.lire(RESULTS / "phase2_300_600" / "T600" / "main.outb")
 canaux = ["TwrBsMyt", "FAIRTEN1", "PtfmSurge", "PtfmHeave", "PtfmPitch"]
 n = len(a)
 print("écart maximal sur les 300 premières secondes :", {c: float(np.abs(a[c].to_numpy() - b[c].to_numpy()[:n]).max()) for c in canaux})

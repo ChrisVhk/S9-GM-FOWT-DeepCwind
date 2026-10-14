@@ -14,6 +14,8 @@ l'enseignant avant tout lancement**, et la **somme des occurrences = 100 %**.
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé),
 et la séance [0b](../0b/README.md) (gabarit TurbSim à trous, lecture d'un cas).
 
@@ -42,7 +44,7 @@ Les quatre points de l'ENONCE :
 4. **Vérifier la représentativité** : comparer, paramètre par paramètre, les occurrences de votre LCT à celles du site. Dire où vous avez accepté d'être moins précis, et pourquoi c'est acceptable (loin des périodes propres ? faible occurrence ?).
 
 **À la main d'abord.** Avant chaque étape de calcul, écrivez ce que vous attendez (forme du tableau, classe de vent la plus probable,
-ordre des classes d'énergie) : le calcul vient le confirmer ou le contredire. Les commandes se lancent **depuis la racine du dépôt**,
+ordre des classes d'énergie) : le calcul vient le confirmer ou le contredire. Les commandes se lancent **depuis n'importe quel dossier**,
 environnement `s9gm-fowt` activé, dans une session Python ou un carnet, **dans l'ordre** : chaque étape réutilise les variables de la précédente.
 Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas, vous les décidez et vous les justifiez dans votre rendu.
 
@@ -51,9 +53,6 @@ Les valeurs entre `<…>` sont **vos choix** : la consigne ne les donne pas, vou
 ```python
 from pathlib import Path
 from s9gm import metocean
-
-for dossier in ("results", "rendus"):               # dossiers de ce que vous produisez : ignorés par git, donc absents d'un clone neuf
-    Path(dossier).mkdir(exist_ok=True)
 
 t = metocean.lire()
 print(t.P.shape, t.P.sum())                       # forme du tableau, somme des probabilités
@@ -67,15 +66,16 @@ for axe in metocean.AXES:                         # bornes des classes de chaque
 
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `ModuleNotFoundError: No module named 's9gm'` | Python lancé hors de la racine du dépôt | `cd` à la racine, ou `sys.path.insert(0, ".")` |
+| `ModuleNotFoundError: No module named 's9gm'` | le paquet n'est pas installé dans l'environnement actif | `micromamba activate s9gm-fowt`, puis, depuis la racine du clone : `pip install -e .` ; en cas de doute : `s9gm doctor` |
 | `ValueError … Σ P = …` | `floatech_wob_pdf_array.bin` modifié ou tronqué | `git restore data/metocean/` ; ne modifiez jamais `data/` |
-| `FileNotFoundError : results/…` (plus loin) | le dossier `results/` n'existe pas : git l'ignore, un clone neuf ne l'a pas | les deux premières lignes de l'étape 1 le créent ; relancez-les |
+| `FileNotFoundError : results/…` (plus loin) | une étape précédente n'a pas écrit son fichier | relancez l'étape qui l'écrit ; `results/` et `rendus/` se créent seuls |
 
 ### Étape 2 — La distribution conjointe (point 1)
 
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
+from s9gm.chemins import RESULTS
 
 for axe in metocean.AXES:
     print(metocean.marginales(t, axe).round(4).to_string())      # probabilité de chaque classe d'un axe, les trois autres sommés
@@ -92,7 +92,7 @@ for ax, axe in zip(axes, metocean.AXES):
     m = metocean.marginales(t, axe)
     ax.bar(m.index, m.to_numpy(), width=0.8 * (m.index[1] - m.index[0]))
     ax.set_xlabel(axe)
-fig.savefig("results/phase1_marginales.png", dpi=150)
+fig.savefig(RESULTS / "phase1_marginales.png", dpi=150)
 ```
 
 **Vous devez voir** : quatre marginales dont chacune somme à 1 ; deux listes de cinq cellules (vent, Hs) ; un fichier `results/phase1_marginales.png`.
@@ -143,16 +143,17 @@ des périodes propres du flotteur). Dites où votre LCT est moins précise et po
 
 ```python
 import pandas as pd
+from s9gm.chemins import DATA, RENDUS, RESULTS
 
 Z_HUB = 90                                       # m : hauteur du moyeu (HubHt du gabarit TurbSim, RefHt de modeles/flottant)
 LOI = dict(loi="<votre loi>", exposant=<votre exposant de vent>)   # ou dict(loi="logarithmique", z0=<votre z0>)
 chemin_lct, chemin_etats = metocean.exporter_lct(
-    etats, "results/lct_phase1.csv", "results/etats_phase1.csv",
+    etats, RESULTS / "lct_phase1.csv", RESULTS / "etats_phase1.csv",
     z_table=t.meta["hauteur_vent_m"], z_hub=Z_HUB, tmax=600,
     graine0=<votre graine>, iecturbc="<votre catégorie ou intensité>", **LOI)
 print(pd.read_csv(chemin_etats)[["cas", "U_table", "U_hub", "Hs", "Tp", "mis", "O_h", "O_pct"]].round(3).to_string())
 
-FLOATECH = "data/metocean/floatech_wob_metocean_ERA5.xlsx"
+FLOATECH = DATA / "metocean" / "floatech_wob_metocean_ERA5.xlsx"
 ess = pd.read_excel(FLOATECH, sheet_name="ESS", index_col=0)    # états de mer extrêmes : une ligne par période de retour
 sss = pd.read_excel(FLOATECH, sheet_name="SSS", index_col=0)    # états de mer sévères : une ligne par classe de vent
 print(ess.to_string())
@@ -163,10 +164,10 @@ extremes = pd.concat([
     pd.DataFrame({"cas": [f"X16_{int(u)}" for u in r16["U100"]], "DLC": "1.6", "U_table": r16["U100"].to_numpy(),
                   "Hs": r16["Hs"].to_numpy(), "Tp": r16["Tp"].to_numpy()})], ignore_index=True)
 extremes["U_hub"] = metocean.hauteur_vent(extremes["U_table"], t.meta["hauteur_vent_m"], Z_HUB, **LOI)
-extremes.to_csv("results/extremes_phase1.csv", index=False)
+extremes.to_csv(RESULTS / "extremes_phase1.csv", index=False)
 print(extremes.round(3).to_string())
 
-with pd.ExcelWriter("rendus/R1_LCT.xlsx") as xl:                  # le tableur du rendu R1
+with pd.ExcelWriter(RENDUS / "R1_LCT.xlsx") as xl:                  # le tableur du rendu R1
     pd.read_csv(chemin_etats).to_excel(xl, sheet_name="LCT fatigue", index=False)
     extremes.to_excel(xl, sheet_name="Extremes", index=False)
 ```
@@ -191,22 +192,23 @@ hauteur de référence de `Uw` : citez la source (article FLOATECH) et justifiez
 | `ValueError … Σ O_j … ≠ 100 %` | des classes ont été écartées sans renormaliser | revenez à l'étape 3 : la renormalisation y est explicite |
 | `KeyError` sur le nom de la ligne de `ess` | ligne inexistante dans `ess` | `print(ess)` : les lignes se lisent dans l'index de la feuille |
 | `ModuleNotFoundError: openpyxl` | environnement non activé | `micromamba activate s9gm-fowt` |
-| `rendus/` introuvable | dossier absent de votre clone | `mkdir -p rendus` (dossier ignoré par git) |
+| `rendus/` introuvable | dossier absent de votre clone | il se crée à l'import de `s9gm` ; sinon `s9gm doctor` |
 
 ### Étape 5 — Générer les cas avec le gabarit TurbSim à trous
 
 ```python
 from s9gm import cas, lancer, lire
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
 lct = pd.read_csv(chemin_lct)
 et = pd.read_csv(chemin_etats)
 lct["seastate.WaveMod"] = 2                       # houle irrégulière JONSWAP
 lct["seastate.WaveHs"] = et["Hs"]
 lct["seastate.WaveTp"] = et["Tp"]
-lct.to_csv("results/lct_phase1_cas.csv", index=False)
+lct.to_csv(RESULTS / "lct_phase1_cas.csv", index=False)
 
-GABARIT = "seances/0b/turbsim_gabarit.inp"
-tous = cas.generer_serie("results/lct_phase1_cas.csv", "modeles/flottant", "results/phase1_tous",
+GABARIT = SEANCES / "0b" / "turbsim_gabarit.inp"
+tous = cas.generer_serie(RESULTS / "lct_phase1_cas.csv", MODELES / "flottant", RESULTS / "phase1_tous",
                          executer_turbsim=False, turbsim_inp=GABARIT)
 print(len(tous), "cas relus par s9gm.cas et fabriqués, sans TurbSim ni OpenFAST")
 ```
@@ -233,15 +235,16 @@ tourne chez vous. Son cas, `EX00`, n'est pas un cas de votre LCT : vent turbulen
 Seuls les deux trous du gabarit, `IECturbc` et la graine, reprennent **vos** choix (ceux de la première ligne de votre LCT) : le gabarit ne se lance pas sans.
 
 ```python
+from s9gm.chemins import MODELES, RESULTS
 ex = pd.DataFrame([{"cas": "EX00", "fst.TMax": 300,                      # 300 s en séance
                     "turbsim.URef": 7.5,
                     "turbsim.IECturbc": lct["turbsim.IECturbc"].iloc[0], "turbsim.RandSeed1": lct["turbsim.RandSeed1"].iloc[0],
                     "seastate.WaveMod": 2, "seastate.WaveHs": 6, "seastate.WaveTp": 10}])
-ex.to_csv("results/lct_phase1_exemple.csv", index=False)
-dossiers = cas.generer_serie("results/lct_phase1_exemple.csv", "modeles/flottant", "results/phase1", turbsim_inp=GABARIT)
-lancer.lancer_serie(dossiers, coeurs=1, journal="results/phase1_journal.csv")
+ex.to_csv(RESULTS / "lct_phase1_exemple.csv", index=False)
+dossiers = cas.generer_serie(RESULTS / "lct_phase1_exemple.csv", MODELES / "flottant", RESULTS / "phase1", turbsim_inp=GABARIT)
+lancer.lancer_serie(dossiers, coeurs=1, journal=RESULTS / "phase1_journal.csv")
 
-df, unites = lire.lire("results/phase1/EX00/main.outb")
+df, unites = lire.lire(RESULTS / "phase1" / "EX00" / "main.outb")
 df.plot(x="Time", y="PtfmSurge"); plt.show()      # regardez la courbe AVANT de choisir le transitoire
 print(lire.statistiques(df, ["TwrBsMyt", "PtfmSurge", "PtfmHeave", "PtfmPitch", "FAIRTEN1", "FAIRTEN2", "FAIRTEN3"],
                         t_transitoire=<votre valeur>))

@@ -9,6 +9,8 @@ Synthèse commune des trois groupes et soutenance. Volume indicatif : 4 h. Rendu
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
@@ -34,19 +36,20 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from s9gm import lire, structure
+from s9gm.chemins import RENDUS, RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 GROUPE, FAMILLE = "<votre groupe>", "<votre famille de paramètres>"
 courbe = fatigue.CourbeSN(**P["sn"])
 A, I, W = structure.section_tubulaire(P["D"], P["t_paroi"])
-sens = pd.read_csv("results/lct_sensibilite.csv").set_index("cas")
+sens = pd.read_csv(RESULTS / "lct_sensibilite.csv").set_index("cas")
 variables = [c for c in sens.columns if c != "cas" and sens[c].astype(str).nunique() > 1]         # ce qui varie dans votre sensibilité
 
 lignes = []
-for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]:
+for dossier in [RESULTS / "D01", *sorted((RESULTS / "phase2").glob("S*"))]:
     df, unites = lire.lire(dossier / "main.outb")
     u = df[df["Time"] >= P["T_TRANS"]]
     T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
@@ -65,13 +68,12 @@ for dossier in [Path("results/D01"), *sorted(Path("results/phase2").glob("S*"))]
                    "DEL_ligne_max_N": max(del_lignes),
                    "max_TwrBsMyt_kNm": float(u["TwrBsMyt"].abs().max()), "max_tension_N": float(max(u[t].max() for t in tensions)),
                    **{f"max_{c}": float(u[c].abs().max()) for c in ("PtfmSurge", "PtfmHeave", "PtfmPitch")}})
-uls = pd.read_csv("results/phase4_uls.csv")
+uls = pd.read_csv(RESULTS / "phase4_uls.csv")
 for _, x in uls.iterrows():
     lignes.append({"groupe": GROUPE, "famille": FAMILLE, "type": "extrême", "cas": x["cas"], "variation": "",
                    "max_TwrBsMyt_kNm": x["max_TwrBsMyt_kNm"], "max_tension_N": x["max_tension"],
                    **{c: x[c] for c in ("max_PtfmSurge", "max_PtfmHeave", "max_PtfmPitch")}})
-Path("rendus").mkdir(exist_ok=True)
-pd.DataFrame(lignes).to_csv(f"rendus/synthese_{GROUPE}.csv", index=False)
+pd.DataFrame(lignes).to_csv(RENDUS / f"synthese_{GROUPE}.csv", index=False)
 print(pd.DataFrame(lignes).round(4).to_string(index=False))
 ```
 
@@ -93,8 +95,9 @@ Les dommages et les DEL, eux, dépendent de **vos choix** (section, courbe S-N) 
 from pathlib import Path
 
 import pandas as pd
+from s9gm.chemins import RENDUS
 
-fichiers = sorted(Path("rendus/groupes").glob("*.csv"))
+fichiers = sorted((RENDUS / "groupes").glob("*.csv"))
 print("fichiers rassemblés :", [f.name for f in fichiers])
 tout = pd.concat([pd.read_csv(f) for f in fichiers], ignore_index=True)
 
@@ -119,7 +122,7 @@ for g, bloc in tout.groupby("groupe"):
                        "max_PtfmHeave_relatif": x["max_PtfmHeave"] / ref["max_PtfmHeave"],
                        "max_PtfmPitch_relatif": x["max_PtfmPitch"] / ref["max_PtfmPitch"]})
 synthese = pd.DataFrame(lignes)
-synthese.to_csv("rendus/tableau_synthese.csv", index=False)
+synthese.to_csv(RENDUS / "tableau_synthese.csv", index=False)
 print(synthese.round(3).to_string(index=False))
 ```
 
@@ -141,8 +144,9 @@ from pathlib import Path
 
 import pandas as pd
 from s9gm import visu
+from s9gm.chemins import RENDUS
 
-synthese = pd.read_csv("rendus/tableau_synthese.csv")
+synthese = pd.read_csv(RENDUS / "tableau_synthese.csv")
 EFFETS = [("dommage_tour_relatif", "dommage du pied de tour / D01"), ("DEL_ligne_relatif", "DEL de la ligne / D01"),
           ("max_moment_relatif", "moment max en pied / D01"), ("max_tension_relatif", "tension max / D01"),
            ("max_PtfmSurge_relatif", "cavalement max / D01"), ("max_PtfmPitch_relatif", "tangage max / D01")]
@@ -154,8 +158,7 @@ for colonne, etiquette in EFFETS:
     panneaux.append({"ylabel": etiquette, "courbes": courbes})
 fig = visu.tracer_courbes(panneaux, xlabel="variation (rang dans la sensibilité du groupe)", cas="D01 et sensibilités de chaque groupe",
                           modele="flottant", etat="<votre date de rejeu>", titre="Effet de chaque famille de paramètres")
-Path("rendus").mkdir(exist_ok=True)
-fig.savefig("rendus/synthese_sensibilite.png", dpi=150, facecolor="white")
+fig.savefig(RENDUS / "synthese_sensibilite.png", dpi=150, facecolor="white")
 print("figure : rendus/synthese_sensibilite.png")
 ```
 

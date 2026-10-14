@@ -15,6 +15,8 @@ Fatigue : rainflow, S-N, Miner, DEL court et long terme. Volume indicatif : 8 h.
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
 **À lire avant la séance : F8 (Ancrage dynamique et fatigue)** — dès qu'elle est publiée.
@@ -40,35 +42,30 @@ Les états de mer, leurs occurrences et la durée de simulation viennent de **vo
 `s9gm/fatigue.py` est un **squelette** : `inversions`, `CourbeSN`, `nombre_cycles`, `dff_verif` et `lire_serie` sont écrits ; quatre fonctions sont à programmer par vous : `rainflow`, `miner`, `del_court_terme`, `del_long_terme`
 (l'énoncé de chacune, ses hypothèses et les renvois à la norme sont dans le bloc « Théorie » en tête du module). Le fichier du dépôt ne se modifie pas : vous travaillez sur **une copie sous `results/`**.
 
-```python
-import shutil
-from pathlib import Path
-
-Path("results/mon_s9gm").mkdir(parents=True, exist_ok=True)
-shutil.copy("s9gm/fatigue.py", "results/mon_s9gm/fatigue.py")
-print("votre copie : results/mon_s9gm/fatigue.py (quatre trous : rainflow, miner, del_court_terme, del_long_terme)")
+```bash
+s9gm copie fatigue
 ```
 
-Programmez les quatre fonctions dans `results/mon_s9gm/fatigue.py` (éditeur de votre choix), puis lancez les tests du dépôt **sur votre copie** :
+`s9gm copie` crée `results/mon_s9gm/fatigue.py` dans votre clone — **sans jamais écraser** une copie existante —, affiche son chemin complet et le nombre de trous. Elle marche **depuis n'importe quel dossier**. Programmez les quatre fonctions dans cette copie (éditeur de votre choix), puis lancez les tests du dépôt, d'abord sur le squelette du dépôt, ensuite sur **votre copie** :
+
+```bash
+s9gm tester fatigue --squelette
+```
+
+```bash
+s9gm tester fatigue
+```
+
+**Vous devez voir** : avec `--squelette`, des tests `xfailed` (attendus en échec : `NotImplementedError`) et des `passed` (les parties déjà écrites) ; sans option, sur votre copie : **tant que vos fonctions ne sont pas programmées, des `failed` qui nomment la fonction à programmer** ; **une fois les quatre programmées, `passed` pour tous les tests de `test_fatigue.py`, aucun `failed`, aucun `xfailed`**.
+
+Point de contrôle de l'ENONCE : **votre DEL programmé = le DEL de l'outil** d'`openfast_toolbox` sur une sinusoïde dont le résultat est connu à l'avance (60 cycles d'étendue 100). Rechargez votre copie (`ma_copie` relit le fichier à chaque appel) :
 
 ```python
-import os
-import subprocess
-import sys
-
-for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_FATIGUE_COMPLET": "results/mon_s9gm"})):
-    r = subprocess.run([sys.executable, "-m", "pytest", "s9gm/tests/test_fatigue.py", "-q", "-p", "no:cacheprovider", "--tb=line"],
-                       env={**os.environ, **extra}, capture_output=True, text=True)
-    print("==", etiquette)
-    print("\n".join(r.stdout.strip().splitlines()[-8:]))
-
-# point de contrôle de l'ENONCE : DEL programmé = DEL de l'outil sur une sinusoïde (résultat connu à l'avance : 60 cycles d'étendue 100)
 import numpy as np
 from openfast_toolbox.tools.fatigue import equivalent_load
+from s9gm import ma_copie
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
-
+fatigue = ma_copie("fatigue")                      # votre copie, rechargée depuis le fichier
 t = np.linspace(0, 600, 24001)
 x = 50 * np.cos(2 * np.pi * t / 10)
 try:
@@ -78,13 +75,12 @@ except NotImplementedError:
     print("DEL de votre copie : pas encore programmé")
 ```
 
-**Vous devez voir**, dans la partie « squelette du dépôt » : des tests `xfailed` (attendus en échec : `NotImplementedError`) et des `passed` (les parties déjà écrites). Dans la partie « votre copie » : **tant que vos fonctions ne sont pas programmées, des `failed`** (la variable désigne alors votre copie : un trou n'est plus « attendu en échec ») ; **une fois les quatre programmées, `passed` pour tous les tests de `test_fatigue.py`, aucun `failed`, aucun `xfailed`**. Les tests sont des calculs
-à la main (sinusoïde de résultat connu, séquence d'exemple dont la dérivation est écrite dans le test) : un test qui échoue vous dit quelle grandeur est fausse. **Point de contrôle de l'ENONCE** : DEL programmé = DEL de l'outil sur un signal sinusoïdal dont le résultat est connu à l'avance.
-
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `failed` encore présents dans « votre copie » | un trou est resté, ou une fonction renvoie une valeur fausse (le test nomme la grandeur) | relisez le chemin, et `grep -n NotImplementedError results/mon_s9gm/fatigue.py` |
-| `FileNotFoundError … fatigue.py` | la copie n'existe pas | refaites le premier bloc de cette étape |
+| `failed` encore présents dans « votre copie » | un trou est resté, ou une fonction renvoie une valeur fausse (le test nomme la grandeur) | `s9gm copie fatigue` affiche le nombre de trous restants ; `grep -n NotImplementedError results/mon_s9gm/fatigue.py` les liste |
+| `s9gm : commande introuvable` | l'environnement n'est pas activé, ou le paquet n'est pas installé | `micromamba activate s9gm-fowt`, puis `s9gm doctor` (il donne la commande exacte) |
+| j'ai corrigé ma fonction mais **rien ne change** | en Python, `fatigue = ma_copie("fatigue")` a été exécuté avant la correction : la variable garde l'ancienne version | relancez la ligne `ma_copie("fatigue")` : elle relit le fichier à chaque appel (inutile de redémarrer Python). `s9gm tester fatigue` relit toujours le fichier |
+| `s9gm copie fatigue` dit que la copie existe déjà | normal : votre travail n'est jamais écrasé | pour repartir d'un squelette vierge, déplacez `results/mon_s9gm/fatigue.py` ailleurs (ne le supprimez pas), puis relancez `s9gm copie fatigue` |
 | un test `amplitude_a_la_place_de_l_etendue` échoue | vous avez passé des amplitudes | les arguments sont des **étendues** `Δσ = σmax − σmin` |
 | `rainflow` : somme des comptes fausse | demi-cycles du résidu mal comptés | relisez le bloc « Théorie » : un cycle compte 1, un demi-cycle 0,5 |
 
@@ -95,14 +91,15 @@ Votre LCT est validée : on lance maintenant ses cas. Un cas de 600 s prend envi
 ```python
 import pandas as pd
 from s9gm import cas, lancer
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
-lct = pd.read_csv("results/lct_phase1_cas.csv")             # votre LCT : une ligne par état de mer et de vent
+lct = pd.read_csv(RESULTS / "lct_phase1_cas.csv")             # votre LCT : une ligne par état de mer et de vent
 lct["fst.TMax"] = <votre durée>                            # secondes simulées, la même pour tous les cas
-lct.to_csv("results/lct_phase3.csv", index=False)
+lct.to_csv(RESULTS / "lct_phase3.csv", index=False)
 
-GABARIT = "seances/0b/turbsim_gabarit.inp"
-dossiers = cas.generer_serie("results/lct_phase3.csv", "modeles/flottant", "results/phase3", turbsim_inp=GABARIT)
-lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal="results/phase3_journal.csv")
+GABARIT = SEANCES / "0b" / "turbsim_gabarit.inp"
+dossiers = cas.generer_serie(RESULTS / "lct_phase3.csv", MODELES / "flottant", RESULTS / "phase3", turbsim_inp=GABARIT)
+lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal=RESULTS / "phase3_journal.csv")
 ```
 
 **Vous devez voir** : une ligne `termine` par cas dans le journal de `lancer`, et un fichier `results/phase3/<cas>/main.outb` par cas. Un cas déjà terminé est sauté si vous relancez le bloc.
@@ -135,12 +132,13 @@ import pandas as pd
 from openfast_toolbox.io import FASTInputFile
 from openfast_toolbox.tools.fatigue import equivalent_load
 from s9gm import lire, structure
+from s9gm.chemins import MODELES, RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue                                           # VOTRE copie complétée (étape 1)
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")                                           # VOTRE copie (rechargée à chaque appel)
 
-etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
-AERO = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat"
+etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
+AERO = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat"
 D = float(FASTInputFile(AERO)["TowProp"][0][1])         # diamètre extérieur au pied (m), lu dans le fichier AeroDyn
 t_paroi = <votre épaisseur de paroi (m)>                 # à retrouver à partir de TMassDen et de votre masse volumique
 A, I, W = structure.section_tubulaire(D, t_paroi)
@@ -153,12 +151,12 @@ SN = dict(log_a1=<votre log ā1>, m1=<votre pente m1>, log_a2=<votre log ā2>, m
           source="<votre source S-N (norme, tableau, page)>")
 courbe = fatigue.CourbeSN(**SN)
 # vos choix, écrits une fois : les phases 5 et 6 les relisent au lieu de vous les faire retaper
-Path("results/phase3_parametres.json").write_text(json.dumps(
+(RESULTS / "phase3_parametres.json").write_text(json.dumps(
     {"D": D, "t_paroi": t_paroi, "SCF": SCF, "M_TOUR": M_TOUR, "M_LIGNE": M_LIGNE, "F_EQ": F_EQ,
      "T_TRANS": T_TRANS, "T_REF": T_REF, "DFF": DFF, "SERVICE": SERVICE, "sn": SN}, indent=2), encoding="utf-8")
 
 lignes = []
-for dossier in sorted(Path("results/phase3").glob("*")):
+for dossier in sorted((RESULTS / "phase3").glob("*")):
     df, unites = lire.lire(dossier / "main.outb")
     assert unites["TwrBsMyt"] == "kN-m", unites["TwrBsMyt"]    # le moment est en kN·m : la conversion est écrite ci-dessous
     u = df[df["Time"] >= T_TRANS]                              # transitoire écarté
@@ -177,7 +175,7 @@ for dossier in sorted(Path("results/phase3").glob("*")):
     lignes.append(ligne)
 
 tab = pd.DataFrame(lignes).set_index("cas")
-tab.to_csv("results/phase3_del_par_cas.csv")
+tab.to_csv(RESULTS / "phase3_del_par_cas.csv")
 print(tab.round(4).to_string())
 ```
 
@@ -203,15 +201,16 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+from s9gm.chemins import RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
 
-tab = pd.read_csv("results/phase3_del_par_cas.csv").set_index("cas")
-etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+tab = pd.read_csv(RESULTS / "phase3_del_par_cas.csv").set_index("cas")
+etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
 O = (etats.loc[tab.index, "O_pct"] / 100.0).to_numpy()           # occurrences Oⱼ de votre LCT, somme = 1
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))          # vos choix de l'étape 3
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))          # vos choix de l'étape 3
 del_tour_lt = fatigue.del_long_terme(tab["DEL_tour"].to_numpy(), O, P["M_TOUR"])
 del_lignes_lt = [fatigue.del_long_terme(tab[f"DEL_FAIRTEN{k}"].to_numpy(), O, P["M_LIGNE"]) for k in (1, 2, 3)]
 print("DEL long terme, tour (MPa) :", del_tour_lt)
@@ -222,7 +221,7 @@ print("dommage annuel :", D_an, "; durée de vie estimée sans DFF (ans) :", 1.0
 verdict = fatigue.dff_verif(D_an * P["SERVICE"], P["DFF"])
 print(verdict)
 pd.DataFrame({"grandeur": ["DEL_long_terme_tour", "dommage_annuel", "dommage_x_DFF", "marge", "ok"],
-              "valeur": [del_tour_lt, D_an, verdict["dommage_x_dff"], verdict["marge"], verdict["ok"]]}).to_csv("results/phase3_bilan.csv", index=False)
+              "valeur": [del_tour_lt, D_an, verdict["dommage_x_dff"], verdict["marge"], verdict["ok"]]}).to_csv(RESULTS / "phase3_bilan.csv", index=False)
 ```
 
 **Vous devez voir** : le DEL long terme de la tour et des trois lignes, le dommage annuel, la durée de vie estimée **sans** coefficient de sécurité, puis le verdict `D · DFF ≤ 1` sur votre durée de service. **Le DFF et la durée de service sont des paramètres que vous justifiez avec la norme** (DNV-RP-C203 renvoie à la norme de structure pour le DFF : citez l'édition, le tableau et la page, et dites quelles conséquences d'une rupture et quelle inspectabilité vous avez retenues) ; l'ENONCE ne les fixe pas, et la consigne n'en donne aucun. Comme pour `IECturbc`, ce qui est noté est la justification et la source, pas le nombre. Un verdict `ok = True` ne dit pas que la tour tient en fatigue : relisez
@@ -241,13 +240,14 @@ Le classeur de l'atelier (onglet `Long term DEL`) calcule le DEL long terme `(Σ
 
 ```python
 import pandas as pd
+from s9gm.chemins import RESULTS
 
-tab = pd.read_csv("results/phase3_del_par_cas.csv").set_index("cas")
-etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+tab = pd.read_csv(RESULTS / "phase3_del_par_cas.csv").set_index("cas")
+etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
 export = pd.DataFrame({"milieu_de_classe_U": etats.loc[tab.index, "U_table"].to_numpy(),
                        "Oj": (etats.loc[tab.index, "O_pct"] / 100.0).to_numpy(),
                        "My": tab["DEL_tour"].to_numpy()}, index=tab.index)
-export.to_csv("results/phase3_export_long_terme.csv")
+export.to_csv(RESULTS / "phase3_export_long_terme.csv")
 print(export.round(4).to_string())
 ```
 
@@ -266,13 +266,14 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfiltfilt
 from s9gm import lire, structure
+from s9gm.chemins import RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))      # vos choix de l'étape 3
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))      # vos choix de l'étape 3
 CAS = "<votre cas>"                                          # un nom de dossier de results/phase3
-df, unites = lire.lire(f"results/phase3/{CAS}/main.outb")
+df, unites = lire.lire(RESULTS / "phase3" / CAS / "main.outb")
 u = df[df["Time"] >= P["T_TRANS"]]
 T = float(u["Time"].iloc[-1] - u["Time"].iloc[0])
 dt = float(np.median(np.diff(u["Time"])))

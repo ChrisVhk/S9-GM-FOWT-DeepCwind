@@ -14,6 +14,8 @@ comprendre ce qu'est un cas OpenFAST et lire un `.fst` ; lancer deux cas d'écha
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 **À lire avant la séance** : fiche F1 — Aéro-régulation
 ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).
 
@@ -132,8 +134,9 @@ l'arrêt. **Regardez la courbe avant de calculer une statistique.**
 ```python
 import matplotlib.pyplot as plt
 from s9gm import lire
+from s9gm.chemins import RESULTS
 
-df, unites = lire.lire("results/F01/main.outb")
+df, unites = lire.lire(RESULTS / "F01" / "main.outb")
 print(list(df.columns))                      # les canaux disponibles
 df.plot(x="Time", y="RotSpeed"); plt.show()  # 1) regarder
 ```

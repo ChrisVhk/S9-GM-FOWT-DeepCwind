@@ -15,6 +15,8 @@ hydrostatiques du flotteur ; lancer l'éolienne flottante (D00 à D05) ; compare
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 **À lire avant la séance** : fiche F2 (Houle linéaire), fiche F3 (Hydrostatique), fiche F4 (Morison) — *fiches à venir
 (master)*. En leur absence, les renvois de cette page pointent vers le tutoriel LHEEA et la fiche F1 déjà disponibles
 ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).
@@ -93,10 +95,11 @@ met `openfast` dans le PATH) :
 
 ```python
 from s9gm import cas, lancer, lire
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
-dossiers = cas.generer_serie("results/lct_0b.csv", "modeles/fixe", "results/cas_0b",
-                             turbsim_inp="seances/0b/turbsim_gabarit.inp")
-lancer.lancer_serie(dossiers, coeurs=2, journal="results/journal_lancer.csv")
+dossiers = cas.generer_serie(RESULTS / "lct_0b.csv", MODELES / "fixe", RESULTS / "cas_0b",
+                             turbsim_inp=SEANCES / "0b" / "turbsim_gabarit.inp")
+lancer.lancer_serie(dossiers, coeurs=2, journal=RESULTS / "journal_lancer.csv")
 ```
 
 **Vous devez voir** : un dossier `results/cas_0b/F03/`, `F04/`, `F05/` avec chacun un `Wind/Fxx.bts` (le champ de
@@ -127,7 +130,8 @@ main.
 **Étape 3 — lire.** Pour chaque cas, **choisissez `t_transitoire` en regardant la courbe**, puis comparez F03, F04, F05 :
 
 ```python
-df, unites = lire.lire("results/cas_0b/F03/main.outb")
+from s9gm.chemins import RESULTS
+df, unites = lire.lire(RESULTS / "cas_0b" / "F03" / "main.outb")
 print(lire.statistiques(df, ["RotSpeed", "TwrBsMyt"], t_transitoire=<durée à écarter, en s>))
 # à vous de la choisir en regardant la courbe : sans elle, lire refuse de calculer
 ```
@@ -284,8 +288,9 @@ D05,300,3,../F05/Wind/F05.bts,2,6,10
 puis, **une fois F03 à F05 générés** (3.1) :
 
 ```python
-dossiers = cas.generer_serie("results/lct_0b_flottant.csv", "modeles/flottant", "results/cas_0b")
-lancer.lancer_serie(dossiers, coeurs=2, journal="results/journal_lancer_D.csv")
+from s9gm.chemins import MODELES, RESULTS
+dossiers = cas.generer_serie(RESULTS / "lct_0b_flottant.csv", MODELES / "flottant", RESULTS / "cas_0b")
+lancer.lancer_serie(dossiers, coeurs=2, journal=RESULTS / "journal_lancer_D.csv")
 ```
 
 **Vous devez voir** : `results/cas_0b/D03/`, `D04/`, `D05/`, chacun avec son `main.outb`, environ **7 à 8 minutes par cas** pour 300 s

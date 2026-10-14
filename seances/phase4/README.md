@@ -13,6 +13,8 @@ Extrêmes (ULS) et ancrage. Volume indicatif : 12 h. Rendu : **R4**.
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
 **À lire avant la séance : F7 (Caténaire statique)** — dès qu'elle est publiée.
@@ -29,35 +31,28 @@ Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consig
 `s9gm/ancrage.py` est un **squelette** : `poids_immerge`, `lire_moordyn`, `systeme_lignes` et `courbe_deport` sont écrits ; deux fonctions sont à programmer par vous : `catenaire_elastique` (effort au chaumard d'une caténaire élastique) et `raideur_horizontale`
 (le bloc « Théorie » du module donne le modèle, le domaine de validité et ce qu'il ne permet pas de conclure). Le fichier du dépôt ne se modifie pas : vous travaillez sur **une copie sous `results/`**.
 
-```python
-import shutil
-from pathlib import Path
-
-Path("results/mon_s9gm").mkdir(parents=True, exist_ok=True)
-shutil.copy("s9gm/ancrage.py", "results/mon_s9gm/ancrage.py")
-print("votre copie : results/mon_s9gm/ancrage.py (deux trous : catenaire_elastique, raideur_horizontale)")
+```bash
+s9gm copie ancrage
 ```
 
-Programmez les deux fonctions dans `results/mon_s9gm/ancrage.py`, puis lancez les tests du dépôt **sur votre copie** :
+`s9gm copie` crée `results/mon_s9gm/ancrage.py` dans votre clone — **sans jamais écraser** une copie existante —, affiche son chemin complet et le nombre de trous. Elle marche **depuis n'importe quel dossier**. Programmez les deux fonctions dans cette copie (éditeur de votre choix), puis lancez les tests du dépôt, d'abord sur le squelette du dépôt, ensuite sur **votre copie** :
 
-```python
-import os
-import subprocess
-import sys
-
-for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_ANCRAGE_COMPLET": "results/mon_s9gm"})):
-    r = subprocess.run([sys.executable, "-m", "pytest", "s9gm/tests/test_ancrage.py", "-q", "-p", "no:cacheprovider", "--tb=line"],
-                       env={**os.environ, **extra}, capture_output=True, text=True)
-    print("==", etiquette)
-    print("\n".join(r.stdout.strip().splitlines()[-8:]))
+```bash
+s9gm tester ancrage --squelette
 ```
 
-**Vous devez voir**, dans la partie « squelette du dépôt » : des tests `xfailed` (attendus en échec) et des `passed` (les parties déjà écrites). Dans la partie « votre copie » : **des `failed` tant que vos deux fonctions ne sont pas programmées, puis `passed` pour tous les tests de `test_ancrage.py`, aucun `failed`, aucun `xfailed`**. Les tests vérifient votre caténaire par la fermeture géométrique de la ligne, par la limite inextensible,
-par la symétrie à décalage nul, et la concordance de vos deux raideurs (analytique et différence finie).
+```bash
+s9gm tester ancrage
+```
+
+**Vous devez voir** : avec `--squelette`, des tests `xfailed` (attendus en échec : `NotImplementedError`) et des `passed` (les parties déjà écrites) ; sans option, sur votre copie : **tant que vos fonctions ne sont pas programmées, des `failed` qui nomment la fonction à programmer** ; **une fois les deux programmées, `passed` pour tous les tests de `test_ancrage.py`, aucun `failed`, aucun `xfailed`**.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `failed` encore présents dans « votre copie » | un trou reste, ou une fonction est fausse (le test nomme la grandeur) | relisez le chemin ; `grep -n NotImplementedError results/mon_s9gm/ancrage.py` |
+| `failed` encore présents dans « votre copie » | un trou reste, ou une fonction est fausse (le test nomme la grandeur) | `s9gm copie ancrage` affiche le nombre de trous restants ; `grep -n NotImplementedError results/mon_s9gm/ancrage.py` les liste |
+| `s9gm : commande introuvable` | l'environnement n'est pas activé, ou le paquet n'est pas installé | `micromamba activate s9gm-fowt`, puis `s9gm doctor` (il donne la commande exacte) |
+| j'ai corrigé ma fonction mais **rien ne change** | en Python, `ancrage = ma_copie("ancrage")` a été exécuté avant la correction : la variable garde l'ancienne version | relancez la ligne `ma_copie("ancrage")` : elle relit le fichier à chaque appel (inutile de redémarrer Python). `s9gm tester ancrage` relit toujours le fichier |
+| `s9gm copie ancrage` dit que la copie existe déjà | normal : votre travail n'est jamais écrasé | pour repartir d'un squelette vierge, déplacez `results/mon_s9gm/ancrage.py` ailleurs (ne le supprimez pas), puis relancez `s9gm copie ancrage` |
 | le test de fermeture échoue | branche posée / suspendue mal distinguée | relisez le bloc Théorie (deux branches) ; vérifiez `L_fond` |
 | les deux raideurs ne concordent pas | pas de la différence finie trop grand ou jacobienne fausse | réduisez `pas` ; recalculez la jacobienne à la main sur un cas |
 
@@ -80,17 +75,18 @@ from pathlib import Path
 
 import pandas as pd
 from s9gm import cas, lancer
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
 # 1. copie locale du fichier ServoDyn : les trois manœuvres de pas démarrent à t = 0 ; chemins corrigés (le fichier vit désormais sous results/)
-SRV = Path("modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_ServoDyn.dat")
+SRV = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ServoDyn.dat"
 txt = SRV.read_text(encoding="utf-8")
 txt = re.sub(r"^(\s*)\S+(\s+TPitManS\(\d\))", r"\g<1>0\2", txt, flags=re.M)
 txt = txt.replace('"../5MW_Baseline/', '"../modeles/oc4_rtest/5MW_Baseline/')
-Path("results/ServoDyn_arret.dat").write_text(txt, encoding="utf-8")
+(RESULTS / "ServoDyn_arret.dat").write_text(txt, encoding="utf-8")
 
 # 2. une ligne de LCT par cas ULS
-ext = pd.read_csv("results/extremes_phase1.csv")                     # vos lignes DLC 6.1 (cas X61) et DLC 1.6 (cas X16_…)
-phase1 = pd.read_csv("results/lct_phase1_cas.csv").iloc[0]
+ext = pd.read_csv(RESULTS / "extremes_phase1.csv")                     # vos lignes DLC 6.1 (cas X61) et DLC 1.6 (cas X16_…)
+phase1 = pd.read_csv(RESULTS / "lct_phase1_cas.csv").iloc[0]
 arret = (ext["DLC"].astype(str) == "6.1").to_list()                  # DLC 6.1 : vent extrême, rotor à l'arrêt
 lct = pd.DataFrame({"cas": ext["cas"], "fst.TMax": <votre durée>, "turbsim.URef": ext["U_hub"].round(3),
                     "turbsim.RandSeed1": <votre graine>,
@@ -105,11 +101,11 @@ variante = lct.copy()
 variante["cas"] = variante["cas"] + "_V"
 variante["<votre colonne de variation>"] = "<votre valeur de variation>"        # la variante de votre groupe : une colonne de votre famille, une valeur
 lct = pd.concat([lct, variante], ignore_index=True)
-lct.to_csv("results/lct_phase4.csv", index=False)
+lct.to_csv(RESULTS / "lct_phase4.csv", index=False)
 
-GABARIT = "seances/0b/turbsim_gabarit.inp"
-dossiers = cas.generer_serie("results/lct_phase4.csv", "modeles/flottant", "results/phase4", turbsim_inp=GABARIT)
-lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal="results/phase4_journal.csv")
+GABARIT = SEANCES / "0b" / "turbsim_gabarit.inp"
+dossiers = cas.generer_serie(RESULTS / "lct_phase4.csv", MODELES / "flottant", RESULTS / "phase4", turbsim_inp=GABARIT)
+lancer.lancer_serie(dossiers, coeurs=<votre nombre de coeurs>, journal=RESULTS / "phase4_journal.csv")
 ```
 
 **Vous devez voir** : un dossier `results/phase4/<cas>` par cas (référence : `X61`, `X16_…` ; variante : mêmes noms suffixés `_V`), un `main.outb` dans chacun, `termine` dans le journal. Pour un cas DLC 6.1, ouvrez `Wind/<cas>.sum` : la vitesse moyenne y est celle de la classe, et dans la sortie le pas des pales (`BldPitch1`) est au calage de drapeau, `RotSpeed` proche de zéro.
@@ -132,12 +128,13 @@ from pathlib import Path
 
 import pandas as pd
 from s9gm import lire
+from s9gm.chemins import RESULTS
 
 CHARGE_RUPTURE = <votre charge de rupture (N)>               # à documenter : valeur remise par l'enseignant, ou hypothèse marquée
 COEF_SECURITE = <votre coefficient de sécurité>
 
 lignes = []
-for dossier in sorted(Path("results/phase4").glob("*")):
+for dossier in sorted((RESULTS / "phase4").glob("*")):
     df, unites = lire.lire(dossier / "main.outb")
     u = df[df["Time"] >= <votre valeur>]                     # le même transitoire écarté pour tous les cas
     ligne = {"cas": dossier.name, "duree_utile_s": float(u["Time"].iloc[-1] - u["Time"].iloc[0])}
@@ -150,7 +147,7 @@ for dossier in sorted(Path("results/phase4").glob("*")):
         ligne[f"max_{c}"] = float(u[c].abs().max())
     lignes.append(ligne)
 uls = pd.DataFrame(lignes).set_index("cas")
-uls.to_csv("results/phase4_uls.csv")
+uls.to_csv(RESULTS / "phase4_uls.csv")
 print(uls.round(3).to_string())
 ```
 
@@ -175,16 +172,17 @@ import numpy as np
 import pandas as pd
 from openfast_toolbox.io import FASTInputFile
 from s9gm import lire
+from s9gm.chemins import MODELES, RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import ancrage                                                # VOTRE copie complétée (étape 1)
+from s9gm import ma_copie
+ancrage = ma_copie("ancrage")                                                # VOTRE copie (rechargée à chaque appel)
 
-MOORDYN = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat"
-RHO = float(FASTInputFile("modeles/flottant/main.fst")["WtrDens"])           # masse volumique de l'eau (kg/m3) du modèle ; `SeaState.dat` dit « default » (voir le manuel de SeaState)
+MOORDYN = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_MoorDyn.dat"
+RHO = float(FASTInputFile(MODELES / "flottant" / "main.fst")["WtrDens"])           # masse volumique de l'eau (kg/m3) du modèle ; `SeaState.dat` dit « default » (voir le manuel de SeaState)
 lignes_mooring = ancrage.lire_moordyn(MOORDYN, RHO)
 
 resultat = []
-for dossier in sorted(Path("results/phase4").glob("*")):
+for dossier in sorted((RESULTS / "phase4").glob("*")):
     df, _ = lire.lire(dossier / "main.outb")
     u = df[df["Time"] >= <votre valeur>]
     for i, li in enumerate(lignes_mooring, start=1):
@@ -197,7 +195,7 @@ for dossier in sorted(Path("results/phase4").glob("*")):
         resultat.append({"cas": dossier.name, "ligne": i, "moyenne_OpenFAST": of.mean(), "moyenne_quasi_statique": qs.mean(),
                          "max_OpenFAST": of.max(), "max_quasi_statique": qs.max(), "ecart_max_relatif": (qs.max() - of.max()) / of.max()})
 comparaison = pd.DataFrame(resultat)
-comparaison.to_csv("results/phase4_quasi_statique.csv", index=False)
+comparaison.to_csv(RESULTS / "phase4_quasi_statique.csv", index=False)
 print(comparaison.round(3).to_string(index=False))
 ```
 
@@ -219,6 +217,7 @@ La raison : le fichier MAP ne décrit qu'**une** ligne (celle du chaumard à 60�
 ```python
 import pandas as pd
 from s9gm import cas, lancer, lire
+from s9gm.chemins import MODELES, RESULTS
 
 PREFIXE = "../../../modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_"
 ordre = {}
@@ -228,11 +227,11 @@ for axe, cle in (("cavalement", "elastodyn.PtfmSurge"), ("embardee", "elastodyn.
          "fst.CompMooring": 3, "fst.MooringFile": PREFIXE + "MoorDyn.dat"},
         {"cas": f"{axe}_MAP", "fst.TMax": 5, "fst.CompInflow": 0, "fst.CompAero": 0, "seastate.WaveMod": 0, cle: 10,
          "fst.CompMooring": 1, "fst.MooringFile": PREFIXE + "MAP.dat"}])
-    lct.to_csv(f"results/lct_phase4_{axe}.csv", index=False)
-    dossiers = cas.generer_serie(f"results/lct_phase4_{axe}.csv", "modeles/flottant", f"results/phase4_correspondance_{axe}", executer_turbsim=False)
-    lancer.lancer_serie(dossiers, coeurs=2, journal="results/phase4_correspondance_journal.csv")
-    md, _ = lire.lire(f"results/phase4_correspondance_{axe}/{axe}_MD/main.outb")
-    mp, _ = lire.lire(f"results/phase4_correspondance_{axe}/{axe}_MAP/main.outb")
+    lct.to_csv(RESULTS / f"lct_phase4_{axe}.csv", index=False)
+    dossiers = cas.generer_serie(RESULTS / f"lct_phase4_{axe}.csv", MODELES / "flottant", RESULTS / f"phase4_correspondance_{axe}", executer_turbsim=False)
+    lancer.lancer_serie(dossiers, coeurs=2, journal=RESULTS / "phase4_correspondance_journal.csv")
+    md, _ = lire.lire(RESULTS / f"phase4_correspondance_{axe}" / f"{axe}_MD" / "main.outb")
+    mp, _ = lire.lire(RESULTS / f"phase4_correspondance_{axe}" / f"{axe}_MAP" / "main.outb")
     t_md = md.loc[0, ["FAIRTEN1", "FAIRTEN2", "FAIRTEN3"]].to_numpy(dtype=float)
     t_mp = mp.loc[0, ["T[1]", "T[2]", "T[3]"]].to_numpy(dtype=float)
     ordre[axe] = (int(t_md.argmax()), int(t_mp.argmax()))                  # la ligne la plus tendue (les deux autres sont symétriques : leur ordre ne discrimine pas)

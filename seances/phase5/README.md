@@ -20,6 +20,8 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
 
 ## 2. Avant de commencer
 
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
@@ -38,37 +40,29 @@ Les étapes ci-dessous suivent ce que l'ENONCE exige (§3, §3 bis, §4) ; la nu
 `s9gm/structure.py` est un **squelette** : `section_tubulaire`, `contrainte_flexion` et `effort_axial_entretoise` sont écrits ; cinq fonctions sont à programmer par vous : `von_mises`, `verifier_domaine_efthymiou` (qui lève `HorsDomaineError`), et les trois SCF d'Efthymiou, `scf_ty_axial_encastre`, `scf_ty_flexion_plan`, `scf_ty_flexion_hors_plan`.
 Le bloc « Théorie » du module donne le modèle et ses renvois ; **les bornes et les équations se lisent dans DNV-RP-C203, annexe B** (tableau B-1 : édition et page à citer) : le module n'en contient aucune valeur. Vous travaillez sur **une copie sous `results/`**.
 
-```python
-import shutil
-from pathlib import Path
-
-Path("results/mon_s9gm").mkdir(parents=True, exist_ok=True)
-shutil.copy("s9gm/structure.py", "results/mon_s9gm/structure.py")
-print("votre copie : results/mon_s9gm/structure.py (cinq trous : von_mises, verifier_domaine_efthymiou, scf_ty_axial_encastre, scf_ty_flexion_plan, scf_ty_flexion_hors_plan)")
+```bash
+s9gm copie structure
 ```
 
-Programmez les cinq fonctions dans `results/mon_s9gm/structure.py`, puis lancez les tests du dépôt **sur votre copie** :
+`s9gm copie` crée `results/mon_s9gm/structure.py` dans votre clone — **sans jamais écraser** une copie existante —, affiche son chemin complet et le nombre de trous. Elle marche **depuis n'importe quel dossier**. Programmez les cinq fonctions dans cette copie (éditeur de votre choix), puis lancez les tests du dépôt, d'abord sur le squelette du dépôt, ensuite sur **votre copie** :
 
-```python
-import os
-import subprocess
-import sys
-
-for etiquette, extra in (("squelette du dépôt", {}), ("votre copie", {"S9GM_STRUCTURE_COMPLET": "results/mon_s9gm"})):
-    r = subprocess.run([sys.executable, "-m", "pytest", "s9gm/tests/test_structure.py", "-q", "-p", "no:cacheprovider", "--tb=line"],
-                       env={**os.environ, **extra}, capture_output=True, text=True)
-    print("==", etiquette)
-    print("\n".join(r.stdout.strip().splitlines()[-8:]))
+```bash
+s9gm tester structure --squelette
 ```
 
-**Vous devez voir**, dans la partie « squelette du dépôt » : des tests `xfailed` (attendus en échec) et des `passed` (les parties écrites). Dans la partie « votre copie » : **des `failed` tant que vos cinq fonctions ne sont pas programmées, puis `passed` pour tous les tests de `test_structure.py`, aucun `failed`, aucun `xfailed`**.
-Les tests de Von Mises sont des cas à résultat connu (traction pure, cisaillement pur, état hydrostatique) ; ceux des SCF vérifient le domaine de validité et le sens des résultats, **pas des valeurs de la norme**.
+```bash
+s9gm tester structure
+```
+
+**Vous devez voir** : avec `--squelette`, des tests `xfailed` (attendus en échec : `NotImplementedError`) et des `passed` (les parties déjà écrites) ; sans option, sur votre copie : **tant que vos fonctions ne sont pas programmées, des `failed` qui nomment la fonction à programmer** ; **une fois les cinq programmées, `passed` pour tous les tests de `test_structure.py`, aucun `failed`, aucun `xfailed`**.
 
 | Symptôme | Cause | Geste |
 |---|---|---|
 | `failed` dans « votre copie » sur un test de domaine | `HorsDomaineError` ne nomme pas le paramètre, sa valeur et la borne | le message doit contenir les trois |
 | `failed` sur un SCF « supérieur à un » | une équation mal recopiée | relisez le tableau B-1, avec l'édition que vous citez |
-| `FileNotFoundError` | la copie n'existe pas | refaites le premier bloc |
+| `s9gm : commande introuvable` | l'environnement n'est pas activé, ou le paquet n'est pas installé | `micromamba activate s9gm-fowt`, puis `s9gm doctor` (il donne la commande exacte) |
+| j'ai corrigé ma fonction mais **rien ne change** | en Python, `structure = ma_copie("structure")` a été exécuté avant la correction : la variable garde l'ancienne version | relancez la ligne `ma_copie("structure")` : elle relit le fichier à chaque appel (inutile de redémarrer Python). `s9gm tester structure` relit toujours le fichier |
+| `s9gm copie structure` dit que la copie existe déjà | normal : votre travail n'est jamais écrasé | pour repartir d'un squelette vierge, déplacez `results/mon_s9gm/structure.py` ailleurs (ne le supprimez pas), puis relancez `s9gm copie structure` |
 
 ### Étape 2 — Tour, niveau A : section, FLS, ULS, épaisseur minimale (point 1)
 
@@ -89,13 +83,14 @@ import numpy as np
 import pandas as pd
 from openfast_toolbox.io import FASTInputFile
 from s9gm import lire
+from s9gm.chemins import MODELES, RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
-import structure                                                  # VOS copies complétées (phase 3, étape 1 ; étape 1 ci-dessus)
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
+structure = ma_copie("structure")                                                  # VOS copies complétées (phase 3, étape 1 ; étape 1 ci-dessus)
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
-MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
 ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
 stations = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")["TowProp"]     # HtFract, TMassDen, TwFAStif, TwSSStif
@@ -113,11 +108,11 @@ JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro d
 GRILLE = np.arange(<votre épaisseur minimale (m)>, <votre épaisseur maximale (m)>, <votre pas d'épaisseur (m)>)
 LIMITE, GAMMA = <votre limite d'élasticité (MPa)>, <votre coefficient partiel>
 courbe = fatigue.CourbeSN(**P["sn"])
-etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
 
 # 2. fatigue : le rainflow du moment ne dépend pas de l'épaisseur ; seule l'échelle des contraintes en dépend
 cycles = {}                                                          # (cas, jauge) -> (étendues de moment en N·m, comptes, durée utile)
-for dossier in sorted(Path("results/phase3").glob("*")):
+for dossier in sorted((RESULTS / "phase3").glob("*")):
     df, unites = lire.lire(dossier / "main.outb")
     assert unites["TwHt1MLxt"] == "kN-m", unites["TwHt1MLxt"]
     u = df[df["Time"] >= P["T_TRANS"]]
@@ -129,7 +124,7 @@ for dossier in sorted(Path("results/phase3").glob("*")):
 
 # 3. extrême : Von Mises maximal, par cas ULS
 extremes = {}
-for dossier in sorted(Path("results/phase4").glob("*")):
+for dossier in sorted((RESULTS / "phase4").glob("*")):
     df, _ = lire.lire(dossier / "main.outb")
     u = df[df["Time"] >= P["T_TRANS"]]
     extremes[dossier.name] = u
@@ -159,7 +154,7 @@ for j, z in JAUGES.items():
         lignes.append({"jauge": j, "z_m": z, "D_m": round(D, 4), "t_m": round(float(t), 4), "dommage_annuel": d_an, "fls_ok": verdict_fls["ok"],
                        "vm_max_MPa": vm_max, "uls_ok": vm_max <= LIMITE / GAMMA})
 res = pd.DataFrame(lignes)
-res.to_csv("results/phase5_tour_epaisseurs.csv", index=False)
+res.to_csv(RESULTS / "phase5_tour_epaisseurs.csv", index=False)
 ok = res[res["fls_ok"] & res["uls_ok"]].groupby("jauge")["t_m"].min()
 print("épaisseur minimale qui satisfait FLS et ULS, par jauge (m) :")
 print(ok.to_string() if len(ok) else "aucune épaisseur de la grille ne convient : élargissez la grille")
@@ -191,17 +186,18 @@ import numpy as np
 import pandas as pd
 from openfast_toolbox.io import FASTInputFile
 from s9gm import lire
+from s9gm.chemins import MODELES, RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
-HT_TOUR = float(FASTInputFile("modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")["TowerHt"])
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
+HT_TOUR = float(FASTInputFile(MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")["TowerHt"])
 JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro de jauge -> hauteur (m), atelier tour §9b
-etats = pd.read_csv("results/etats_phase1.csv").set_index("cas")
+etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
 
 lignes = []
-for dossier in sorted(Path("results/phase3").glob("*")):
+for dossier in sorted((RESULTS / "phase3").glob("*")):
     df, unites = lire.lire(dossier / "main.outb")
     assert unites["YawBrFxp"] == "kN" and unites["YawBrMyp"] == "kN-m"
     u = df[df["Time"] >= P["T_TRANS"]]
@@ -233,7 +229,7 @@ for (j, m), g in res.groupby(["jauge", "m"]):
     ligne["2_contre_3"] = ligne["DEL_exact"] / ligne["DEL_jauge"] - 1            # ce que le transport statique ne capture pas
     long_terme.append(ligne)
 tab = pd.DataFrame(long_terme)
-tab.to_csv("results/phase5_somme_des_DEL.csv", index=False)
+tab.to_csv(RESULTS / "phase5_somme_des_DEL.csv", index=False)
 print(tab.round(3).to_string(index=False))
 ```
 
@@ -261,12 +257,13 @@ import numpy as np
 import pandas as pd
 from openfast_toolbox.io import FASTInputFile
 from s9gm import cas, lancer
+from s9gm.chemins import MODELES, RESULTS, SEANCES
 
-sys.path.insert(0, "results/mon_s9gm")
-import structure
+from s9gm import ma_copie
+structure = ma_copie("structure")
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
-MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
 TOUR = MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat"
 ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
@@ -288,17 +285,17 @@ lignes = Path(TOUR).read_text(encoding="utf-8").split("\n")
 i0 = next(i for i, l in enumerate(lignes) if "HtFract" in l) + 2
 for k in range(len(stations)):
     lignes[i0 + k] = f"{stations[k, 0]:.7E}  {RHO * A_new[k]:.7E}  {E_EFF * I_new[k]:.7E}  {E_EFF * I_new[k]:.7E}"
-Path("results/tour_dimensionnee.dat").write_text("\n".join(lignes), encoding="utf-8")
+(RESULTS / "tour_dimensionnee.dat").write_text("\n".join(lignes), encoding="utf-8")
 print("masse linéique au pied, avant / après (kg/m) :", stations[0, 1].round(1), (RHO * A_new[0]).round(1))
 
 # deux cas : fatigue représentatif (étape 2) et ULS dimensionnant ; mêmes lignes de LCT qu'aux phases 3 et 4, tour remplacée
-l3 = pd.read_csv("results/lct_phase3.csv")
-l4 = pd.read_csv("results/lct_phase4.csv")
+l3 = pd.read_csv(RESULTS / "lct_phase3.csv")
+l4 = pd.read_csv(RESULTS / "lct_phase4.csv")
 lct = pd.concat([l3[l3["cas"] == "<votre cas de fatigue>"], l4[l4["cas"] == "<votre cas ULS>"]], ignore_index=True)
 lct["elastodyn.TwrFile"] = "../../tour_dimensionnee.dat"          # un cas vit sous results/phase5/<cas>
-lct.to_csv("results/lct_phase5.csv", index=False)
-dossiers = cas.generer_serie("results/lct_phase5.csv", "modeles/flottant", "results/phase5", turbsim_inp="seances/0b/turbsim_gabarit.inp")
-lancer.lancer_serie(dossiers, coeurs=2, journal="results/phase5_journal.csv")
+lct.to_csv(RESULTS / "lct_phase5.csv", index=False)
+dossiers = cas.generer_serie(RESULTS / "lct_phase5.csv", MODELES / "flottant", RESULTS / "phase5", turbsim_inp=SEANCES / "0b" / "turbsim_gabarit.inp")
+lancer.lancer_serie(dossiers, coeurs=2, journal=RESULTS / "phase5_journal.csv")
 ```
 
 Puis la comparaison, avant / après, **sur la même fenêtre** :
@@ -310,14 +307,15 @@ from pathlib import Path
 
 import pandas as pd
 from s9gm import lire
+from s9gm.chemins import RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import fatigue
+from s9gm import ma_copie
+fatigue = ma_copie("fatigue")
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 lignes = []
-for dossier in sorted(Path("results/phase5").glob("*")):
-    for etat, chemin in (("avant", Path("results/phase3") / dossier.name), ("avant", Path("results/phase4") / dossier.name), ("après", dossier)):
+for dossier in sorted((RESULTS / "phase5").glob("*")):
+    for etat, chemin in (("avant", RESULTS / "phase3" / dossier.name), ("avant", RESULTS / "phase4" / dossier.name), ("après", dossier)):
         if not (chemin / "main.outb").is_file():
             continue
         df, _ = lire.lire(chemin / "main.outb")
@@ -328,7 +326,7 @@ for dossier in sorted(Path("results/phase5").glob("*")):
                        "DEL_TwrBsMyt": fatigue.del_court_terme(r["etendue"], r["compte"], P["M_TOUR"], P["F_EQ"] * T),
                        "max_TTDspFA": float(u["TTDspFA"].abs().max())})
 comparaison = pd.DataFrame(lignes)
-comparaison.to_csv("results/phase5_boucle.csv", index=False)
+comparaison.to_csv(RESULTS / "phase5_boucle.csv", index=False)
 print(comparaison.round(3).to_string(index=False))
 ```
 
@@ -353,13 +351,14 @@ from pathlib import Path
 
 import numpy as np
 from openfast_toolbox.io import FASTInputFile
+from s9gm.chemins import MODELES, RESULTS
 
-P = json.loads(Path("results/phase3_parametres.json").read_text(encoding="utf-8"))
-MODELE = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/"
+P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
+MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
 ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 L = float(ed["TowerHt"]) - float(ed["TowerBsHt"])
 origine = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")
-nouvelle = FASTInputFile("results/tour_dimensionnee.dat")
+nouvelle = FASTInputFile(RESULTS / "tour_dimensionnee.dat")
 c = np.array([origine[f"TwFAM1Sh({i})"] for i in range(2, 7)], dtype=float)         # déformée assumée du 1er mode avant-arrière : Σ cᵢ (x/L)^i
 
 def rayleigh(tour, masse_tete):
@@ -397,13 +396,14 @@ import sys
 import numpy as np
 import pandas as pd
 from s9gm import hydro
+from s9gm.chemins import RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import structure
+from s9gm import ma_copie
+structure = ma_copie("structure")
 
 PROFONDEUR, ENTRAXE = 200.0, 50.0                                     # m : `WtrDpth` du modèle ; entraxe des colonnes déportées (data/geometrie_deepcwind.md)
-etats = pd.read_csv("results/etats_phase1.csv")
-ext = pd.read_csv("results/extremes_phase1.csv")
+etats = pd.read_csv(RESULTS / "etats_phase1.csv")
+ext = pd.read_csv(RESULTS / "extremes_phase1.csv")
 tous = pd.concat([etats[["cas", "Hs", "Tp"]], ext[["cas", "Hs", "Tp"]]], ignore_index=True)
 tous["longueur_d_onde_m"] = [hydro.longueur_onde(tp, PROFONDEUR) for tp in tous["Tp"]]
 tous["ecart_a_2_entraxes"] = (tous["longueur_d_onde_m"] - 2 * ENTRAXE).abs()
@@ -432,9 +432,10 @@ Relevez dans le **document de définition OC4** (voir [`annexes/papers/`](../../
 
 ```python
 import sys
+from s9gm.chemins import RESULTS
 
-sys.path.insert(0, "results/mon_s9gm")
-import structure
+from s9gm import ma_copie
+structure = ma_copie("structure")
 
 JONCTIONS = {
     "entretoise / colonne déportée": dict(d=<votre d (m)>, D=<votre D (m)>, tau=<votre τ>, gamma=<votre γ>, alpha=<votre α>, theta_deg=<votre θ (°)>),
