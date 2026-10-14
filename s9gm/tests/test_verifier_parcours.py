@@ -38,7 +38,7 @@ def _depot(tmp_path, fichiers):
 
 
 def test_r9_voit_un_numero_de_registre_un_chemin_de_coulisses_et_le_nom_du_depot_prive(tmp_path):
-    for i, texte in enumerate(("voir E-164 (c)\n", "dossier _Coulisses-depots-publics/x\n", "dans coulisses/ à part\n", "ENSM-Enseignement\n", "voir _Reserve/S9/CRITERE.md\n", "du dépôt d'enseignement\n")):
+    for i, texte in enumerate(("voir E-164 (c)\n", "dossier _Coulisses" "-depots-publics/x\n", "dans coulisses/ à part\n", "ENSM-Enseignement\n", "voir _Reserve/S9/CRITERE.md\n", "du dépôt d'enseignement\n")):
         d = vp._depot_jouet(tmp_path / f"v{i}", {"s9gm/a.py": "# " + texte})
         assert vp.registre(d), texte
 
