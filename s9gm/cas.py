@@ -51,7 +51,7 @@ from pathlib import Path
 
 from openfast_toolbox.io import FASTInputFile
 
-from . import __version__
+from . import __version__, chemins
 
 # Clés de main.fst qui désignent un fichier d'entrée de module : réécrites vers le modèle partagé.
 # InflowFile reste local au cas (c'est lui qui change d'un cas à l'autre).
@@ -71,7 +71,7 @@ def lire_lct(chemin_csv):
     colonnes sont `fichier.Clé` avec fichier ∈ {fst, inflow, turbsim, seastate, elastodyn}. Renvoie une liste de dicts.
 
     Un tableur s'exporte en CSV (« enregistrer sous… ») : on évite ainsi une dépendance de plus."""
-    with open(chemin_csv, encoding="utf-8-sig", newline="") as f:
+    with open(chemins.resoudre(chemin_csv), encoding="utf-8-sig", newline="") as f:
         echantillon = f.read(2048)
         f.seek(0)
         delim = ";" if echantillon.count(";") > echantillon.count(",") else ","
@@ -166,8 +166,8 @@ def generer_vent(dossier, modele, modifs, executable="turbsim", executer=True, t
 
     Le champ de vent d'un cas ne dépend que de son fichier d'entrée (graine comprise) : relancer donne
     le même `.bts`. `RandSeed1` est donc à fixer explicitement dans la LCT pour qu'un cas se reproduise."""
-    dossier, modele = Path(dossier), Path(modele)
-    modele_inp = Path(turbsim_inp) if turbsim_inp else modele / "turbsim.inp"
+    dossier, modele = chemins.resoudre(dossier), chemins.resoudre(modele)
+    modele_inp = chemins.resoudre(turbsim_inp) if turbsim_inp else modele / "turbsim.inp"
     if not turbsim_inp and not modele_inp.is_file():   # à défaut, l'unique entrée TurbSim du dossier Wind/ du modèle
         candidats = sorted((modele / "Wind").glob("*.inp")) if (modele / "Wind").is_dir() else []
         if len(candidats) == 1:
@@ -219,7 +219,8 @@ def generer_cas(ligne_lct, modele, sortie, executer_turbsim=True, turbsim_inp=No
     Écrit aussi `journal_cas.json` : valeurs avant/après de chaque paramètre modifié. Avec des colonnes
     `turbsim.*`, fabrique aussi le champ de vent (`generer_vent`) ; `executer_turbsim=False` n'écrit que
     le `.inp`. `turbsim_inp` : entrée TurbSim à utiliser à la place de `modele/turbsim.inp`."""
-    modele, sortie = Path(modele), Path(sortie)
+    modele, sortie = chemins.resoudre(modele), chemins.resoudre(sortie)
+    turbsim_inp = chemins.resoudre(turbsim_inp) if turbsim_inp else None
     dossier = sortie / ligne_lct["cas"]
     dossier.mkdir(parents=True, exist_ok=True)
     # Les entrées vont changer : d'anciennes sorties ne correspondraient plus au cas. Sans cette

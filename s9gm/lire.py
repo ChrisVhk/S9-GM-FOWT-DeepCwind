@@ -31,12 +31,15 @@ import numpy as np
 import pandas as pd
 from openfast_toolbox.io import FASTOutputFile
 
+from . import chemins
+
 _UNITE = re.compile(r"^(?P<nom>.*?)_\[(?P<unite>.*)\]$")
 
 
 def lire(chemin):
     """Lit un `.outb` ou `.out`. Renvoie `(df, unites)` : `df` indexé par les noms de canaux
     (sans unité) avec la colonne `Time` ; `unites` : dict canal → unité."""
+    chemin = chemins.resoudre(chemin)             # relatif : à partir de la racine du dépôt
     df = FASTOutputFile(str(chemin)).toDataFrame()
     unites, noms = {}, {}
     for col in df.columns:

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "s9gm"
+version = "0.1.0"
+description = "Boîte à outils du projet DMO-S9 (OpenFAST, de la Load Case Table au résultat)"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { file = "LICENSE" }
+# Pas de dépendances déclarées : l'environnement `s9gm-fowt` (env/environment.yml) les fournit, épinglées.
+
+[project.scripts]
+s9gm = "s9gm.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["s9gm*"]
+
+[tool.setuptools.package-data]
+s9gm = ["*.md", "_rendu_vtk.py"]

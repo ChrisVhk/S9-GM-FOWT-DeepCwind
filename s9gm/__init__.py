@@ -9,3 +9,5 @@ Chaque module commence par un bloc « Théorie » : la question physique avant l
 n'est une boîte noire — lisez le code, il est court.
 """
 __version__ = "0.1.0"
+
+from .copies import ma_copie, tester  # noqa: E402,F401  (vos copies des squelettes : voir s9gm.copies)

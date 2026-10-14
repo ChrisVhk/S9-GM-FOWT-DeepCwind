@@ -200,6 +200,8 @@ def _exiger_porte(id_figure, registre):
 def enregistrer(fig, chemin, id_figure, registre=REGISTRE):
     """Écrit la figure — seulement si le registre porte sa porte pédagogique (≥ 40 caractères)."""
     _exiger_porte(id_figure, registre)
+    from . import chemins as _ch
+    chemin = _ch.assurer_parent(chemin)               # relatif : à partir de la racine du dépôt ; le dossier se crée
     with plt.rc_context(_RC):
         fig.savefig(chemin, dpi=150)
     return chemin
@@ -234,7 +236,8 @@ def preparer_animation(dossier_cas, *, vtk_type=1, vtk_fps=5, fst="main.fst"):
     if not vtk_fps > 0:
         raise ValueError("vtk_fps : un nombre d'images par seconde strictement positif est attendu")
     voulu = {"WrVTK": "2", "VTK_type": str(int(vtk_type)), "VTK_fps": f"{vtk_fps:g}"}
-    chemin = Path(dossier_cas) / fst
+    from . import chemins as _ch
+    chemin = _ch.resoudre(dossier_cas) / fst
     lignes, fin = _cas._lire_lignes(chemin)
     anciennes = {cle: _cas._sans_guillemets(_cas.remplacer_valeur(lignes, cle, val))
                  for cle, val in voulu.items()}
@@ -374,8 +377,10 @@ def monter(dossier_png, mp4, *, fps, id_figure=ID_ANIMATION, registre=REGISTRE):
     uniforme. Renvoie le chemin du mp4."""
     _exiger_porte(id_figure, registre)
     ffmpeg = _outil("ffmpeg", "ffmpeg")
+    from . import chemins as _ch
+    dossier_png = _ch.resoudre(dossier_png)
     verifier_images(dossier_png)
-    mp4 = Path(mp4)
+    mp4 = _ch.resoudre(mp4)
     mp4.parent.mkdir(parents=True, exist_ok=True)
     cmd = [ffmpeg, "-y", "-loglevel", "error", "-framerate", f"{fps:g}", "-pattern_type", "glob",
            "-i", str(Path(dossier_png) / "*.png"), "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",
@@ -399,7 +404,8 @@ def animer(*, cas, modele, etat, dossier_cas, sortie, amplification=1, fps=None,
     _exiger_porte(id_figure, registre)
     _outil("pvbatch", "paraview")
     _outil("ffmpeg", "ffmpeg")
-    dossier_cas, sortie = Path(dossier_cas), Path(sortie)
+    from . import chemins as _ch
+    dossier_cas, sortie = _ch.resoudre(dossier_cas), _ch.resoudre(sortie)
     fps_vtk = _fps_du_cas(dossier_cas)
     fps = fps_vtk if fps is None else fps
     images = sortie.with_name(sortie.stem + "_images")

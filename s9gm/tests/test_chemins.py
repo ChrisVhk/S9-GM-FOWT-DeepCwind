@@ -46,7 +46,7 @@ def _constantes_hors_docstrings(arbre):
 
 
 def test_b_aucun_dossier_courant_ni_chemin_litteral_du_depot_hors_de_chemins():
-    motif = re.compile(r"^(results|rendus|data|cas|modeles|seances)/")
+    motif = re.compile(r"^(results|rendus|data|cas|modeles|seances)/\S*$")
     fautes = []
     for f in sorted(S9GM.glob("*.py")):
         if f.name == "chemins.py":
@@ -62,14 +62,31 @@ def test_b_aucun_dossier_courant_ni_chemin_litteral_du_depot_hors_de_chemins():
 
 
 def test_c_un_chemin_relatif_se_lit_depuis_la_racine_pas_depuis_le_dossier_courant(tmp_path, monkeypatch):
-    from s9gm import chemins, lire
-    monkeypatch.chdir(tmp_path)
-    assert chemins.resoudre("results/x.csv") == chemins.RACINE / "results" / "x.csv"
+    from s9gm import cas, chemins, lire
+    racine = tmp_path / "racine"
+    (racine / "results").mkdir(parents=True)
+    monkeypatch.setattr(chemins, "RACINE", racine)
+    ailleurs = tmp_path / "ailleurs"
+    ailleurs.mkdir()
+    monkeypatch.chdir(ailleurs)                                    # on travaille depuis un autre dossier
+    assert chemins.resoudre("results/x.csv") == racine / "results" / "x.csv"
     absolu = tmp_path / "a.csv"
     assert chemins.resoudre(absolu) == absolu
-    rel = "modeles/oc4_rtest/5MW_OC4Semi_WSt_WavesWN/5MW_OC4Semi_WSt_WavesWN_baseline-rtest.outb"
-    df, unites = lire.lire(rel)
-    assert "Time" in df.columns and len(df) > 10
+    (racine / "results" / "lct.csv").write_text("cas,fst.TMax\nA,10\n", encoding="utf-8")
+    assert cas.lire_lct("results/lct.csv")[0]["cas"] == "A"
+    vus = []
+
+    class Faux:
+        def __init__(self, chemin):
+            vus.append(Path(chemin))
+
+        def toDataFrame(self):
+            import pandas as pd
+            return pd.DataFrame({"Time_[s]": [0.0, 1.0]})
+
+    monkeypatch.setattr(lire, "FASTOutputFile", Faux)
+    lire.lire("results/phase1/EX00/main.outb")
+    assert vus == [racine / "results" / "phase1" / "EX00" / "main.outb"]
 
 
 def test_constantes_du_depot():

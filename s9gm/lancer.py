@@ -34,13 +34,15 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from . import chemins
+
 MARQUEUR_FIN = "OpenFAST terminated normally"
 COLONNES_JOURNAL = ["cas", "statut", "temps_reel_s", "temps_simule_s", "rapport_simule_sur_reel"]
 
 
 def duree_simulee(dossier, fst="main.fst"):
     """TMax lu dans le .fst du cas (s)."""
-    for ligne in Path(dossier, fst).read_text(encoding="utf-8").splitlines():
+    for ligne in Path(chemins.resoudre(dossier), fst).read_text(encoding="utf-8").splitlines():
         m = re.match(r"^\s*(\S+)\s+TMax\b", ligne)
         if m:
             return float(m.group(1))
@@ -49,7 +51,7 @@ def duree_simulee(dossier, fst="main.fst"):
 
 def est_termine(dossier, fst="main.fst"):
     """Terminé = phrase finale dans run.log ET fichier .outb présent."""
-    d = Path(dossier)
+    d = chemins.resoudre(dossier)
     log, sortie = d / "run.log", d / (Path(fst).stem + ".outb")
     if not (log.is_file() and sortie.is_file()):
         return False
@@ -59,7 +61,7 @@ def est_termine(dossier, fst="main.fst"):
 def lancer_cas(dossier, executable="openfast", fst="main.fst", delai_max=None):
     """Lance un cas dans son dossier. Renvoie un dict (cas, statut, temps_reel_s, ...).
     statut ∈ {termine, echec, interrompu}. `delai_max` (s) tue le calcul : statut `interrompu`."""
-    d = Path(dossier)
+    d = chemins.resoudre(dossier)
     sortie = d / (Path(fst).stem + ".outb")
     if sortie.exists():
         sortie.unlink()  # une sortie d'un calcul précédent ne doit pas passer pour la nouvelle
@@ -88,9 +90,11 @@ def lancer_serie(dossiers, coeurs=1, executable="openfast", reprise=True, delai_
     Renvoie la liste des résultats, dans l'ordre de `dossiers`."""
     if coeurs < 1:
         raise ValueError("coeurs doit être >= 1")
+    if journal:
+        journal = chemins.assurer_parent(journal)     # relatif : à partir de la racine du dépôt ; le dossier se crée
 
     def un(dossier):
-        d = Path(dossier)
+        d = chemins.resoudre(dossier)
         if reprise and est_termine(d):
             res = {"cas": d.name, "statut": "deja_termine", "temps_reel_s": 0.0,
                    "temps_simule_s": duree_simulee(d), "rapport_simule_sur_reel": None}

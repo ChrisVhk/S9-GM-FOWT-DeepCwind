@@ -110,8 +110,10 @@ from pathlib import Path
 
 import numpy as np
 
-RACINE = Path(__file__).resolve().parents[1]
-GEOMETRIE_MD = RACINE / "data" / "geometrie_deepcwind.md"
+from . import chemins
+
+RACINE = chemins.RACINE
+GEOMETRIE_MD = chemins.DATA / "geometrie_deepcwind.md"
 TOLERANCE_NEWTON = 1e-13       # résidu relatif |ω² − g k tanh(kh)| / ω² visé
 NITER_MAX = 60
 # libellés (Tab. 3-10 de geometrie_deepcwind.md) dont on lit le diamètre ; préfixes d'abréviation des membres associés

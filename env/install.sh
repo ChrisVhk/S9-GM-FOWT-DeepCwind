@@ -18,15 +18,26 @@ echo "Creation de l'environnement s9gm-fowt (depuis $HERE/environment.yml)..."
 micromamba create -y -f "$HERE/environment.yml"
 
 echo
+echo "Installation du paquet s9gm (dans l'environnement, en mode editable : il pointe sur CE clone)..."
+micromamba run -n s9gm-fowt pip install -e "$HERE/.." --no-deps --no-build-isolation -q
+
+echo
 echo "Verification :"
 micromamba run -n s9gm-fowt openfast -v | grep -i "OpenFAST-v" || {
   echo "ERREUR : openfast -v n'affiche pas la version attendue." >&2
   exit 1
 }
+micromamba run -n s9gm-fowt s9gm --aide >/dev/null || {
+  echo "ERREUR : la commande s9gm n'est pas installee." >&2
+  exit 1
+}
 
 echo
-echo "Installation terminee. Pour l'utiliser a chaque nouvelle session :"
+echo "Installation terminee. Pour l'utiliser a chaque nouvelle session de terminal :"
 echo "  micromamba activate s9gm-fowt"
 echo
-echo "Puis, a chaque fois (le controleur n'est jamais suivi par git) :"
+echo "Une fois par clone (le controleur n'est jamais suivi par git) :"
 echo "  bash scripts/build_discon.sh"
+echo
+echo "Puis, pour verifier tout le poste (depuis n'importe quel dossier) :"
+echo "  s9gm doctor"

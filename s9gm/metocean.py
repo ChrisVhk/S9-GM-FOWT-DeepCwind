@@ -152,8 +152,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[1]
-DONNEES = RACINE / "data" / "metocean"
+from . import chemins
+
+RACINE = chemins.RACINE
+DONNEES = chemins.DATA / "metocean"
 FICHIER = DONNEES / "floatech_wob_pdf_array.bin"
 METADONNEES = DONNEES / "floatech_wob.metadata.json"
 
@@ -179,8 +181,8 @@ class Table:
 def lire(chemin=None, metadonnees=None, tolerance=TOLERANCE_SOMME):
     """Lit la table conjointe. Échoue si la forme ne correspond pas aux métadonnées ou si
     `|Σ P − 1| > tolerance` (jamais de renormalisation silencieuse)."""
-    chemin = Path(chemin or FICHIER)
-    meta = json.loads(Path(metadonnees or METADONNEES).read_text(encoding="utf-8"))
+    chemin = chemins.resoudre(chemin or FICHIER)
+    meta = json.loads(chemins.resoudre(metadonnees or METADONNEES).read_text(encoding="utf-8"))
     forme = tuple(meta["forme"])
     P = np.fromfile(chemin, dtype="<f8")
     if P.size != int(np.prod(forme)):
@@ -334,6 +336,7 @@ def exporter_lct(df, chemin_lct, chemin_etats, *, z_table, z_hub, loi, exposant=
     d = d.reset_index(drop=True)
     d["cas"] = [f"{prefixe}{j:03d}" for j in range(len(d))]
     d["U_hub"] = hauteur_vent(d["U"], z_table, z_hub, loi=loi, exposant=exposant, z0=z0)
+    chemin_lct, chemin_etats = chemins.assurer_parent(chemin_lct), chemins.assurer_parent(chemin_etats)
     with open(chemin_lct, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(["cas", "fst.TMax", "turbsim.URef", "turbsim.RandSeed1"] + (["turbsim.IECturbc"] if iecturbc else []))
