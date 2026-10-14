@@ -27,7 +27,7 @@ Les quatre points de l'ENONCE :
 4. Pour chaque cas : statistiques (moyenne, écart-type, max, min) aux points imposés, et spectres de réponse.
 
 Les points de calcul imposés (ENONCE, §3) : `TwrBsMyt` (pied de tour), `FAIRTEN1` à `FAIRTEN3` (chaumards), `PtfmSurge`, `PtfmHeave`, `PtfmPitch` (mouvements du flotteur).
-Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers
+Les commandes se lancent **depuis n'importe quel dossier**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers
 écrits par les blocs précédents, dans `results/`. Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas. **Une seule famille de paramètres
 varie à la fois** (point de contrôle de l'ENONCE : conclure sur une seule seed est le piège de la phase).
 
@@ -124,16 +124,18 @@ lct = pd.read_csv(RESULTS / "lct_phase1_cas.csv")           # la LCT de votre gr
 base = lct.iloc[[<indice du cas de base>]]                 # le cas de base : tout le reste est fixé à la référence
 variations = <vos variations>                              # {colonne de LCT : [valeurs]} : des listes de même longueur, au moins deux valeurs
 n = len(next(iter(variations.values())))
-sens = pd.concat([base.assign(cas=f"S{j:02d}") for j in range(n)], ignore_index=True)
+reference = base.assign(cas="SREF")                        # la ligne de référence de votre famille : le cas de base, aucun paramètre ne change
+variantes = pd.concat([base.assign(cas=f"S{j:02d}") for j in range(n)], ignore_index=True)
 for colonne, valeurs in variations.items():
-    sens[colonne] = valeurs
+    variantes[colonne] = valeurs
+sens = pd.concat([reference, variantes], ignore_index=True)
 sens["fst.TMax"] = <votre durée de simulation (s)>        # 300 s en séance, 600 s hors séance (étape 5)
 sens.to_csv(RESULTS / "lct_sensibilite.csv", index=False)
 dossiers = cas.generer_serie(RESULTS / "lct_sensibilite.csv", MODELES / "flottant", RESULTS / "phase2", turbsim_inp=GABARIT)
 lancer.lancer_serie(dossiers, coeurs=<vos coeurs>, journal=RESULTS / "phase2_journal.csv")
 ```
 
-**Vous devez voir** : autant de dossiers `results/phase2/S00`, `S01`, … que de valeurs, chacun avec son `main.outb`, `termine` dans le journal. **Seule la famille de votre groupe varie** : relisez
+**Vous devez voir** : autant de dossiers `results/phase2/S00`, `S01`, … que de valeurs, **plus `SREF`, la référence de votre famille** (le cas de base, aucun paramètre ne change : la phase 6 mesure chaque effet contre elle), chacun avec son `main.outb`, `termine` dans le journal. **Seule la famille de votre groupe varie** : relisez
 `results/lct_sensibilite.csv` : les colonnes que vous n'avez pas citées dans `variations` sont **identiques** d'une ligne à l'autre. Un seul cas par valeur ne dit rien de la variabilité entre
 réalisations : pour toute autre famille que le nombre de graines, gardez la **même graine** d'une ligne à l'autre (ce qui est comparé, c'est l'effet du paramètre, pas du tirage).
 

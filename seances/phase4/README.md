@@ -23,7 +23,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
-Les étapes de cette phase suivent ce que l'ENONCE exige (§3, §3 bis) ; la numérotation « point n » est celle de la consigne de la phase. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits par les blocs précédents, dans `results/`.
+Les étapes de cette phase suivent ce que l'ENONCE exige (§3, §3 bis) ; la numérotation « point n » est celle de la consigne de la phase. Les commandes se lancent **depuis n'importe quel dossier**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits par les blocs précédents, dans `results/`.
 Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, et chacune se justifie dans votre rendu. Vous partez de **vos lignes extrêmes** de la phase 1 (`results/extremes_phase1.csv`, DLC 6.1 et 1.6) et de votre LCT (`results/lct_phase1_cas.csv`).
 
 ### Étape 1 — Votre copie du squelette `s9gm.ancrage`, et les tests qui doivent passer

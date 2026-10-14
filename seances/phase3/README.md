@@ -25,7 +25,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 ## 3. À faire, étape par étape
 
-Les étapes de cette phase suivent ce que l'ENONCE exige (§3 bis, §4, §5) ; la numérotation « point n » est celle de la consigne de la phase, dont l'ENONCE renvoie ici. Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits
+Les étapes de cette phase suivent ce que l'ENONCE exige (§3 bis, §4, §5) ; la numérotation « point n » est celle de la consigne de la phase, dont l'ENONCE renvoie ici. Les commandes se lancent **depuis n'importe quel dossier**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** (il importe ce dont il a besoin) et lit des fichiers écrits
 par les blocs précédents, dans `results/`. Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, et chacune se **justifie** dans votre note de calcul.
 Les états de mer, leurs occurrences et la durée de simulation viennent de **votre LCT validée** (phase 1) : `results/lct_phase1_cas.csv` et `results/etats_phase1.csv`.
 

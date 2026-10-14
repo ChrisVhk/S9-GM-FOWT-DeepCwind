@@ -145,7 +145,7 @@ def test_chaque_famille_de_sensibilite_tourne(depot, famille):
     n = _numero_bloc_sensibilite()
     code, sortie, _ = parcours.rejouer(PHASE2, depot, essai, delai=3600, etapes=[n])
     assert code == 0, f"{famille} :\n" + sortie[-3000:]
-    assert len(list((depot / "results" / "phase2").glob("*/main.outb"))) == 2
+    assert len(list((depot / "results" / "phase2").glob("*/main.outb"))) == 3   # SREF (la référence de famille) + les deux variantes
 
 
 def _numero_bloc_sensibilite():
