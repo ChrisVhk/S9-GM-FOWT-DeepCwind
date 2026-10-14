@@ -30,6 +30,8 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 |---|---|
 | Occurrences `O_j` des cases (classes de vent, Hs, Tp) | `Σ O_j = 100 %` — falsifie le binning |
 | Énergie de houle par unité de surface `E = ρ g Hs² / 16` | proportionnelle à `Hs²` : comparer la LCT au site par l'énergie, pas par la moyenne de `Hs` |
+| Houle : `m_n = ∫₀^∞ ωⁿ S(ω) dω`, `Hs = 4√m₀`, `T_Z = 2π√(m₀/m₂)`, `T₁ = 2π m₀/m₁` (fiche F2) | `T_Z`, `T₁`, `T_P` sont trois nombres différents : dire laquelle ; `S` simple face en `ω` |
+| Houle linéaire, eau profonde : `L = gT²/2π ≈ 1,56 T²` ; `C_G = C_P/2` (fiche F2) | eau profonde si `kh > π` ; sinon `ω² = gk tanh kh` |
 | Intensité de turbulence `TI = σ_u / U_moy` | par classe de vent ; une seule *seed* ne donne pas la variabilité |
 | Durée de référence d'un cas turbulent : 600 s (IEC 61400-1) | 300 s = durée réduite du tutoriel |
 
@@ -42,6 +44,9 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 | `GM = KB + BM − KG`, `BM = I_wp / ∇` | m | `K₅₅ ≈ ρ g ∇ GM` (sans ancrage) |
 | Période propre `T_n = 2π √((M + A_ajoutée) / K)` | s | masse **ajoutée** comprise |
 | Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` | N/m | **valable si `D/λ_houle < 0,2`** ; forme du cylindre fixe — pour une structure mobile, vitesses relatives ; au-delà, théorie potentielle (WAMIT) |
+| Équation du mouvement en fréquence : `[−ω²(M + A(ω)) − iωB(ω) + C + K_A] x = f` (fiche F5) | – | le signe devant `iωB` dépend de la convention de temps ; `A`, `B` à la fréquence de calcul |
+| RAO : `x_j = A · RAO_j(ω)` ; `S_X = S · abs(RAO)²` (fiche F5) | m/m ou rad/m | phase relative à la houle à l'origine du repère ; houle d'une seule direction |
+| Oscillateur : `ω₀ = √(K/M)`, `ζ = B/(2√(KM))`, amplification à la résonance `1/(2ζ)`, décroissance par cycle `e^{−2πζ}` (fiche F5) | – | `M` comprend la masse ajoutée |
 | Keulegan–Carpenter `KC = u_max T / D` | – | choisit le régime inertie / traînée |
 
 ## VERSO

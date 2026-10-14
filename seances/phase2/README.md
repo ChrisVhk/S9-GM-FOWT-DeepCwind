@@ -264,4 +264,5 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 ## 6. Théorie à lire
 
-F5 (Hydrodynamique potentielle), F6 (Aérodynamique et amortissement négatif) : *fiche à venir (master)*.
+[F5 (Hydrodynamique potentielle)](../../fiches/F5_Hydrodynamique-potentielle.md) : excitation, masse ajoutée, amortissement, RAO, périodes propres.
+F6 (Aérodynamique et amortissement négatif) : *fiche à venir (master)*.

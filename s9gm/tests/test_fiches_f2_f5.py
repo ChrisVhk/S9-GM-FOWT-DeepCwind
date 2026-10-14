@@ -11,7 +11,8 @@ from .conftest import RACINE
 FICHES = {"F2": RACINE / "fiches" / "F2_Houle-lineaire.md", "F5": RACINE / "fiches" / "F5_Hydrodynamique-potentielle.md"}
 PHASE = {"F2": RACINE / "seances" / "phase1" / "README.md", "F5": RACINE / "seances" / "phase2" / "README.md"}
 MASTER = "Cours/OFFSHORE_Structures-Fondations/01_Houle-et-hydrodynamique-des-flotteurs.md"
-INTERDIT = re.compile(r"(?<![0-9A-Za-z.])E-\d{2,3}\b|_Coulisses|\bcoulisses/|ENSM-Enseignement|_Reserve/|dépôt d.enseignement|à compléter", re.I)
+# motifs scindés en deux littéraux : le test ne doit pas se déclarer lui-même fautif (R-9)
+INTERDIT = re.compile(r"(?<![0-9A-Za-z.])E-\d{2,3}\b|_Cou" "lisses|\bcou" "lisses/|ENSM-Ensei" "gnement|_Rese" "rve/|dépôt d.ensei" "gnement|à comp" "léter", re.I)
 
 
 @pytest.mark.parametrize("nom", FICHES)
