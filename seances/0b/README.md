@@ -15,7 +15,7 @@ hydrostatiques du flotteur ; lancer l'éolienne flottante (D00 à D05) ; compare
 
 ## 2. Avant de commencer
 
-**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point en défaut ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
 
 **À lire avant la séance** : fiche F2 (Houle linéaire), fiche F3 (Hydrostatique), fiche F4 (Morison) — *fiches à venir
 (master)*. En leur absence, les renvois de cette page pointent vers le tutoriel LHEEA et la fiche F1 déjà disponibles

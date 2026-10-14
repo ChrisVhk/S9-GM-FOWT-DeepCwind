@@ -14,7 +14,7 @@ comprendre ce qu'est un cas OpenFAST et lire un `.fst` ; lancer deux cas d'écha
 
 ## 2. Avant de commencer
 
-**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point à corriger ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
+**Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point en défaut ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
 
 **À lire avant la séance** : fiche F1 — Aéro-régulation
 ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).

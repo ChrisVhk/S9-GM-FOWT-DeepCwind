@@ -54,7 +54,7 @@ sur votre disque tant que vous ne supprimez pas le dépôt).
 s9gm doctor
 ```
 
-À lancer depuis n'importe quel dossier, après la section 2 : chaque point est **OK** ou **À CORRIGER**, avec la commande exacte à taper. Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](annexes/TERMINAL.md), une page.
+À lancer depuis n'importe quel dossier, après la section 2 : chaque point est marqué **OK** ou en défaut, avec la commande exacte à taper. Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](annexes/TERMINAL.md), une page.
 
 ## 3. Premier calcul : les cas d'échauffement E01 et E02
 
