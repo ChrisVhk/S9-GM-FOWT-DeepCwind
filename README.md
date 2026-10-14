@@ -13,7 +13,7 @@ Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICEN
 
 ## Commencez ici
 
-1. **Installer** : [`INSTALLATION.md`](INSTALLATION.md) (pas à pas, avec dépannage).
+1. **Installer** : [`INSTALLATION.md`](INSTALLATION.md) (pas à pas, avec dépannage), puis `s9gm doctor` pour vérifier le poste. Le terminal en une page : [`annexes/TERMINAL.md`](annexes/TERMINAL.md).
 2. **Suivre les séances dans l'ordre** : chacune a sa consigne autonome, au même format (objectif, avant de commencer, à
    faire étape par étape, post-traiter, ce qu'on rend, théorie à lire).
 3. **Post-traiter toujours de la même façon** : [`s9gm/POST-TRAITER.md`](s9gm/POST-TRAITER.md), du `.outb` aux

@@ -86,3 +86,12 @@ Quand tout est rangé, `git status` ne doit plus montrer de fichier modifié.
 Les anciens dossiers `tutorials/`, `models/`, `cases/`, `outils/` et `papers/` peuvent subsister chez vous, vides de
 fichiers suivis : ils ne contiennent plus que vos propres sorties ignorées par git. Vous pouvez les déplacer sous
 `results/`, puis supprimer les dossiers vides.
+
+## Mise à jour du 14/10/2026 : lancer le code depuis n'importe quel dossier
+
+Cinq lignes, une fois par clone :
+1. `git pull` (voir plus haut si git le refuse).
+2. `micromamba activate s9gm-fowt`, puis, **depuis la racine de votre clone**, `pip install -e .` : le paquet `s9gm` s'installe dans l'environnement et s'importe depuis n'importe quel dossier.
+3. `s9gm doctor` : il vérifie votre poste (et détecte un second clone) et donne la commande exacte pour chaque point à corriger.
+4. **Vos copies `results/mon_s9gm/*.py` ne sont pas touchées** : continuez à les programmer. Les lignes `sys.path.insert(…)` des consignes disparaissent : `fatigue = ma_copie("fatigue")` charge votre fichier, **rechargé à chaque appel** (corrigez, relancez la ligne, sans redémarrer Python) ; les tests se lancent par `s9gm tester fatigue` (ou `ancrage`, `structure`).
+5. `results/` et `rendus/` se créent seuls : plus de `mkdir` en tête de la phase 1. Les chemins `results/…` donnés à `s9gm` se lisent depuis la racine du dépôt, pas depuis le dossier courant.

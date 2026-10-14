@@ -33,6 +33,8 @@ Doit afficher une ligne contenant **`OpenFAST-v5.0.0`**. Si ce n'est pas le cas 
 ou commande introuvable), **ne continuez pas** : reprenez l'installation, ou voir
 « En cas d'échec » plus bas.
 
+**Le paquet `s9gm`** (les outils Python du cours) est installé dans l'environnement par `env/install.sh` : `s9gm` s'importe ensuite **depuis n'importe quel dossier**. Si vous avez cloné le dépôt **avant** cette installation, ou si vous avez deux clones, tapez une fois, depuis la racine du clone que vous utilisez : `micromamba activate s9gm-fowt && pip install -e .`.
+
 ## 2. Compiler le contrôleur (une fois par clone)
 
 Le contrôleur de l'éolienne (qui pilote le calage des pales et le couple du générateur) est un
@@ -45,6 +47,14 @@ bash scripts/build_discon.sh
 
 À refaire après chaque nouveau `git clone` (mais pas à chaque session : le fichier compilé reste
 sur votre disque tant que vous ne supprimez pas le dépôt).
+
+### Vérification de tout le poste
+
+```bash
+s9gm doctor
+```
+
+À lancer depuis n'importe quel dossier, après la section 2 : chaque point est **OK** ou **À CORRIGER**, avec la commande exacte à taper. Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](annexes/TERMINAL.md), une page.
 
 ## 3. Premier calcul : les cas d'échauffement E01 et E02
 
