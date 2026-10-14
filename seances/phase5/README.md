@@ -91,10 +91,10 @@ structure = ma_copie("structure")                                               
 
 P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
-ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+ed = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
-stations = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")["TowProp"]     # HtFract, TMassDen, TwFAStif, TwSSStif
-aero = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]                          # TwrElev, TwrDiam, …
+stations = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")["TowProp"]     # HtFract, TMassDen, TwFAStif, TwSSStif
+aero = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]                          # TwrElev, TwrDiam, …
 
 # 1. section à chaque station : masse volumique effective déduite de VOTRE épaisseur au pied (phase 3)
 z_st = BASE + stations[:, 0] * (HT_TOUR - BASE)
@@ -264,11 +264,11 @@ structure = ma_copie("structure")
 
 P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
-TOUR = MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat"
-ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+TOUR = MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat"
+ed = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 HT_TOUR, BASE = float(ed["TowerHt"]), float(ed["TowerBsHt"])
 stations = FASTInputFile(TOUR)["TowProp"]
-aero = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]
+aero = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC3Hywind_AeroDyn.dat")["TowProp"]
 D_st = np.interp(BASE + stations[:, 0] * (HT_TOUR - BASE), aero[:, 0], aero[:, 1])
 
 A0, I0, _ = structure.section_tubulaire(P["D"], P["t_paroi"])
@@ -355,9 +355,9 @@ from s9gm.chemins import MODELES, RESULTS
 
 P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 MODELE = MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN"
-ed = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
+ed = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")
 L = float(ed["TowerHt"]) - float(ed["TowerBsHt"])
-origine = FASTInputFile(MODELE + "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")
+origine = FASTInputFile(MODELE / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn_Tower.dat")
 nouvelle = FASTInputFile(RESULTS / "tour_dimensionnee.dat")
 c = np.array([origine[f"TwFAM1Sh({i})"] for i in range(2, 7)], dtype=float)         # déformée assumée du 1er mode avant-arrière : Σ cᵢ (x/L)^i
 
