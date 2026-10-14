@@ -15,6 +15,18 @@ MODELES = RACINE / "modeles"
 SEANCES = RACINE / "seances"
 
 
+def assurer_dossiers():
+    """Crée `results/` et `rendus/` s'ils manquent (ignorés par git, donc absents d'un clone neuf). Silencieux si le dépôt est en lecture seule."""
+    for d in (RESULTS, RENDUS):
+        try:
+            d.mkdir(exist_ok=True)
+        except OSError:
+            pass
+
+
+assurer_dossiers()
+
+
 def resoudre(chemin):
     """Chemin absolu : inchangé. Chemin relatif : relatif à `RACINE` (jamais au dossier courant)."""
     p = Path(chemin)

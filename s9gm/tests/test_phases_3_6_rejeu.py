@@ -70,22 +70,28 @@ def _noter(depot, phase, temps):
     print(f"TEMPS_PHASE{phase}", json.dumps(temps))
 
 
-def _avec_squelette(phase, depot, module, essai, apres):
-    """Étape 1 (copie du squelette) ; tests sur le squelette (xfailed) ; version complète déposée dans la copie ; tests sur la copie ;
-    puis les blocs `apres`. Renvoie les temps."""
+def _copie_et_tests(phase, depot, module, essai):
+    """Blocs 1 à 3 : `s9gm copie` ; `s9gm tester --squelette` (xfailed) ; **version complète déposée dans la copie** ; `s9gm tester` (tout passe).
+    Les commandes tournent hors du dossier du dépôt (voir `parcours.rejouer`). Renvoie les temps."""
     readme = PHASE[phase]
     code, sortie, t1 = parcours.rejouer(readme, depot, essai, etapes=[1])
-    assert code == 0, sortie[-2000:]
-    code, sortie, _ = parcours.rejouer(readme, depot, essai, etapes=[2])
-    assert code == 0 and "xfailed" in sortie.split("== votre copie")[0], "sur le squelette, des tests doivent être xfailed :\n" + sortie[-2000:]
+    assert code == 0 and "copie créée" in sortie or "existe déjà" in sortie, sortie[-2000:]
+    code, sortie, t2 = parcours.rejouer(readme, depot, essai, etapes=[2])
+    assert code == 0 and "xfailed" in sortie, "avec --squelette, des tests doivent être xfailed :\n" + sortie[-2000:]
+    code, sortie, _ = parcours.rejouer(readme, depot, essai, etapes=[3])
+    assert code != 0 and "NotImplementedError" in sortie or "failed" in sortie, "sur la copie à trous, les tests doivent échouer :\n" + sortie[-1500:]
     for fichier in (module, *COMPAGNONS.get(module, ())):
         shutil.copy(Path(SOLUTIONS) / fichier, Path(depot) / "results" / "mon_s9gm" / fichier)
-    code, sortie, t2 = parcours.rejouer(readme, depot, essai, etapes=[2])
-    copie = sortie.split("== votre copie")[1]
-    assert code == 0 and "passed" in copie and "xfailed" not in copie and "failed" not in copie, "sur la copie complétée :\n" + sortie[-2500:]
-    code, sortie, t3 = parcours.rejouer(readme, depot, essai, delai=7200, etapes=apres)
+    code, sortie, t3 = parcours.rejouer(readme, depot, essai, etapes=[3])
+    assert code == 0 and "passed" in sortie and "xfailed" not in sortie and "failed" not in sortie, "sur la copie complétée :\n" + sortie[-2500:]
+    return {**t1, **t2, **t3}
+
+
+def _avec_squelette(phase, depot, module, essai, apres):
+    temps = _copie_et_tests(phase, depot, module, essai)
+    code, sortie, t4 = parcours.rejouer(PHASE[phase], depot, essai, delai=7200, etapes=apres)
     assert code == 0, sortie[-4000:]
-    return {**t1, **t2, **t3}, sortie
+    return {**temps, **t4}, sortie
 
 
 @pytest.mark.slow
@@ -94,27 +100,21 @@ def _avec_squelette(phase, depot, module, essai, apres):
 @requiert_openfast
 def test_rejeu_phase_3(depot):
     essai = dict(ESSAI)
-    # un cas tiré de ce que l'étape 2 a produit : le test ne le connaît qu'après la campagne, donc deux temps
     readme = PHASE[3]
-    code, sortie, t1 = parcours.rejouer(readme, depot, essai, etapes=[1])
-    assert code == 0, sortie[-2000:]
-    code, sortie, _ = parcours.rejouer(readme, depot, essai, etapes=[2])
-    assert code == 0 and "xfailed" in sortie.split("== votre copie")[0], "sur le squelette, des tests doivent être xfailed :\n" + sortie[-2000:]
-    shutil.copy(Path(SOLUTIONS) / "fatigue.py", Path(depot) / "results" / "mon_s9gm" / "fatigue.py")
-    code, sortie, _ = parcours.rejouer(readme, depot, essai, etapes=[2])
-    copie = sortie.split("== votre copie")[1]
-    assert code == 0 and "passed" in copie and "xfailed" not in copie and "failed" not in copie, "sur la copie complétée :\n" + sortie[-2500:]
-    code, sortie, t3 = parcours.rejouer(readme, depot, essai, delai=7200, etapes=[3, 4])
+    t0 = _copie_et_tests(3, depot, "fatigue.py", essai)
+    code, sortie, t1 = parcours.rejouer(readme, depot, essai, etapes=[4])                 # point de contrôle de la sinusoïde
+    assert code == 0 and "DEL de votre copie" in sortie and "pas encore" not in sortie, sortie[-1500:]
+    code, sortie, t3 = parcours.rejouer(readme, depot, essai, delai=7200, etapes=[5, 6])
     assert code == 0, sortie[-4000:]
-    cas = sorted(p.name for p in (Path(depot) / "results" / "phase3").glob("*/main.outb") for p in [p.parent])
+    cas = sorted(p.parent.name for p in (Path(depot) / "results" / "phase3").glob("*/main.outb"))
     assert len(cas) >= 2
     essai["<votre cas>"] = cas[len(cas) // 2]
-    code, sortie, t5 = parcours.rejouer(readme, depot, essai, delai=3600, etapes=[5, 6, 7])
+    code, sortie, t5 = parcours.rejouer(readme, depot, essai, delai=3600, etapes=[7, 8, 9])
     assert code == 0, sortie[-4000:]
     res = Path(depot) / "results"
     for f in ("phase3_del_par_cas.csv", "phase3_bilan.csv", "phase3_export_long_terme.csv", "phase3_parametres.json"):
         assert (res / f).is_file(), f
-    _noter(depot, 3, {**t1, **t3, **t5})
+    _noter(depot, 3, {**t0, **t1, **t3, **t5})
 
 
 ESSAI_4 = {
@@ -134,7 +134,7 @@ ESSAI_4 = {
 @AVEC_SOLUTIONS
 @requiert_openfast
 def test_rejeu_phase_4(depot):
-    temps, sortie = _avec_squelette(4, depot, "ancrage.py", ESSAI_4, apres=[3, 4, 5, 6])
+    temps, sortie = _avec_squelette(4, depot, "ancrage.py", ESSAI_4, apres=[4, 5, 6, 7])
     assert "{'cavalement': True, 'embardee': True}" in sortie, sortie[-1500:]      # la correspondance MAP++ / MoorDyn
     res = Path(depot) / "results"
     for f in ("lct_phase4.csv", "phase4_uls.csv", "phase4_quasi_statique.csv"):
@@ -165,7 +165,7 @@ def test_rejeu_phase_5(depot):
     assert cas3 and (res / "phase4").is_dir(), "les phases 3 et 4 doivent avoir été rejouées dans ce dépôt"
     essai = {**ESSAI_5, "<votre cas de fatigue>": cas3[len(cas3) // 2], "<votre cas ULS>": "X61"}
     # étape 1 (copie, tests), puis blocs 3 à 9 (le bloc 5 relance deux cas)
-    temps, _ = _avec_squelette(5, depot, "structure.py", essai, apres=[3, 4, 5, 6, 7, 8, 9])
+    temps, _ = _avec_squelette(5, depot, "structure.py", essai, apres=[4, 5, 6, 7, 8, 9, 10])
     for f in ("phase5_tour_epaisseurs.csv", "phase5_somme_des_DEL.csv", "phase5_boucle.csv"):
         assert (res / f).is_file(), f
     assert (res / "tour_dimensionnee.dat").is_file() and len(list((res / "phase5").glob("*/main.outb"))) == 2

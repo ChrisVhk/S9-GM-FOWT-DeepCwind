@@ -80,7 +80,7 @@ def test_le_cas_de_reference_commun_est_d01_et_sert_de_point_commun_a_la_synthes
     assert "<cas de référence désigné par l'enseignant>" not in t and "désigné par l'enseignant" not in t
     assert "point commun" in t and "phase 6" in t
     code = "\n".join(c for _, c in parcours.blocs(_texte()))
-    assert 'Path("results/D01")' in code             # D01 est dans la comparaison de l'étape 4
+    assert 'RESULTS / "D01"' in code             # D01 est dans la comparaison de l'étape 4
 
 
 def test_les_commandes_300_s_et_600_s_et_la_question_d_analyse_sans_valeur():

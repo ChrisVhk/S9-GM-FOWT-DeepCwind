@@ -106,6 +106,14 @@ def test_d_results_et_rendus_se_creent_a_la_demande(tmp_path, monkeypatch):
     assert chemins.dossier_rendus() == tmp_path / "rendus" and (tmp_path / "rendus").is_dir()
 
 
+def test_assurer_dossiers_cree_results_et_rendus(tmp_path, monkeypatch):
+    from s9gm import chemins
+    monkeypatch.setattr(chemins, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(chemins, "RENDUS", tmp_path / "rendus")
+    chemins.assurer_dossiers()
+    assert (tmp_path / "results").is_dir() and (tmp_path / "rendus").is_dir()
+
+
 def test_le_journal_de_lancer_se_cree_sous_results_meme_si_le_dossier_manque(tmp_path, monkeypatch):
     from s9gm import chemins, lancer
     monkeypatch.setattr(chemins, "RACINE", tmp_path)

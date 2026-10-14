@@ -18,7 +18,7 @@ PHASES = {n: RACINE / "seances" / f"phase{n}" / "README.md" for n in (3, 4, 5, 6
 TROUS = {3: ("rainflow", "miner", "del_court_terme", "del_long_terme"),
          4: ("catenaire_elastique", "raideur_horizontale"),
          5: ("von_mises", "verifier_domaine_efthymiou", "scf_ty_axial_encastre", "scf_ty_flexion_plan", "scf_ty_flexion_hors_plan")}
-VARIABLE = {3: "S9GM_FATIGUE_COMPLET", 4: "S9GM_ANCRAGE_COMPLET", 5: "S9GM_STRUCTURE_COMPLET"}
+NOM = {3: "fatigue", 4: "ancrage", 5: "structure"}
 
 
 def texte(n):
@@ -50,12 +50,12 @@ def test_aucune_fonction_a_trous_n_est_definie_ni_resolue_dans_la_consigne(n):
 @pytest.mark.parametrize("n", sorted(TROUS))
 def test_la_consigne_dit_comment_completer_tester_puis_appliquer(n):
     t = texte(n)
-    assert VARIABLE[n] in t and "results/mon_s9gm" in t                       # copie locale du squelette, test pointé dessus
+    assert "results/mon_s9gm" in t and f"s9gm copie {NOM[n]}" in t and f"s9gm tester {NOM[n]}" in t     # copie locale du squelette, tests lancés sur elle
     assert re.search(r"xfail", t, re.I) and re.search(r"passed|réussi", t, re.I)    # ce qu'on doit voir avant et après
     for nom in TROUS[n]:
         assert nom in t, f"{nom} non nommé dans la phase {n}"
     c = code(n)
-    assert "shutil.copy" in c and "results/mon_s9gm" in c and "pytest" in c
+    assert "s9gm copie" in c and "s9gm tester" in c and "--squelette" in c and "sys.path" not in c
 
 
 @pytest.mark.parametrize("n", sorted(TROUS))
@@ -78,11 +78,14 @@ def test_aucune_valeur_de_choix_n_est_ecrite_dans_les_commandes(n):
 
 
 @pytest.mark.parametrize("n", sorted(PHASES))
-def test_aucune_commande_ne_modifie_un_fichier_suivi(n):
+def test_aucune_commande_n_ecrit_hors_de_results_ou_rendus(n):
+    """Tout fichier écrit par `to_csv`, `savefig` ou `write_text` part de RESULTS ou de RENDUS (jamais d'un dossier suivi par git)."""
     c = code(n)
-    for m in re.finditer(r"(?:to_csv|savefig|write_text|open)\(\s*f?[\"']([^\"']+)", c):
-        chemin = m.group(1)
-        assert chemin.startswith(("results/", "rendus/")) or not re.match(r"^[\w./-]+\.(?:csv|png|md|dat|fst|txt|json|xlsx)$", chemin), chemin
+    for m in re.finditer(r"\.(?:to_csv|savefig)\(\s*(?:f?[\"'])?\(?(\w+)", c):
+        assert m.group(1) in ("RESULTS", "RENDUS"), c[m.start():m.start() + 80]
+    for ligne in c.split("\n"):
+        if ".write_text(" in ligne and "RESULTS" not in ligne and "RENDUS" not in ligne:
+            assert ligne.strip().startswith(("Path(", "(")) is False and "SRV" not in ligne, ligne
 
 
 # ---- phase 3 -----------------------------------------------------------------------------------------------------------
@@ -166,7 +169,7 @@ def test_phase_4_cas_extremes_ecrits_par_l_etudiant_pas_fixes():
         assert mot in t, mot
     c = code(4)
     assert "<votre classe de la machine>" in c and "<votre catégorie (lettre)>" in c            # la classe et la catégorie sont ceux de l'étudiant
-    assert "results/extremes_phase1.csv" in c                                                  # période de retour et classes de vent : déjà choisies en phase 1
+    assert "extremes_phase1.csv" in c                                                  # période de retour et classes de vent : déjà choisies en phase 1
 
 
 # ---- phase 5 -----------------------------------------------------------------------------------------------------------
@@ -191,7 +194,7 @@ def test_phase_6_d01_point_commun_et_sensibilite_depuis_la_lct_du_groupe():
     assert re.search(r"LCT (?:de votre|de chaque|du) groupe", t)
     c = code(6)
     assert "lire." in c and "visu." in c
-    assert "results/D01" in c or '"D01"' in c
+    assert 'RESULTS / "D01"' in c or '"D01"' in c
 
 
 def test_phase_6_question_finale_et_soutenance_conservees():

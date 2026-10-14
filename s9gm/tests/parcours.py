@@ -45,23 +45,53 @@ def cloner(racine, destination):
     return Path(destination)
 
 
-def rejouer(readme, depot, substitutions, delai=3600, etapes=None):
-    """Exécute les blocs de `readme` dans `depot` (seulement ceux dont le numéro est dans `etapes`, si donné ; chaque bloc doit alors être
-    autonome : ses imports et ses définitions). Renvoie (code de sortie, sortie, {étape : secondes})."""
-    texte = Path(readme).read_text(encoding="utf-8")
-    morceaux, n = [], 0
+def _segments(texte, substitutions, etapes):
+    """Blocs de la section 3, dans l'ordre : suites de blocs Python consécutifs (un seul script, comme une session) et blocs bash (un par un)."""
+    segments, courant, n = [], [], 0
     for langue, code in blocs(texte):
         n += 1
         if etapes is not None and n not in etapes:
             continue
         code = substituer(code, substitutions)
         if langue == "python":
-            morceaux.append(f"_t0 = __import__('time').time()\n{code}\nprint('ETAPE {n}', round(__import__('time').time() - _t0, 1), flush=True)\n")
+            courant.append((n, code))
         else:
-            raise AssertionError(f"bloc bash à l'étape {n} : le banc ne rejoue que le Python d'une phase")
-    script = "import sys; sys.path.insert(0, '.')\n" + "\n".join(morceaux)
-    debut = time.time()
-    r = subprocess.run([sys.executable, "-I", "-c", script], cwd=depot, capture_output=True, text=True, timeout=delai)
-    temps = {int(m[1]): float(m[2]) for m in re.finditer(r"^ETAPE (\d+) ([\d.]+)$", r.stdout, re.M)}
+            if courant:
+                segments.append(("python", courant)); courant = []
+            segments.append(("bash", [(n, code)]))
+    if courant:
+        segments.append(("python", courant))
+    return segments
+
+
+def rejouer(readme, depot, substitutions, delai=3600, etapes=None):
+    """Exécute les blocs de `readme` pour `depot` (seulement ceux dont le numéro est dans `etapes`, si donné). Renvoie (code de sortie, sortie, {étape : secondes}).
+
+    Comme un étudiant **hors du dossier du dépôt** : les commandes tournent dans un dossier temporaire, avec le paquet `s9gm` du `depot`
+    (par `sys.path` pour Python, par `PYTHONPATH` pour bash, jamais par le dossier courant). Les blocs bash voient les commandes de
+    l'environnement (`s9gm`, `openfast`) comme après `micromamba activate`."""
+    import os
+    import tempfile
+    texte = Path(readme).read_text(encoding="utf-8")
+    depot = Path(depot).resolve()
+    sortie, temps, debut, code_final = "", {}, time.time(), 0
+    with tempfile.TemporaryDirectory(prefix="s9gm_ailleurs_") as ailleurs:
+        env = {**os.environ, "PYTHONPATH": str(depot), "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ.get("PATH", "")}
+        for langue, liste in _segments(texte, substitutions, etapes):
+            if langue == "python":
+                morceaux = [f"_t0 = __import__('time').time()\n{code}\nprint('ETAPE {n}', round(__import__('time').time() - _t0, 1), flush=True)\n"
+                            for n, code in liste]
+                script = f"import sys; sys.path.insert(0, {str(depot)!r})\n" + "\n".join(morceaux)
+                r = subprocess.run([sys.executable, "-I", "-c", script], cwd=ailleurs, capture_output=True, text=True, timeout=delai, env=env)
+                sortie += r.stdout + r.stderr
+                temps.update({int(m[1]): float(m[2]) for m in re.finditer(r"^ETAPE (\d+) ([\d.]+)$", r.stdout, re.M)})
+            else:
+                (n, code), t0 = liste[0], time.time()
+                r = subprocess.run(["bash", "-c", "set -e\n" + code], cwd=ailleurs, capture_output=True, text=True, timeout=delai, env=env)
+                sortie += r.stdout + r.stderr
+                temps[n] = round(time.time() - t0, 1)
+            if r.returncode != 0:
+                code_final = r.returncode
+                break
     temps["total"] = round(time.time() - debut, 1)
-    return r.returncode, r.stdout + r.stderr, temps
+    return code_final, sortie, temps
