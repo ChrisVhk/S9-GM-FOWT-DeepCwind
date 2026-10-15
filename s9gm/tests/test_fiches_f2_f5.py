@@ -8,8 +8,8 @@ import pytest
 
 from .conftest import RACINE
 
-FICHES = {"F2": RACINE / "fiches" / "F2_Houle-lineaire.md", "F5": RACINE / "fiches" / "F5_Hydrodynamique-potentielle.md"}
-PHASE = {"F2": RACINE / "seances" / "phase1" / "README.md", "F5": RACINE / "seances" / "phase2" / "README.md"}
+FICHES = {"F2": RACINE / "fiches" / "F2_Houle-lineaire.md", "F3": RACINE / "fiches" / "F3_Hydrostatique.md", "F5": RACINE / "fiches" / "F5_Hydrodynamique-potentielle.md"}
+PHASE = {"F2": RACINE / "seances" / "phase1" / "README.md", "F3": RACINE / "seances" / "0b" / "README.md", "F5": RACINE / "seances" / "phase2" / "README.md"}
 MASTER = "Cours/OFFSHORE_Structures-Fondations/01_Houle-et-hydrodynamique-des-flotteurs.md"
 # motifs scindés en deux littéraux : le test ne doit pas se déclarer lui-même fautif (R-9)
 INTERDIT = re.compile(r"(?<![0-9A-Za-z.])E-\d{2,3}\b|_Cou" "lisses|\bcou" "lisses/|ENSM-Ensei" "gnement|_Rese" "rve/|dépôt d.ensei" "gnement|à comp" "léter", re.I)
@@ -66,4 +66,21 @@ def test_enonce_et_formulaire_connaissent_les_fiches():
         assert f"fiches/{f.name}" in enonce, nom
     assert "Une seule existe à ce jour" not in enonce
     form = (RACINE / "fiches" / "FORMULAIRE.md").read_text(encoding="utf-8")
-    assert "fiche F2" in form and "fiche F5" in form
+    assert "fiche F2" in form and "fiche F3" in form and "fiche F5" in form
+
+
+def test_la_seance_0b_etape_3_3_renvoie_a_f3_et_l_index_la_donne_publiee():
+    t = texte_0b = (RACINE / "seances" / "0b" / "README.md").read_text(encoding="utf-8")
+    etape = t.split("### 3.3 Raideurs hydrostatiques", 1)[1].split("\n### 3.4", 1)[0]
+    assert "F3_Hydrostatique.md" in etape and "à venir" not in etape.split("\n")[2], "l'étape 3.3 de la séance 0b renvoie toujours à une fiche « à venir »"
+    index = (RACINE / "fiches" / "README.md").read_text(encoding="utf-8")
+    ligne = next(l for l in index.split("\n") if l.startswith("| F3 "))
+    assert "publiée" in ligne and "F3_Hydrostatique.md" in ligne, ligne
+
+
+def test_f3_n_utilise_que_la_notation_c_ij_et_aucune_valeur_du_cas_oc4():
+    t = FICHES["F3"].read_text(encoding="utf-8")
+    assert "C_{33}" in t or "C33" in t
+    assert not re.search(r"\bK\s*_?\{?(33|44|55)\}?\b", t.replace("`K_{ij}`", "").replace("K_{ij}", "")), "notation K_ij réservée à la mention de la correspondance avec Molin"
+    for interdit in ("12 m³", "3,45", "OC4"):    # aucun nombre ni nom de cas du projet
+        assert interdit not in t, interdit

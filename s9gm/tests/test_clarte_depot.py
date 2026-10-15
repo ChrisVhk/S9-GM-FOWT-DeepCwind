@@ -191,7 +191,7 @@ def test_l_index_existe_et_reference_toutes_les_fiches():
 
 def test_les_fiches_a_venir_figurent_avec_leur_emplacement_provisoire():
     t = texte(INDEX)
-    for fiche in ("F3", "F4", "F6", "F7", "F8"):
+    for fiche in ("F4", "F6", "F7", "F8"):      # F3 est publiée depuis le 15/10
         assert re.search(rf"{fiche}.*à venir", t), fiche
 
 
