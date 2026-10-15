@@ -84,3 +84,18 @@ def test_f3_n_utilise_que_la_notation_c_ij_et_aucune_valeur_du_cas_oc4():
     assert not re.search(r"\bK\s*_?\{?(33|44|55)\}?\b", t.replace("`K_{ij}`", "").replace("K_{ij}", "")), "notation K_ij réservée à la mention de la correspondance avec Molin"
     for interdit in ("12 m³", "3,45", "OC4"):    # aucun nombre ni nom de cas du projet
         assert interdit not in t, interdit
+
+
+def test_corrections_du_controle_independant_du_15_10_f2_et_f5():
+    """Trois écarts relevés par un auditeur neuf (22/25) : critère de Stokes, sens de « premier ordre », contenu des fichiers de coefficients."""
+    f2 = FICHES["F2"].read_text(encoding="utf-8")
+    f5 = FICHES["F5"].read_text(encoding="utf-8")
+    plat2 = re.sub(r"\s+", " ", f2)
+    plat5 = re.sub(r"\s+", " ", f5)
+    assert "fonction de courant" in plat2 and "quand la cambrure est modérée" not in plat2
+    assert "Stokes d'ordre supérieur quand le nombre d'Ursell est modéré" in plat2
+    assert "approximation découplée" in plat5 and "au premier ordre `ω_j" not in plat5
+    assert "ni le maillage ni la profondeur n'y figurent" in plat5
+    assert "le master et Molin écrivent aussi la RAO `f_j" in plat5            # conflit de notation dit
+    assert "`M` inclut la masse ajoutée" in plat5
+    assert "adimensionnées" in plat5 and "amplitude de houle" in plat5.split("adimensionnées", 1)[1][:200]
