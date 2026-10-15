@@ -38,7 +38,7 @@ Le cadre du projet (compétences visées, organisation, évaluation, règles) es
 
 **Vocabulaire.** Une **séance** est un créneau de cours ; une **phase** est une étape du projet, d'une ou de plusieurs séances. Les lignes 0a et 0b sont les deux séances de la phase 0 ; les dates des créneaux sont au planning de la promotion.
 
-Les phases 3 et 5 se poursuivent à la maison : les heures entre parenthèses s'ajoutent au volume de séance. Elles s'appuient sur le [guide du classeur de l'atelier](annexes/atelier_tour/README.md), une ressource qu'on ouvre à l'étape 0 de la phase 3 et au point 1 de la phase 5 (ce n'est pas une séance).
+Les phases 3 et 5 se poursuivent à la maison : les heures entre parenthèses s'ajoutent au volume de séance ; le total de 46 h ne les compte pas. Elles s'appuient sur le [guide du classeur de l'atelier](annexes/atelier_tour/README.md), une ressource qu'on ouvre à l'étape 0 de la phase 3 et au point 1 de la phase 5 (ce n'est pas une séance).
 
 ## Carte du dépôt
 
@@ -47,7 +47,7 @@ Les phases 3 et 5 se poursuivent à la maison : les heures entre parenthèses s'
 | `seances/` | Une consigne autonome par séance ou par phase | **lisez et suivez** |
 | `modeles/` | Tous les modèles : `fixe/` (monopieu OC3 du tutoriel), `flottant/` (OC4-DeepCwind du tutoriel), `oc4_rtest/` (OC4-DeepCwind, r-test OpenFAST, Apache-2.0), `iea15_monopile/`, `oc5/` (note) | lisez, sans le modifier |
 | `cas/` | Cas de référence (F01, F02…) et leur lanceur `run_cas.sh` | lancez, sans le modifier |
-| `s9gm/` | Le seul outil de calcul et de post-traitement (Python) | utilisez, sans le modifier |
+| `s9gm/` | Le seul outil de calcul et de post-traitement (Python) | utilisez, sans le modifier (aux phases 3 à 5, vous complétez **une copie** sous `results/mon_s9gm/`, jamais le fichier suivi) |
 | `fiches/` | Fiches « minimum vital » et leur index (théorie prérequise par phase) | lisez |
 | `data/` | Données du projet (dimensions, propriétés, références, site) | lisez |
 | `env/`, `scripts/` | Environnement épinglé ; compilation du contrôleur, contrôles du dépôt | lancez |

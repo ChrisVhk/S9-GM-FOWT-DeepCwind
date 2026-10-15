@@ -19,7 +19,7 @@ Fatigue : rainflow, S-N, Miner, DEL court et long terme. Volume indicatif : 8 h.
 
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
-**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-1) (théorie derrière chaque étape du classeur) ; on l'ouvre à l'étape 0 de cette phase.
+**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-theorie) (théorie derrière chaque étape du classeur ; le classeur lui-même est distribué sur Vega) ; on l'ouvre à l'étape 0 de cette phase.
 
 **À lire avant la séance : F8 (Ancrage dynamique et fatigue)** — dès qu'elle est publiée.
 
@@ -34,7 +34,7 @@ Les états de mer, leurs occurrences et la durée de simulation viennent de **vo
 0. **Atelier tour, premier passage** : prise en main de la chaîne DEL court terme → long terme →
    courbe S-N → épaisseur, sur le classeur de l'atelier tel quel (sa propre géométrie de tour et
    ses propres données d'entrée, pas celles du projet) — d'abord avec `SCF = 1`, puis `SCF = 2`, en
-   comparant épaisseurs et masse. Voir le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-1)
+   comparant épaisseurs et masse. Voir le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-theorie)
    pour la théorie derrière chaque étape. C'est la **méthode** (pas la géométrie ni les résultats)
    que vous reprendrez ci-dessous, sur la tour du projet, puis en Phase 5 avec vos propres charges.
    Cette phase ne modifie rien de l'atelier : elle y renvoie.

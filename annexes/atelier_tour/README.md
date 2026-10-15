@@ -197,7 +197,7 @@ correspondre les deux découpages).
 ## 4. Post-traiter
 
 La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans
-[`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Dans cette séance, seule l'étape 3.8 lit des sorties OpenFAST
+[`../../s9gm/POST-TRAITER.md`](../../s9gm/POST-TRAITER.md). Dans ce guide, seule l'étape 3.8 lit des sorties OpenFAST
 (canaux de jauges de tour `TwHt<N>MLyt`, `TwrBsFxt`, `TwrBsMyt`, `YawBrFxp`, `YawBrMyp`) ; les autres étapes se font dans le
 classeur ou à la main.
 

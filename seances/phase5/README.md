@@ -24,7 +24,7 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
 
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
-**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-8) (théorie derrière chaque étape du classeur) ; on l'ouvre au point 1 de cette phase (second passage).
+**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-8) (théorie derrière chaque étape du classeur ; le classeur lui-même est distribué sur Vega) ; on l'ouvre au point 1 de cette phase (second passage).
 
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
 
