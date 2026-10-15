@@ -108,7 +108,7 @@ def verifier(env=None, prefixe_python=None, executable=None, fichier_s9gm=None, 
     r.append(Resultat("copies", "vos copies results/mon_s9gm/*.py (information)", True,
                       "; ".join(infos) if infos else "aucune copie encore (normal avant la phase 3)", "", obligatoire=False))
     for outil, role in (("pvbatch", "animations (ParaView)"), ("ffmpeg", "montage vidéo")):
-        r.append(Resultat(outil, f"{outil} ({role}, facultatif)", shutil.which(outil) is not None, "", f"micromamba install -n {ENV_NOM} -c conda-forge {outil}" if outil == "ffmpeg" else "voir seances/atelier_tour ou ANIMER.md",
+        r.append(Resultat(outil, f"{outil} ({role}, facultatif)", shutil.which(outil) is not None, "", f"micromamba install -n {ENV_NOM} -c conda-forge {outil}" if outil == "ffmpeg" else "voir INSTALLATION.md (section 5) ou s9gm/ANIMER.md",
                           obligatoire=False))
     return r
 

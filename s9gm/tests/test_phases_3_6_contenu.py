@@ -91,7 +91,7 @@ def test_aucune_commande_n_ecrit_hors_de_results_ou_rendus(n):
 # ---- phase 3 -----------------------------------------------------------------------------------------------------------
 def test_phase_3_etapes_de_l_enonce_et_renvoi_a_l_atelier():
     t = plat(texte(3))
-    assert "seances/atelier_tour/" in texte(3) or "../atelier_tour/" in texte(3)
+    assert "annexes/atelier_tour/README.md" in texte(3)
     for mot in ("rainflow", "TwrBsMyt", "FAIRTEN", "SCF = 2", "Miner", "DEL court terme", "DEL long terme", "DNV-RP-C203"):
         assert mot in t, mot
     assert "Long term DEL" in t                                                    # export au format du classeur (vérification à la main)

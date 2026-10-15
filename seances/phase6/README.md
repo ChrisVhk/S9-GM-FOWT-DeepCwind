@@ -193,4 +193,6 @@ Soutenance par groupe : 15 min + 10 min de questions. Appuyez-la sur `rendus/tab
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 Aucune fiche n'est prévue pour cette phase (voir le tableau des fiches de l'`ENONCE.md`, section 3 bis).

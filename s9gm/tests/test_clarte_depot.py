@@ -75,7 +75,7 @@ def test_le_guide_dit_a_quoi_il_sert_et_quand_on_l_ouvre():
 def test_aucun_lien_ni_chemin_vers_l_ancien_emplacement():
     fautes = []
     for f in suivis():
-        if not f.endswith((".md", ".py", ".ipynb", ".sh", ".txt", ".yml")):
+        if not f.endswith((".md", ".py", ".ipynb", ".sh", ".txt", ".yml")) or f == "TRANSITION.md":   # TRANSITION.md nomme les anciens emplacements (R-6)
             continue
         t = (RACINE / f).read_text(encoding="utf-8", errors="ignore")
         if any(a in t for a in ANCIEN_ATELIER):
@@ -90,7 +90,7 @@ def test_plus_aucun_renvoi_par_numero_de_section_de_l_atelier():
             fautes.append(f"{f.name} absent")
             continue
         for n, ligne in enumerate(texte(f).split("\n"), start=1):
-            if re.search(r"§\s?\d", ligne) and "ENONCE" not in ligne:
+            if re.search(r"§\s?\d", ligne) and "ENONCE" not in ligne and "J. Phys. Conf. Ser." not in ligne:   # « § 2.3.2 » de l'article cité n'est pas un renvoi à l'atelier
                 fautes.append(f"{f.relative_to(RACINE)}:{n}: {ligne.strip()[:90]}")
     assert not fautes, fautes
 
@@ -138,10 +138,17 @@ def test_le_tableau_de_parcours_n_a_que_des_etapes_avec_volume_et_une_colonne_se
     t = texte(RACINE / "README.md")
     entete = next(l for l in t.split("\n") if l.startswith("|") and "Contenu" in l and "Volume" in l)
     assert "Séances" in entete, entete
-    assert not lignes_tableau(t, r"(?i)atelier"), "l'atelier ne figure pas dans le tableau de parcours"
+    lignes = t.split("\n")
+    corps = []
+    for l in lignes[lignes.index(entete) + 1:]:
+        if not l.startswith("|"):
+            break
+        corps.append(l)
+    assert corps and not [l for l in corps if "telier" in l], "l'atelier ne figure pas dans le tableau de parcours"
+    colonne = [c.strip() for c in entete.strip("|").split("|")].index("Volume")
     for l in lignes_tableau(t, r"\]\(seances/"):
         cellules = [c.strip() for c in l.strip("|").split("|")]
-        assert cellules[2] not in ("", "—"), f"ligne sans volume : {l[:80]}"
+        assert cellules[colonne] not in ("", "—"), f"ligne sans volume : {l[:80]}"
 
 
 def test_l_enonce_ne_reprend_pas_le_tableau_de_parcours():

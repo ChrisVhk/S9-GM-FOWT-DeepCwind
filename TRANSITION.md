@@ -95,3 +95,15 @@ Cinq lignes, une fois par clone :
 3. `s9gm doctor` : il vérifie votre poste (et détecte un second clone) et donne la commande exacte pour chaque point à corriger.
 4. **Vos copies `results/mon_s9gm/*.py` ne sont pas touchées** : continuez à les programmer. Les lignes `sys.path.insert(…)` des consignes disparaissent : `fatigue = ma_copie("fatigue")` charge votre fichier, **rechargé à chaque appel** (corrigez, relancez la ligne, sans redémarrer Python) ; les tests se lancent par `s9gm tester fatigue` (ou `ancrage`, `structure`).
 5. `results/` et `rendus/` se créent seuls : plus de `mkdir` en tête de la phase 1. Les chemins `results/…` donnés à `s9gm` se lisent depuis la racine du dépôt, pas depuis le dossier courant.
+
+## Mise à jour du 15/10/2026 : clarté du dépôt
+
+| Avant | Maintenant |
+|---|---|
+| `seances/atelier_tour/` | `annexes/atelier_tour/` : le guide du classeur de l'atelier est une **ressource** des phases 3 et 5, plus une séance ; les renvois « §n » sont remplacés par des liens vers ses étapes |
+| `annexes/historique/PAS_A_PAS_2026-10-12.md` | retiré du dépôt public : ses étapes sont dans les consignes des séances [0a](seances/0a/README.md) et [0b](seances/0b/README.md) depuis le 12/10 |
+| le tableau du parcours répété dans `ENONCE.md` | un seul tableau, dans le [`README.md`](README.md#le-parcours-phase-par-phase) |
+| (nouveau) | [`fiches/README.md`](fiches/README.md) : l'index de la théorie, par phase |
+
+Aucun contenu de consigne, de calcul ou de barème ne change. Si vous aviez ouvert l'ancien emplacement de l'atelier ou le pas-à-pas, `git pull` suffit : ils ne contenaient aucun fichier à vous.
+

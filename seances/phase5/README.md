@@ -24,11 +24,12 @@ Quatre niveaux de modèle existent pour la structure d'un flotteur. Le projet en
 
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
+**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-8) (théorie derrière chaque étape du classeur) ; on l'ouvre au point 1 de cette phase (second passage).
+
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
 
 ## 3. À faire, étape par étape
 
-*Les renvois « §n » à l'atelier tour (§2, §4, §9b, §10) suivent la correspondance donnée au début de sa [consigne](../atelier_tour/README.md).*
 
 Les étapes ci-dessous suivent ce que l'ENONCE exige (§3, §3 bis, §4) ; la numérotation « point n » est celle de la consigne de la phase. Les commandes se lancent **depuis n'importe quel dossier**, environnement `s9gm-fowt` activé. **Chaque bloc est autonome** et lit des fichiers écrits par les blocs précédents ou par les phases 3 et 4, dans `results/` :
 `results/phase3_parametres.json` (vos choix de la phase 3 : diamètre et épaisseur au pied, `SCF`, exposants, courbe S-N, DFF), `results/phase3/` et `results/phase4/` (vos sorties), `results/etats_phase1.csv` (vos occurrences). Les valeurs entre `<…>` sont **vos choix** ou ceux de l'enseignant : la consigne ne les donne pas, chacune se justifie dans votre rendu.
@@ -72,7 +73,7 @@ Ce que vous avez déjà fait en phase 3, avec **le même modèle de section** (m
 3. calcule la **contrainte de Von Mises maximale en extrême** (cas DLC 6.1 et 1.6 de la phase 4) pour la même grille : flexion seule aux jauges ; au **pied**, flexion, effort normal, cisaillement et torsion à partir des canaux de pied ;
 4. retient, à chaque hauteur, **la plus petite épaisseur qui satisfait les deux critères** (masse minimale à diamètre imposé).
 
-Vos choix : la **limite d'élasticité** et le **coefficient partiel** (norme citée), la grille d'épaisseurs. Les trois jauges (`TwHt1`, `TwHt5`, `TwHt9`) sont à 11,94 m, 50,74 m et 85,66 m au-dessus du niveau de la mer ([atelier tour](../atelier_tour/README.md), §9b) : la 9 est un nœud de calcul, pas le sommet de la tour.
+Vos choix : la **limite d'élasticité** et le **coefficient partiel** (norme citée), la grille d'épaisseurs. Les trois jauges (`TwHt1`, `TwHt5`, `TwHt9`) sont à 11,94 m, 50,74 m et 85,66 m au-dessus du niveau de la mer ([guide de l'atelier, étape 3.8](../../annexes/atelier_tour/README.md#a-etape-3-8)) : la 9 est un nœud de calcul, pas le sommet de la tour.
 
 ```python
 import json
@@ -173,7 +174,7 @@ Le tableau complet (`results/phase5_tour_epaisseurs.csv`) dit **quel critère di
 
 ### Étape 3 — Tour, niveau A : test de l'hypothèse « somme des DEL » à trois hauteurs (point 1)
 
-À chaque jauge (pied, milieu, sommet), **trois DEL, à comparer deux à deux** (atelier tour, §9b) : (1) **la méthode de l'atelier** : `DEL(effort tranchant) × bras de levier + DEL(moment)`, deux DEL combinés après coup ; (2) **le calcul exact du même modèle de transport** : le signal combiné point par point, `effort tranchant(t) × bras + moment(t)`, puis **un seul** rainflow ;
+À chaque jauge (pied, milieu, sommet), **trois DEL, à comparer deux à deux** (guide de l'atelier, [étape 3.8, point (b)](../../annexes/atelier_tour/README.md#a-etape-3-8)) : (1) **la méthode de l'atelier** : `DEL(effort tranchant) × bras de levier + DEL(moment)`, deux DEL combinés après coup ; (2) **le calcul exact du même modèle de transport** : le signal combiné point par point, `effort tranchant(t) × bras + moment(t)`, puis **un seul** rainflow ;
 (3) **le DEL du moment mesuré à la jauge** (`TwHt<N>MLyt`). L'effort tranchant et le moment sont ceux du **palier d'orientation** en tête de tour (`YawBrFxp`, `YawBrMyp`), le bras de levier est la différence entre la hauteur de la tour et celle de la jauge. **1 contre 2** isole le coût de l'hypothèse de concomitance ; **2 contre 3** isole ce que le transport statique ne capture pas (poids propre, inertie, mouvements du flotteur).
 **Ne comparez pas 1 et 3 directement.** Les exposants sont ceux de **cette consigne** (reprise de la consigne d'origine de la phase) : `m = 4` pour la branche principale, `m = 3` et `m = 5` pour la sensibilité ; si l'exposant de votre courbe S-N de la phase 3 diffère, dites pourquoi vous gardez ceux-ci.
 
@@ -193,7 +194,7 @@ fatigue = ma_copie("fatigue")
 
 P = json.loads((RESULTS / "phase3_parametres.json").read_text(encoding="utf-8"))
 HT_TOUR = float(FASTInputFile(MODELES / "oc4_rtest" / "5MW_OC4Semi_WSt_WavesWN" / "NRELOffshrBsline5MW_OC4DeepCwindSemi_ElastoDyn.dat")["TowerHt"])
-JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro de jauge -> hauteur (m), atelier tour §9b
+JAUGES = {1: 11.94, 5: 50.74, 9: 85.66}                              # numéro de jauge -> hauteur (m), guide de l'atelier, étape 3.8 (b)
 etats = pd.read_csv(RESULTS / "etats_phase1.csv").set_index("cas")
 
 lignes = []
@@ -377,7 +378,7 @@ print("1P (Hz), de la vitesse minimale à la vitesse nominale :", <votre vitesse
 print("3P (Hz), de la vitesse minimale à la vitesse nominale :", 3 * <votre vitesse minimale (rpm)> / 60, 3 * <votre vitesse nominale (rpm)> / 60)
 ```
 
-**Vous devez voir** : les fréquences de la tour avant et après l'itération, et les bandes `1P` et `3P` du rotor. **Placez la fréquence de la tour par rapport à ces bandes** (voir `seances/atelier_tour/`, §10, point non couvert par l'atelier : à faire ici) : tombe-t-elle dans une bande, entre deux, au-dessus ? Que change l'itération ?
+**Vous devez voir** : les fréquences de la tour avant et après l'itération, et les bandes `1P` et `3P` du rotor. **Placez la fréquence de la tour par rapport à ces bandes** (voir le [guide de l'atelier, section 6.7](../../annexes/atelier_tour/README.md#a-theorie-6-7), point non couvert par l'atelier : à faire ici) : tombe-t-elle dans une bande, entre deux, au-dessus ? Que change l'itération ?
 Si l'écart avec la fréquence d'origine est significatif, **dites-le et discutez-en** : ce point ne demande pas de corriger l'approximation, seulement d'en estimer l'effet. *Le résultat est un ordre de grandeur sur la tour seule (sans la souplesse du flotteur), pas la fréquence du système couplé.*
 
 | Symptôme | Cause | Geste |
@@ -492,6 +493,8 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 F4 (Morison) : *fiche à venir (master)*.
 
-L'atelier tour donne la théorie derrière chaque étape de calcul : [`../atelier_tour/README.md`](../atelier_tour/README.md).
+Le guide du classeur de l'atelier donne la théorie derrière chaque étape de calcul : [`annexes/atelier_tour/README.md`](../../annexes/atelier_tour/README.md).

@@ -283,4 +283,6 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 [F2 (Houle linéaire)](../../fiches/F2_Houle-lineaire.md) : dispersion, énergie, spectre, `Hs`, `Tz`, `Tp`, états de mer.

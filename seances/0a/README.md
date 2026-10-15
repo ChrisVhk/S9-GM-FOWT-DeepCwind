@@ -205,6 +205,8 @@ et F02 répondent à ces questions : ne les cherchez pas dans ce dépôt, calcul
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 Fiche F1 — Aéro-régulation ([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)), puis les cinq
 blocs ci-dessous, dans l'ordre des étapes de la section 3.
 

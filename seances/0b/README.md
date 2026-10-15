@@ -365,7 +365,9 @@ Le carnet de la section 3.6 ne répond à aucune question de ce rendu.
 
 ## 6. Théorie à lire
 
-Fiches F2, F3, F4 : *fiche à venir (master)*. Fiche F1 : [`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md).
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
+Fiche F2 : [`../../fiches/F2_Houle-lineaire.md`](../../fiches/F2_Houle-lineaire.md). Fiches F3, F4 : *fiche à venir (master)*. Fiche F1 : [`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md).
 Les blocs ci-dessous reprennent, pour les trois premiers, ceux des cas 03 à 05 du tutoriel LHEEA, que ce parcours ne
 lance plus (ils restent consultables dans [`../../annexes/lheea/`](../../annexes/lheea/README.md)).
 

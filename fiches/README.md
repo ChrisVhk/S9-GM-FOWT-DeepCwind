@@ -1,0 +1,88 @@
+<!-- destinations: github -->
+# Index de la théorie : où lire quoi, phase par phase
+
+Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd'hui la théorie d'une notion. Les fiches sont le « minimum vital » de chaque phase ; tant qu'une fiche n'est pas publiée, la ligne dit où la notion se lit en attendant. Le projet complet est présenté dans le [`README.md`](../README.md) du dépôt ; le post-traitement se lit toujours dans [`s9gm/POST-TRAITER.md`](../s9gm/POST-TRAITER.md).
+
+## Les fiches
+
+| Fiche | Sujet | État | Fichier |
+|---|---|---|---|
+| F1 | Aérodynamique et régulation | publiée | [`F1_Aero-regulation.md`](F1_Aero-regulation.md) ; exercices gradués corrigés : [`F1_exercices_IEA15_corriges.md`](F1_exercices_IEA15_corriges.md) |
+| F2 | Houle linéaire, spectre, états de mer | publiée | [`F2_Houle-lineaire.md`](F2_Houle-lineaire.md) |
+| F3 | Hydrostatique | à venir | en attendant : voir la phase 0b ci-dessous |
+| F4 | Morison | à venir | en attendant : voir les phases 0b et 2 ci-dessous |
+| F5 | Hydrodynamique potentielle | publiée | [`F5_Hydrodynamique-potentielle.md`](F5_Hydrodynamique-potentielle.md) |
+| F6 | Aérodynamique et amortissement négatif | à venir | en attendant : voir la phase 2 ci-dessous |
+| F7 | Caténaire statique | à venir | en attendant : voir la phase 4 ci-dessous |
+| F8 | Ancrage dynamique et fatigue | à venir | en attendant : voir les phases 3 et 4 ci-dessous |
+| Formulaire | Relations par phase (rappel, sans valeurs) | publié | [`FORMULAIRE.md`](FORMULAIRE.md) |
+
+## Phase 0a
+
+| Notion | Où la lire |
+|---|---|
+| Aérodynamique, régions de régulation, poussée, fréquence 1P | [F1](F1_Aero-regulation.md) |
+| Tour seule | [séance 0a, 6.1](../seances/0a/README.md#61-tour-seule-e01) |
+| Rotor libre en vent constant | [séance 0a, 6.2](../seances/0a/README.md#62-éolienne-libre-en-vent-constant-e02) |
+| Régulation de la NREL 5 MW | [séance 0a, 6.3](../seances/0a/README.md#63-régulation-de-la-nrel-5-mw) |
+| Plausibilité des sorties | [séance 0a, 6.4](../seances/0a/README.md#64-plausibilité-des-sorties-f01-et-f02) |
+| Fréquence 1P et 3P | [séance 0a, 6.5](../seances/0a/README.md#65-fréquence-1p) |
+| Statistiques d'un canal, transitoire | [`s9gm/lire.py`](../s9gm/lire.py) (bloc Théorie du module) ; [`s9gm/POST-TRAITER.md`](../s9gm/POST-TRAITER.md) |
+| Relations utiles | [Formulaire, phase 0](FORMULAIRE.md) |
+
+## Phase 0b
+
+| Notion | Où la lire |
+|---|---|
+| Vent turbulent et durée de simulation | [séance 0b, 6.1](../seances/0b/README.md#61-vent-turbulent-et-durée-de-simulation) |
+| Champ de vent, gabarit TurbSim | [séance 0b, 6.2](../seances/0b/README.md#62-le-champ-de-vent--gabarit-turbsim) |
+| Contrôleur complet en vent variable | [séance 0b, 6.3](../seances/0b/README.md#63-contrôleur-complet-en-vent-variable-cas-lheea-03) |
+| Éolienne sur monopieu | [séance 0b, 6.4](../seances/0b/README.md#64-éolienne-sur-monopieu-cas-lheea-04) |
+| Éolienne flottante | [séance 0b, 6.5](../seances/0b/README.md#65-éolienne-flottante-cas-lheea-05) |
+| Houle linéaire, états de mer | [F2](F2_Houle-lineaire.md) |
+| Hydrostatique du flotteur (F3, à venir) | en attendant : [séance 0b, étape 3.3](../seances/0b/README.md#33-raideurs-hydrostatiques-à-la-main-environ-30-min) ; [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) |
+| Morison (F4, à venir) | en attendant : [`s9gm/hydro.py`](../s9gm/hydro.py) (régime de Morison, nombre de Keulegan-Carpenter) ; [Formulaire, phase 2](FORMULAIRE.md) |
+
+## Phase 1
+
+| Notion | Où la lire |
+|---|---|
+| Houle linéaire, spectre, `Hs`, `Tz`, `Tp`, énergie, états de mer | [F2](F2_Houle-lineaire.md) |
+| Du site à la table de cas : marginales, regroupement, occurrences, représentativité | [`s9gm/metocean.py`](../s9gm/metocean.py) (un bloc Théorie par fonction) |
+| Relations utiles | [Formulaire, phase 1](FORMULAIRE.md) |
+
+## Phase 2
+
+| Notion | Où la lire |
+|---|---|
+| Excitation, masse ajoutée, amortissement de rayonnement, RAO, périodes propres | [F5](F5_Hydrodynamique-potentielle.md) |
+| Aérodynamique et amortissement négatif (F6, à venir) | en attendant : la rubrique « Théorie à lire » de la [phase 2](../seances/phase2/README.md#6-théorie-à-lire) |
+| Hydrostatique et périodes propres | [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) ; [Formulaire, phase 2](FORMULAIRE.md) |
+| Morison (F4, à venir) | en attendant : [Formulaire, phase 2](FORMULAIRE.md) |
+
+## Phase 3
+
+| Notion | Où la lire |
+|---|---|
+| Fatigue : rainflow, courbe S-N, Miner, DEL court et long terme (F8, à venir) | en attendant : [`s9gm/fatigue.py`](../s9gm/fatigue.py) (blocs Théorie du module) ; [Formulaire, phase 3](FORMULAIRE.md) |
+| Section tubulaire, DEL, courbe S-N, somme de DEL, Von Mises, dimensionnement | [guide du classeur de l'atelier, section 6](../annexes/atelier_tour/README.md#a-theorie) (une rubrique par étape du classeur) |
+| Post-traitement de la chaîne | [`s9gm/CHAINE.md`](../s9gm/CHAINE.md) ; [`s9gm/POST-TRAITER.md`](../s9gm/POST-TRAITER.md) |
+
+## Phase 4
+
+| Notion | Où la lire |
+|---|---|
+| Caténaire statique, raideur de ligne (F7, à venir) | en attendant : [`s9gm/ancrage.py`](../s9gm/ancrage.py) (bloc Théorie du module) ; [Formulaire, phase 4](FORMULAIRE.md) |
+| Ancrage dynamique, tension de chaumard, rainflow de `FAIRTEN` (F8, à venir) | en attendant : la rubrique « Théorie à lire » de la [phase 4](../seances/phase4/README.md#6-théorie-à-lire) ; [`s9gm/fatigue.py`](../s9gm/fatigue.py) |
+
+## Phase 5
+
+| Notion | Où la lire |
+|---|---|
+| Section tubulaire, contraintes, Von Mises, facteurs de concentration de contrainte | [guide du classeur de l'atelier, section 6](../annexes/atelier_tour/README.md#a-theorie) ; [`s9gm/structure.py`](../s9gm/structure.py) (bloc Théorie du module) ; [Formulaire, phase 5](FORMULAIRE.md) |
+| Fréquence de la tour et bandes 1P et 3P | [F1](F1_Aero-regulation.md) ; [guide de l'atelier, section 6.7](../annexes/atelier_tour/README.md#a-theorie-6-7) |
+| Morison (F4, à venir) | en attendant : [Formulaire, phase 2](FORMULAIRE.md) |
+
+## Phase 6
+
+Aucune fiche n'est prévue pour cette phase. La démarche d'ensemble (du site au dommage équivalent) se lit dans [`s9gm/CHAINE.md`](../s9gm/CHAINE.md).

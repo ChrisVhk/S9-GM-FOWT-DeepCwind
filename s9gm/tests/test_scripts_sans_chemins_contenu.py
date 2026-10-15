@@ -36,8 +36,6 @@ def test_le_code_python_des_consignes_n_utilise_aucun_chemin_relatif_du_depot(re
 @pytest.mark.parametrize("readme", SEANCES, ids=lambda p: p.parent.name)
 def test_s9gm_doctor_est_le_premier_geste_de_chaque_seance(readme):
     t = readme.read_text(encoding="utf-8")
-    if readme.parent.name == "atelier_tour":
-        pytest.skip("l'atelier se fait dans le classeur : pas d'environnement")
     i = t.index("## 2. Avant de commencer")
     j = t.index("## 3.")
     assert "s9gm doctor" in t[i:j], "s9gm doctor absent de « Avant de commencer »"

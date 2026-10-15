@@ -18,26 +18,27 @@ Licences : code Apache 2.0 ([LICENSE](LICENSE)), documentation CC BY 4.0 ([LICEN
    faire étape par étape, post-traiter, ce qu'on rend, théorie à lire).
 3. **Post-traiter toujours de la même façon** : [`s9gm/POST-TRAITER.md`](s9gm/POST-TRAITER.md), du `.outb` aux
    statistiques, aux figures et au DEL.
+4. **La théorie** : [`fiches/README.md`](fiches/README.md), l'index de tout ce qu'il faut lire, par phase.
 
 Le cadre du projet (compétences visées, organisation, évaluation, règles) est dans [`ENONCE.md`](ENONCE.md).
 
-## Le parcours, séance par séance
+## Le parcours, phase par phase
 
-| Phase | Contenu | Volume | Consigne | Rendu |
-|---|---|---|---|---|
-| 0a | Installation, anatomie d'un cas, régulation à la main, éolienne fixe F01-F02 | 3 h (lundi) | [`seances/0a/`](seances/0a/README.md) | R0 |
-| 0b | Vent turbulent F03-F05, architecture et hydrostatique du flotteur, flottant D00-D05, comparaison fixe / flottant | 3 h | [`seances/0b/`](seances/0b/README.md) | R0 |
-| 1 | Du site à la Load Case Table (scatter diagram, DLC, binning/lumping) | 3 h | [`seances/phase1/`](seances/phase1/README.md) | R1 |
-| 2 | Simulations de référence, lâchers, étude de sensibilité | 5 h | [`seances/phase2/`](seances/phase2/README.md) | R2 |
-| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | 8 h (+ ≈ 3 h) | [`seances/phase3/`](seances/phase3/README.md) | R3 |
-| 4 | Extrêmes (ULS) et ancrage | 12 h | [`seances/phase4/`](seances/phase4/README.md) | R4 |
-| 5 | Structures tubulaires : section de tour, entretoise, SCF | 8 h (+ ≈ 5 h) | [`seances/phase5/`](seances/phase5/README.md) | R5 |
-| 6 | Synthèse commune des trois groupes et soutenance | 4 h | [`seances/phase6/`](seances/phase6/README.md) | Soutenance |
-| 3 et 5 | Atelier tour (accompagne les phases 3 et 5) | — | [`seances/atelier_tour/`](seances/atelier_tour/README.md) | — |
-| | | **46 h** | | |
+| Phase / séance | Contenu | Séances | Volume | Consigne | Rendu |
+|---|---|---|---|---|---|
+| 0a | Installation, anatomie d'un cas, régulation à la main, éolienne fixe F01-F02 | 1 séance (lundi) | 3 h | [`seances/0a/`](seances/0a/README.md) | R0 (Q0.1, Q0.2) |
+| 0b | Vent turbulent F03-F05, architecture et hydrostatique du flotteur, flottant D00-D05, comparaison fixe / flottant | 1 séance (la suivante) | 3 h | [`seances/0b/`](seances/0b/README.md) | R0 (Q0.3 à Q0.6) |
+| 1 | Du site à la Load Case Table (scatter diagram, DLC, binning/lumping) | créneaux au planning de la promotion | 3 h | [`seances/phase1/`](seances/phase1/README.md) | R1 |
+| 2 | Simulations de référence, lâchers, étude de sensibilité | créneaux au planning de la promotion | 5 h | [`seances/phase2/`](seances/phase2/README.md) | R2 |
+| 3 | Fatigue : rainflow, S-N, Miner, DEL court et long terme | créneaux au planning de la promotion | 8 h (+ ≈ 3 h) | [`seances/phase3/`](seances/phase3/README.md) | R3 |
+| 4 | Extrêmes (ULS) et ancrage | créneaux au planning de la promotion | 12 h | [`seances/phase4/`](seances/phase4/README.md) | R4 |
+| 5 | Structures tubulaires : section de tour, entretoise, SCF | créneaux au planning de la promotion | 8 h (+ ≈ 5 h) | [`seances/phase5/`](seances/phase5/README.md) | R5 |
+| 6 | Synthèse commune des trois groupes et soutenance | créneaux au planning de la promotion | 4 h | [`seances/phase6/`](seances/phase6/README.md) | Soutenance |
+| | | | **46 h** | | |
 
-Les phases 3 et 5 se poursuivent à la maison (atelier tour) : les heures entre parenthèses s'ajoutent au volume de
-séance.
+**Vocabulaire.** Une **séance** est un créneau de cours ; une **phase** est une étape du projet, d'une ou de plusieurs séances. Les lignes 0a et 0b sont les deux séances de la phase 0 ; les dates des créneaux sont au planning de la promotion.
+
+Les phases 3 et 5 se poursuivent à la maison : les heures entre parenthèses s'ajoutent au volume de séance. Elles s'appuient sur le [guide du classeur de l'atelier](annexes/atelier_tour/README.md), une ressource qu'on ouvre à l'étape 0 de la phase 3 et au point 1 de la phase 5 (ce n'est pas une séance).
 
 ## Carte du dépôt
 
@@ -47,10 +48,10 @@ séance.
 | `modeles/` | Tous les modèles : `fixe/` (monopieu OC3 du tutoriel), `flottant/` (OC4-DeepCwind du tutoriel), `oc4_rtest/` (OC4-DeepCwind, r-test OpenFAST, Apache-2.0), `iea15_monopile/`, `oc5/` (note) | lisez, sans le modifier |
 | `cas/` | Cas de référence (F01, F02…) et leur lanceur `run_cas.sh` | lancez, sans le modifier |
 | `s9gm/` | Le seul outil de calcul et de post-traitement (Python) | utilisez, sans le modifier |
-| `fiches/` | Fiches « minimum vital » (théorie prérequise par phase) | lisez |
+| `fiches/` | Fiches « minimum vital » et leur index (théorie prérequise par phase) | lisez |
 | `data/` | Données du projet (dimensions, propriétés, références, site) | lisez |
 | `env/`, `scripts/` | Environnement épinglé ; compilation du contrôleur, contrôles du dépôt | lancez |
-| `annexes/` | Tutoriel LHEEA d'origine, outils et notes de lecture historiques, archives | consultez |
+| `annexes/` | Guide du classeur de l'atelier, tutoriel LHEEA d'origine, outils et notes de lecture historiques | consultez |
 | `results/` | **Vos** sorties, copies de cas, tables de cas, figures (ignoré par git) | écrivez ici |
 | `rendus/` | **Vos** rendus (ignoré par git) | déposez ici |
 

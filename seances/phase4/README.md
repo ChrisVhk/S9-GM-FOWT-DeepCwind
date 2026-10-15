@@ -277,4 +277,6 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 F7 (Caténaire statique), F8 (Ancrage dynamique et fatigue) : *fiche à venir (master)*.

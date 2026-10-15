@@ -1,19 +1,18 @@
 <!-- destinations: github -->
-# Atelier tour — tutoriel d'accompagnement
+# Guide du classeur de dimensionnement de tour (atelier)
 
-Ce tutoriel accompagne le **classeur de l'atelier**, distribué sur Vega. Ce n'est **pas un
-second cours** : le support de l'atelier donne les étapes de calcul, pas la théorie qui les
+**À quoi il sert** : ce guide accompagne le **classeur de l'atelier** (distribué sur Vega) en donnant la théorie derrière chacune de ses étapes.
+**Quand on l'ouvre** : deux fois, en **phase 3** (étape 0, premier passage) et en **phase 5** (point 1, second passage). Ce n'est pas une séance : il n'a ni volume ni rendu propre.
+
+Ce guide n'est **pas un second cours** : le support de l'atelier donne les étapes de calcul, pas la théorie qui les
 justifie. C'est ce qui manque ici — question physique par question physique, pas colonne par
 colonne.
 
-Consigne autonome de la séance. Elle n'est pas numérotée dans la suite des phases : elle accompagne les phases 3 et 5.
-Les renvois « §n » du texte (numérotation des sections du tutoriel) désignent : §0 → section 1 ci-dessous ; §1 à §7 →
-étapes 3.1 à 3.7 (théorie en 6.1 à 6.6 pour §1 à §6) ; §8 → section 2 ; §9 → étape 3.8 ; §10 → section 6.7.
-
+<a id="a-objectif"></a>
 ## 1. Objectif
 
 Cet atelier **répète en avance** une méthode que vous reprendrez deux fois dans le projet
-(consignes de la [phase 3](../phase3/README.md) et de la [phase 5](../phase5/README.md)) : en Phase 3 (étape 0, « premier passage », puis point 2 sur la
+(consignes de la [phase 3](../../seances/phase3/README.md) et de la [phase 5](../../seances/phase5/README.md)) : en Phase 3 (étape 0, « premier passage », puis point 2 sur la
 tour de référence) et en Phase 5 (point 1, « second passage, avec vos données » — géométrie lue
 dans `modeles/oc4_rtest`, DEL et extrêmes de vos propres simulations). La différence, à chaque
 reprise, est l'origine des données — la méthode (tronc de cône creux, DEL, S-N, Von Mises,
@@ -21,6 +20,7 @@ dimensionnement pleinement contraint) reste la même ; cet atelier sert à la pr
 fois sur un jeu de données prêt à l'emploi, avant de la refaire sur des données de plus en plus
 proches des vôtres.
 
+<a id="a-avant-de-commencer"></a>
 ## 2. Avant de commencer
 
 Le classeur de l'atelier est distribué à part (voir le début de ce document) ; ce tutoriel ne le remplace pas.
@@ -38,10 +38,10 @@ pour tracer à la main l'allure de `X(t)` avant de chercher la racine.
 **Recherche de valeur cible et Solveur (LibreOffice Calc, menus à vérifier vous-même — voir
 l'avertissement ci-dessous)** : pour **une** section, fixer le ratio (FLS ou ULS) à `1` en faisant
 varier sa propre épaisseur est une recherche de valeur cible à une seule variable — c'est ce que
-fait le §6 (étape 3.6 plus bas), section par section. Un **Solveur**, lui, résout un problème à plusieurs
+fait l'étape 3.6 (plus bas), section par section. Un **Solveur**, lui, résout un problème à plusieurs
 variables à la fois (ici : les 30 épaisseurs ensemble, avec comme objectif la masse totale et
 comme contraintes les 30×2 ratios ≤ 1) — plus lourd à régler, mais pas indispensable ici puisque
-le §6 montre que les 30 recherches à une variable, faites dans l'ordre (sommet vers pied), donnent
+l'étape 3.6 montre que les 30 recherches à une variable, faites dans l'ordre (sommet vers pied), donnent
 déjà le même résultat.
 
 **Point de vigilance** : aucune de ces manipulations n'a **pu être vérifiée en exécution dans
@@ -58,34 +58,41 @@ manipulations, et signalez tout écart en séance.
 Les étapes 3.1 à 3.6 sont les étapes de calcul du classeur de l'atelier : ce document n'en donne pas le détail, il donne la
 théorie qui les justifie (section 6, un bloc par étape). Les étapes 3.7 et 3.8 sont propres à ce tutoriel.
 
+<a id="a-etape-3-1"></a>
 ### 3.1 Tronc de cône creux et propriétés de section
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.1.
 
+<a id="a-etape-3-2"></a>
 ### 3.2 DEL court terme, DEL long terme
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.2.
 
+<a id="a-etape-3-3"></a>
 ### 3.3 Courbe S-N, coude à 10⁷ cycles (milieu air), effet d'épaisseur
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.3.
 
+<a id="a-etape-3-4"></a>
 ### 3.4 Pourquoi une somme de DEL est une hypothèse
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.4.
 
+<a id="a-etape-3-5"></a>
 ### 3.5 Von Mises dans un tube
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.5.
 
+<a id="a-etape-3-6"></a>
 ### 3.6 Dimensionnement pleinement contraint — et pourquoi le Solveur n'est pas indispensable
 
 Étape du classeur de l'atelier ; la théorie qui la justifie est en 6.6.
 
+<a id="a-etape-3-7"></a>
 ### 3.7 Une section faite entièrement à la main
 
 Les valeurs ci-dessous sont **inventées pour cet exemple**, choisies pour ne coïncider ni avec le
-classeur de l'atelier ni avec la question ouverte du §3 (`k`). L'objectif est de vérifier que vous
+classeur de l'atelier ni avec la question ouverte de l'étape 3.3 (`k`). L'objectif est de vérifier que vous
 savez refaire la chaîne complète sans tableur.
 
 Tronçon tubulaire : diamètre extérieur `D = 1,0 m`. On cherche l'épaisseur `t` qui vérifie le
@@ -95,9 +102,9 @@ l'atelier), DEL long terme de flexion `My = 2000 kN·m`, DEL long terme axial `F
 (convention OpenFAST : `z` = axe de la tour, effort axial ; `x`/`y` = cisaillement), contrainte
 admissible au coude à 10⁷ cycles `σ_coude = 100 MPa`, épaisseur de référence `t_réf = 25 mm` (c'est
 la seule valeur ci-dessus qui n'est pas inventée : c'est la constante DNV elle-même, la même pour
-tous, voir §3), exposant d'épaisseur `k = 0,15` (une valeur courante chez DNV selon la classe de
+tous, voir l'étape 3.3), exposant d'épaisseur `k = 0,15` (une valeur courante chez DNV selon la classe de
 détail, choisie ici sans lien avec celle que retient le classeur — vous devez la retrouver
-vous-même, voir §3, pas la déduire de cet exemple). On suppose ici
+vous-même, voir l'étape 3.3, pas la déduire de cet exemple). On suppose ici
 que le DEL long terme est déjà rapporté à ce même nombre de cycles de référence `nₑ = 10⁷` (sinon
 il faudrait d'abord ramener l'un ou l'autre au même `nₑ`, par `Sₑₜ(nₑ) ∝ nₑ^(−1/m)` — le DFF,
 le facteur de sécurité en fatigue imposé en Phase 3 que cet exemple ignore par simplicité,
@@ -127,13 +134,14 @@ des efforts extrêmes (`Fz = −800 kN` axial, `Mx = 1200 kN·m`, `My = 3000 kN�
 torsion, acier `Re = 355 MPa`) : la flexion résultante vaut `√(Mx²+My²)·(D/2)/Q ≈ 96,0 MPa` en
 valeur absolue, de part et d'autre de l'axe neutre. **Le point le plus défavorable est celui où
 flexion et effort axial sont de même signe** (ici, la face comprimée : `σ = σ_axial − |σ_flex| ≈
-−5,4 − 96,0 ≈ −101,4 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi au §5
+−5,4 − 96,0 ≈ −101,4 MPa`, pas la face tendue où les deux se retranchent) — pensez-y aussi à l'étape 3.5
 quand vous balayez les angles. Torsion pour le cisaillement (`τ = Mz·(D/2)/(2Q) ≈ 4,5 MPa`), puis
 Von Mises : vous devriez trouver `σ_vM ≈ 102 MPa`, soit un ratio ULS `X_ULS ≈ 0,29` — très inférieur
 à 1. Un tronçon dimensionné pile à sa limite de fatigue peut donc rester très en-deçà de sa limite
 ULS : c'est une conséquence de ce jeu de charges et de ce `Re`, pas une généralité absolue (voyez
 à quel ordre de grandeur de `Re` ou d'efforts extrêmes l'ULS redeviendrait dimensionnant).
 
+<a id="a-etape-3-8"></a>
 ### 3.8 Pont DeepCwind
 
 Deux questions ouvertes, sans valeur de réponse publiée ici.
@@ -146,12 +154,12 @@ Avant de comparer les valeurs, vérifiez d'abord la **longueur** et la **base** 
 convention de hauteur que celle utilisée par le classeur de l'atelier (`C3`, longueur totale) ? Si
 non, qu'est-ce que ça change pour comparer les deux séries de valeurs terme à terme ?
 
-**(b) Tester l'hypothèse « somme des DEL » (§4) avec les jauges de tour OpenFAST.** Le modèle de
+**(b) Tester l'hypothèse « somme des DEL » (étape 3.4) avec les jauges de tour OpenFAST.** Le modèle de
 référence du projet a **9 jauges de tour réparties du pied au sommet** (`NTwGages = 9`,
 nœuds 1, 3, 6, 8, 11, 13, 15, 18, 20 sur 20), avec les canaux `TwHt1-9ML{x,y,z}t` dans l'`OutList`
 (moment de flexion dans les deux plans et torsion, à chaque jauge), plus `TwrBsFxt`/`TwrBsMyt` en
 pied et `YawBrFxp`/`YawBrMyp` en tête de tour (déjà présents). Commencez par identifier, dans
-l'onglet `Long term DEL` du classeur, les deux canaux exacts que le §4 vous a demandé de retrouver
+l'onglet `Long term DEL` du classeur, les deux canaux exacts que l'étape 3.4 vous a demandé de retrouver
 (effort tranchant et moment — en tête ou en pied ?), puis choisissez leurs équivalents OpenFAST
 dans cette liste.
 
@@ -168,7 +176,7 @@ l'atelier mélangerait deux choses différentes, à séparer :
    déjà réduits, combinés après coup.
 2. **Calcul exact du modèle « transport statique »** : construisez le signal combiné **point par
    point dans le temps** (`effort tranchant(t) × bras de levier + moment(t)`), puis un seul
-   rainflow sur ce signal combiné — c'est la définition même du calcul exact donnée au §4. La
+   rainflow sur ce signal combiné — c'est la définition même du calcul exact donnée à l'étape 3.4. La
    comparaison **1 contre 2** isole exactement ce que coûte l'hypothèse de concomitance (les deux
    utilisent le même modèle de transport, seule la méthode de réduction en DEL diffère).
 3. **DEL calculé directement sur le moment mesuré par la jauge** à cette hauteur (`TwHt<N>MLyt`) —
@@ -185,6 +193,7 @@ jauges à ceux du classeur de l'atelier (qui raisonne, lui, par tronçons entre 
 vous de voir comment faire
 correspondre les deux découpages).
 
+<a id="a-post-traiter"></a>
 ## 4. Post-traiter
 
 La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est dans
@@ -192,17 +201,20 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 (canaux de jauges de tour `TwHt<N>MLyt`, `TwrBsFxt`, `TwrBsMyt`, `YawBrFxp`, `YawBrMyp`) ; les autres étapes se font dans le
 classeur ou à la main.
 
+<a id="a-ce-qu-on-rend"></a>
 ## 5. Ce qu'on rend
 
 Ce document ne prévoit pas de rendu propre à l'atelier : il prépare, en avance, la méthode que vous reprendrez dans les
 rendus R3 (phase 3, étape 0 puis point 2) et R5 (phase 5, point 1) — voir les consignes de la
-[phase 3](../phase3/README.md) et de la [phase 5](../phase5/README.md).
+[phase 3](../../seances/phase3/README.md) et de la [phase 5](../../seances/phase5/README.md).
 
+<a id="a-theorie"></a>
 ## 6. Théorie à lire
 
 Fiche F8 (ancrage dynamique et fatigue) : *fiche à venir (master)*. Les blocs ci-dessous suivent l'ordre des étapes de la
 section 3.
 
+<a id="a-theorie-6-1"></a>
 ### 6.1 Tronc de cône creux et propriétés de section
 
 ### Bloc Théorie
@@ -216,7 +228,7 @@ linéique (colonne `TMassDen` d'ElastoDyn), l'aire de section et le moment quadr
 (raideur de flexion `TwFAStif`/`TwSSStif` = `E·Iyy`, identique dans les deux plans car la section
 est circulaire). Domaine de validité : la poutre d'Euler-Bernoulli suppose que les sections planes
 restent planes — valable tant que le rapport diamètre/épaisseur de la paroi reste assez petit pour
-exclure un voilement local de la coque (hors du périmètre de cet atelier, voir §10).
+exclure un voilement local de la coque (hors du périmètre de cet atelier, voir la section 6.7).
 
 **Ordre de grandeur attendu** : la masse linéique doit décroître du pied vers le sommet (le
 diamètre et l'épaisseur diminuent tous les deux) ; l'inertie de flexion décroît plus vite encore,
@@ -228,8 +240,9 @@ que la section globale.
 
 **Renvois** : colonnes `R`, `S`, `T` du classeur (masse linéique et raideurs ElastoDyn) ; voir
 aussi le fichier tour d'ElastoDyn de `modeles/oc4_rtest/` pour la même table sur la tour de
-référence du projet (chemin complet au §9a).
+référence du projet (chemin complet à l'étape 3.8, point (a)).
 
+<a id="a-theorie-6-2"></a>
 ### 6.2 DEL court terme, DEL long terme
 
 ### Bloc Théorie
@@ -245,7 +258,7 @@ pour un exposant `m` de courbe S-N donné (la pondération en `étendue^m` vient
 Miner, pas d'un choix arbitraire). Le **DEL long terme** `Sₑₜ` combine les DEL court terme de
 chaque classe de vent (toutes rapportées au même `nₑ`), pondérés par leur probabilité d'occurrence
 `Oⱼ` (loi de Weibull du site **pour ce classeur** — votre propre projet utilisera la table
-conjointe vent/houle/courant de votre LCT, voir §0 et Phase 1), de la même façon :
+conjointe vent/houle/courant de votre LCT, voir la section 1 et la phase 1), de la même façon :
 `Sₑₜ = (Σⱼ Oⱼ·Sₑ,ⱼᵐ)^(1/m)`.
 
 **Ordre de grandeur attendu** : une moyenne d'ordre `m` est toujours comprise entre la moyenne
@@ -258,15 +271,16 @@ autres).
 **Ce que le modèle ne permet pas de conclure** : le DEL ne dit rien sur l'ordre réel des cycles ni
 sur d'éventuels effets de séquence (Miner suppose le dommage indépendant de l'ordre). Le calcul
 ci-dessus suppose aussi un exposant `m` unique, alors que la courbe S-N réelle est bilinéaire (un
-coude, voir §3) : c'est l'hypothèse « monopente » que cite la [phase 3](../phase3/README.md) (point 6) parmi
+coude, voir l'étape 3.3) : c'est l'hypothèse « monopente » que cite la [phase 3](../../seances/phase3/README.md) (point 6) parmi
 les limites du DEL. Il ne dit pas non plus si la distribution de vent utilisée est représentative
-d'une vie de 20-25 ans — voir la [phase 3](../phase3/README.md), point 7 (confrontation à un DEL de
+d'une vie de 20-25 ans — voir la [phase 3](../../seances/phase3/README.md), point 7 (confrontation à un DEL de
 référence).
 
 **Renvois** : lexique de la chaîne de charges dans l'`ENONCE.md` (définitions DEL court/long
-terme) ; onglet `Long term DEL` du classeur ; [phase 3](../phase3/README.md) où vous programmerez ce
+terme) ; onglet `Long term DEL` du classeur ; [phase 3](../../seances/phase3/README.md) où vous programmerez ce
 même calcul sur vos propres cas ; fiche F8 (ancrage dynamique et fatigue : *fiche à venir (master)*).
 
+<a id="a-theorie-6-3"></a>
 ### 6.3 Courbe S-N, coude à 10⁷ cycles (milieu air), effet d'épaisseur
 
 ### Bloc Théorie
@@ -297,6 +311,7 @@ donne pas ; colonnes `W` (contrainte admissible) et onglet `SN-Curve DATABASE` d
 retrouver vous-même dans le classeur** (ce n'est pas publié ici) : quelle valeur de l'exposant `k`
 il retient, et si elle correspond à ce que donne la norme pour la classe de détail concernée.
 
+<a id="a-theorie-6-4"></a>
 ### 6.4 Pourquoi une somme de DEL est une hypothèse
 
 ### Bloc Théorie
@@ -327,9 +342,10 @@ l'erreur commise pour **votre** cas particulier — seulement qu'elle va dans le
 conservateur en théorie, pas qu'elle l'est forcément en pratique si le comptage lui-même est
 biaisé.
 
-**Renvois** : [phase 3](../phase3/README.md), point 6 (« Limites : [...] perte de concomitance ») — vous y
+**Renvois** : [phase 3](../../seances/phase3/README.md), point 6 (« Limites : [...] perte de concomitance ») — vous y
 retrouverez cette même question sur vos propres canaux.
 
+<a id="a-theorie-6-5"></a>
 ### 6.5 Von Mises dans un tube
 
 ### Bloc Théorie
@@ -353,11 +369,12 @@ dans la combinaison.
 
 **Ce que le modèle ne permet pas de conclure** : Von Mises est un critère de **plasticité**,
 pertinent pour un matériau ductile en charge statique extrême (ULS) — ce n'est pas un critère de
-fatigue (voir §3-4, où c'est une comparaison à une courbe S-N qui gouverne, pas Von Mises).
+fatigue (voir les étapes 3.3 et 3.4, où c'est une comparaison à une courbe S-N qui gouverne, pas Von Mises).
 
 **Renvois** : colonnes `Z` à `AV` du classeur (transport des efforts, combinaison Von Mises) ;
-[phase 5](../phase5/README.md), point 1 (vérification ULS en pied de tour).
+[phase 5](../../seances/phase5/README.md), point 1 (vérification ULS en pied de tour).
 
+<a id="a-theorie-6-6"></a>
 ### 6.6 Dimensionnement pleinement contraint — et pourquoi le Solveur n'est pas indispensable
 
 ### Bloc Théorie
@@ -388,9 +405,10 @@ FLS (ratio en colonne `X`, sans ce couplage) qui rend la méthode section-par-se
 sens. Elle ne dit non plus rien sur le couplage **dynamique** (la fréquence propre de la tour
 dépend, elle, de la distribution d'épaisseur dans son ensemble, pas section par section).
 
-**Renvois** : colonne `O` du classeur ; [phase 5](../phase5/README.md), point 1 (« ajuster l'épaisseur pour
+**Renvois** : colonne `O` du classeur ; [phase 5](../../seances/phase5/README.md), point 1 (« ajuster l'épaisseur pour
 satisfaire les deux critères à masse minimale »), l'objet même de ce bloc.
 
+<a id="a-theorie-6-7"></a>
 ### 6.7 Ce que l'atelier ne vérifie pas
 
 | Point non couvert | Où il revient dans le projet |

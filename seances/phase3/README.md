@@ -19,6 +19,8 @@ Fatigue : rainflow, S-N, Miner, DEL court et long terme. Volume indicatif : 8 h.
 
 Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfast -v` → `OpenFAST-v5.0.0`, contrôleur compilé).
 
+**Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-1) (théorie derrière chaque étape du classeur) ; on l'ouvre à l'étape 0 de cette phase.
+
 **À lire avant la séance : F8 (Ancrage dynamique et fatigue)** — dès qu'elle est publiée.
 
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
@@ -32,7 +34,7 @@ Les états de mer, leurs occurrences et la durée de simulation viennent de **vo
 0. **Atelier tour, premier passage** : prise en main de la chaîne DEL court terme → long terme →
    courbe S-N → épaisseur, sur le classeur de l'atelier tel quel (sa propre géométrie de tour et
    ses propres données d'entrée, pas celles du projet) — d'abord avec `SCF = 1`, puis `SCF = 2`, en
-   comparant épaisseurs et masse. Voir [`seances/atelier_tour/`](../atelier_tour/README.md)
+   comparant épaisseurs et masse. Voir le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-etape-3-1)
    pour la théorie derrière chaque étape. C'est la **méthode** (pas la géométrie ni les résultats)
    que vous reprendrez ci-dessous, sur la tour du projet, puis en Phase 5 avec vos propres charges.
    Cette phase ne modifie rien de l'atelier : elle y renvoie.
@@ -303,7 +305,7 @@ haut = sosfiltfilt(butter(4, fc, btype="high", fs=1 / dt, output="sos"), my)
 print("DEL du signal, basses fréquences, hautes fréquences :", del_de(my), del_de(bas), del_de(haut))
 ```
 
-**Vous devez voir** : (a) le DEL de la résultante **différent** de la somme et de la racine de la somme des carrés des DEL de ses composantes : dites ce que cela dit de l'hypothèse « somme des DEL » (atelier tour, §4 et §9b) ;
+**Vous devez voir** : (a) le DEL de la résultante **différent** de la somme et de la racine de la somme des carrés des DEL de ses composantes : dites ce que cela dit de l'hypothèse « somme des DEL » (guide de l'atelier : [étape 3.4](../../annexes/atelier_tour/README.md#a-etape-3-4) et [étape 3.8, point (b)](../../annexes/atelier_tour/README.md#a-etape-3-8)) ;
 (b) deux dommages **différents** : dites dans quel cas l'écart serait nul et ce que la deuxième pente change aux faibles étendues ; (c) trois DEL : dites quelle bande domine le dommage, et ce que cela implique si la fréquence propre de la tour change (phase 5). Aucune des trois comparaisons ne conclut seule : chacune est **une** réalisation de **un** cas.
 
 | Symptôme | Cause | Geste |
@@ -327,6 +329,8 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 ## 6. Théorie à lire
 
+Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
+
 F8 (Ancrage dynamique et fatigue) : *fiche à venir (master)*.
 
-L'atelier tour donne la théorie derrière chaque étape de calcul : [`../atelier_tour/README.md`](../atelier_tour/README.md).
+Le guide du classeur de l'atelier donne la théorie derrière chaque étape de calcul : [`annexes/atelier_tour/README.md`](../../annexes/atelier_tour/README.md).

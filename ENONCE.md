@@ -115,17 +115,7 @@ Le projet couvre l'essentiel de l'UE. Geotechnical Data (CM 4 h), la conférence
 
 Chaque séance et chaque phase a sa **consigne autonome**, au même format (objectif, avant de commencer, à faire étape par étape, post-traiter, ce qu'on rend, théorie à lire). L'`ENONCE.md` ne la reprend plus : il renvoie.
 
-| Phase | Séance ou phase | Consigne | Rendu |
-|---|---|---|---|
-| 0 | Séance 0a — lundi (3 h) : installation, anatomie d'un cas, régulation à la main, éolienne fixe F01-F02 | [`seances/0a/`](seances/0a/README.md) | R0 (Q0.1, Q0.2) |
-| 0 | Séance 0b — séance suivante (3 h) : vent turbulent F03-F05, architecture et hydrostatique du flotteur, flottant D00-D05, comparaison fixe / flottant | [`seances/0b/`](seances/0b/README.md) | R0 (Q0.3 à Q0.6) |
-| 1 | Du site à la Load Case Table | [`seances/phase1/`](seances/phase1/README.md) | R1 |
-| 2 | Simulations de référence et sensibilité | [`seances/phase2/`](seances/phase2/README.md) | R2 |
-| 3 | Fatigue | [`seances/phase3/`](seances/phase3/README.md) | R3 |
-| 4 | Extrêmes et ancrage | [`seances/phase4/`](seances/phase4/README.md) | R4 |
-| 5 | Structures tubulaires : tour et flotteur | [`seances/phase5/`](seances/phase5/README.md) | R5 |
-| 6 | Synthèse commune et soutenance | [`seances/phase6/`](seances/phase6/README.md) | Soutenance |
-| 3 et 5 | Atelier tour (accompagne les phases 3 et 5) | [`seances/atelier_tour/`](seances/atelier_tour/README.md) | — |
+Le tableau du parcours (phases et séances, volumes, consignes, rendus) est dans le [`README.md`](README.md#le-parcours-phase-par-phase) : il n'est pas répété ici. Le guide du classeur de l'atelier (phases 3 et 5) est une ressource, présentée au README.
 
 ---
 
