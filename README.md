@@ -51,7 +51,7 @@ Les phases 3 et 5 se poursuivent à la maison : les heures entre parenthèses s'
 | `fiches/` | Fiches « minimum vital » et leur index (théorie prérequise par phase) | lisez |
 | `data/` | Données du projet (dimensions, propriétés, références, site) | lisez |
 | `env/`, `scripts/` | Environnement épinglé ; compilation du contrôleur, contrôles du dépôt | lancez |
-| `annexes/` | Guide du classeur de l'atelier, tutoriel LHEEA d'origine, outils et notes de lecture historiques | consultez |
+| `annexes/` | Guide du classeur de l'atelier, tutoriel LHEEA d'origine, notes de lecture, et `annexes/outils/` (scripts de provenance des données, non utilisés dans le parcours) | consultez |
 | `results/` | **Vos** sorties, copies de cas, tables de cas, figures (ignoré par git) | écrivez ici |
 | `rendus/` | **Vos** rendus (ignoré par git) | déposez ici |
 

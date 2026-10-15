@@ -4,8 +4,8 @@
 Une étude de charges relie, dans l'ordre : **un site** (table conjointe vent/houle) → **une Load Case Table** (peu de
 cas, chacun avec son poids `Oⱼ`) → **des calculs** (un par cas, sur le modèle flottant) → **des séries** (lues, transitoire
 écarté) → **un dommage équivalent** (court terme par cas, long terme pondéré). Chaque flèche est un module de `s9gm`, chaque
-module un bloc « Théorie » et des tests qui le mettent à l'épreuve ; le script `annexes/outils/exemple_chaine.py` montre
-l'enchaînement avec tous les choix laissés à `None`.
+module un bloc « Théorie » et des tests qui le mettent à l'épreuve ; chaque étape de la chaîne est reprise, avec ses commandes, dans les consignes
+des phases 1 à 5.
 
 | Étape | Module | Ce que vous décidez (et devez justifier) |
 |---|---|---|

@@ -5,7 +5,7 @@
 (`main.outb`) jusqu'au dommage de fatigue, avec les fonctions qui existent dans `s9gm/` et rien d'autre. Toutes les
 consignes de séance renvoient ici.
 
-Les commandes se lancent **depuis la racine du dépôt**, environnement `s9gm-fowt` activé. L'exemple fil rouge est le
+Les commandes se lancent **depuis n'importe quel dossier**, environnement `s9gm-fowt` activé (`s9gm doctor` vérifie le poste). L'exemple fil rouge est le
 cas `F01` (séance 0a), déjà lancé par `bash cas/run_cas.sh F01` (sorties sous `results/F01/`) ; il ne donne aucune valeur-réponse : les chiffres sont à lire chez vous.
 
 **Où vit ce que vous produisez.** `s9gm/`, `cas/` et `modeles/` sont des fichiers suivis par git : vous les lisez et
@@ -121,13 +121,13 @@ fonctions sont à écrire par vous en phase 3** : `rainflow`, `miner`, `del_cour
 (formules : lexique de l'[`ENONCE.md`](../ENONCE.md), section 7). Toutes les grandeurs de contrainte y sont des
 **étendues** `Δσ = σmax − σmin` (deux fois l'amplitude), jamais des amplitudes.
 
-Comme `s9gm/` est suivi par git, **vous complétez une copie**, sous `results/` :
+Comme `s9gm/` est suivi par git, **vous complétez une copie**, sous `results/mon_s9gm/` (créée par une commande, jamais écrasée) :
 
 ```bash
-mkdir -p results/fatigue_maison
-cp s9gm/fatigue.py results/fatigue_maison/
-# complétez results/fatigue_maison/fatigue.py (les quatre fonctions qui lèvent NotImplementedError)
-S9GM_FATIGUE_COMPLET=results/fatigue_maison python -m pytest s9gm/tests/test_fatigue.py -q
+s9gm copie fatigue                   # crée results/mon_s9gm/fatigue.py (les quatre trous)
+# complétez results/mon_s9gm/fatigue.py (les fonctions qui lèvent NotImplementedError)
+s9gm tester fatigue --squelette      # avant de commencer : les tests des trous sont « xfailed »
+s9gm tester fatigue                  # votre autocontrôle : ils doivent passer
 ```
 
 **Vous devez voir** : tant que les quatre trous ne sont pas complétés, les tests qui les appellent échouent
@@ -136,10 +136,10 @@ S9GM_FATIGUE_COMPLET=results/fatigue_maison python -m pytest s9gm/tests/test_fat
 La chaîne, sur un cas de votre LCT :
 
 ```python
-import sys; sys.path.insert(0, "results/fatigue_maison")
-import fatigue
+from s9gm import ma_copie
 
-serie = fatigue.lire_serie("results/cas_0b/F03/main.outb", "TwrBsMyt", t_transitoire=<votre valeur>)
+fatigue = ma_copie("fatigue")        # VOTRE copie, rechargée depuis le fichier à chaque appel
+serie = fatigue.lire_serie("results/phase3/<votre cas>/main.outb", "TwrBsMyt", t_transitoire=<votre valeur>)
 pics = fatigue.inversions(serie)           # fournie
 # cycles = fatigue.rainflow(serie)          # à écrire : DataFrame etendue, moyenne, compte (1 ou 0,5)
 # Se = fatigue.del_court_terme(...)         # à écrire
@@ -157,17 +157,16 @@ repère un mouvement incohérent ; ce n'est pas une validation du modèle.
 
 ## 8. Les autres façons, devenues annexes historiques
 
-Deux autres outils existent encore dans le dépôt, **hors du chemin principal** : les scripts MATLAB `post_process.m` du
-tutoriel d'origine (`annexes/lheea/0*/3_Exploitation/`) et `annexes/outils/lire_outb.py`. Ils sont conservés pour
-mémoire ; aucune consigne ne les demande.
+Un autre outil existe encore dans le dépôt, **hors du chemin principal** : les scripts MATLAB `post_process.m` du
+tutoriel d'origine (`annexes/lheea/0*/3_Exploitation/`). Il est conservé pour mémoire ; aucune consigne ne le demande.
 
 ## Symptômes courants
 
 | Symptôme | Cause | Geste |
 |---|---|---|
-| `ModuleNotFoundError: No module named 's9gm'` | Python lancé hors de la racine du dépôt | `cd` à la racine, ou `sys.path.insert(0, ".")` |
+| `ModuleNotFoundError: No module named 's9gm'` | environnement non activé, ou paquet non installé | `micromamba activate s9gm-fowt`, puis `s9gm doctor` (il donne la commande exacte) |
 | `ValueError: t_transitoire est obligatoire` | `t_transitoire=None` | regarder la courbe, choisir une valeur (0 seulement si vous l'assumez) |
 | `KeyError: canal inconnu` | nom de canal absent de la sortie | `print(list(df.columns))` ; la liste dépend de l'`OutList` du cas |
 | `ValueError: provenance incomplète` | `cas`, `modele` ou `etat` vide | les trois sont obligatoires |
-| `NotImplementedError: trou : …` | fonction de `fatigue` pas encore écrite | complétez votre copie sous `results/fatigue_maison/` |
+| `NotImplementedError: trou : …` | fonction de `fatigue` pas encore écrite | complétez votre copie sous `results/mon_s9gm/` (`s9gm copie fatigue` la crée) |
 | `FileNotFoundError` sur un `.outb` | le cas n'a pas tourné, ou mauvais dossier | `bash cas/run_cas.sh <cas>`, puis lisez `run.log` |

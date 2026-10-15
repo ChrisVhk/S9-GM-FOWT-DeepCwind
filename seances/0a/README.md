@@ -319,8 +319,7 @@ blocs ci-dessous, dans l'ordre des étapes de la section 3.
    qu'une vraie erreur), et cette vérification stationnaire ne valide rien sur la dynamique de
    F02 (échelon), qui demande une lecture différente (temps de réaction du calage).
 5. **Renvois** — fiche F1, section « Confrontation OpenFAST » ; `s9gm/POST-TRAITER.md` (choix de
-   `t_transitoire`, pour écarter le transitoire) ; historique : `annexes/outils/lire_outb.py` (option
-   `t_min`).
+   `t_transitoire`, pour écarter le transitoire).
 
 ### 6.5 Fréquence 1P
 

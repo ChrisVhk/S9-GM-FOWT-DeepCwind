@@ -39,13 +39,13 @@ def test_la_carte_du_readme_decrit_annexes_outils_comme_provenance_des_donnees()
     t = (RACINE / "README.md").read_text(encoding="utf-8")
     ligne = next(l for l in t.split("\n") if l.startswith("| `annexes/`"))
     assert "provenance des données" in ligne and "non utilisés dans le parcours" in ligne, ligne
-    assert "le seul outil" in t     # la phrase du README reste vraie
+    assert "seul outil de calcul et de post-traitement" in t     # la phrase du README reste vraie
 
 
 def test_plus_d_ancienne_procedure_dans_le_public():
     fautes = []
     for f in suivis():
-        if f.startswith("s9gm/tests/") or not f.endswith(".md"):
+        if f.startswith("s9gm/tests/") or f == "TRANSITION.md" or not f.endswith(".md"):    # TRANSITION.md nomme les anciennes procédures par construction
             continue
         t = (RACINE / f).read_text(encoding="utf-8", errors="ignore")
         for motif in ("fatigue_" "maison", "S9GM_FATIGUE_" "COMPLET", "sys.path." "insert"):

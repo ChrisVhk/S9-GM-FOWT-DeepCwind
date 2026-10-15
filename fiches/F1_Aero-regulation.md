@@ -156,7 +156,7 @@ Pour le cas F01 du tutoriel (vent constant) : **identifiez d'abord sa région** 
 puis calculez `Ω` attendu et comparez-le au `RotSpeed` observé en régime établi. Un écart tolérable est attendu
 (la loi de couple réelle du contrôleur ne colle pas parfaitement à `λ*` à toutes les vitesses), et
 il y a un régime transitoire au démarrage à écarter de la moyenne (cf `s9gm/POST-TRAITER.md`, choix de
-`t_transitoire` ; historique : `annexes/outils/lire_outb.py`, option `t_min`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
+`t_transitoire`). Si l'écart dépasse ~15-20 %, suspectez d'abord le transitoire inclus dans la
 moyenne, pas une erreur de configuration.
 
 Pour `TwrBsMyt` (moment fléchissant en pied de tour) : estimez la poussée

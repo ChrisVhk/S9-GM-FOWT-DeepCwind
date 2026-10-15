@@ -21,8 +21,7 @@
    la moyenne du processus : une seule réalisation de vent turbulent ne dit rien de la variabilité
    entre réalisations (phases 1-2). Et un maximum est un maximum *de cette réalisation*, pas un
    extrême de dimensionnement.
-5. **Renvois** — fiche F1 (écarter le transitoire, `RotSpeed`) ; `annexes/outils/lire_outb.py` (même calcul pas à
-   pas, sans l'obligation de choisir `t_transitoire`) ; `seances/0a/README.md` (piège « analyser le début de simulation ») et
+5. **Renvois** — fiche F1 (écarter le transitoire, `RotSpeed`) ; `seances/0a/README.md` (piège « analyser le début de simulation ») et
    `seances/phase3/README.md` (DEL, qui exige la même discipline).
 """
 import re

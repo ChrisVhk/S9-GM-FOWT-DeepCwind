@@ -103,6 +103,8 @@ Cinq lignes, une fois par clone :
 | `seances/atelier_tour/` | `annexes/atelier_tour/` : le guide du classeur de l'atelier est une **ressource** des phases 3 et 5, plus une séance ; les renvois « §n » sont remplacés par des liens vers ses étapes |
 | `annexes/historique/PAS_A_PAS_2026-10-12.md` | retiré du dépôt public : ses étapes sont dans les consignes des séances [0a](seances/0a/README.md) et [0b](seances/0b/README.md) depuis le 12/10 |
 | le tableau du parcours répété dans `ENONCE.md` | un seul tableau, dans le [`README.md`](README.md#le-parcours-phase-par-phase) |
+| `annexes/outils/lire_outb.py` et `annexes/outils/exemple_chaine.py` | retirés du dépôt public : `s9gm.lire` et les consignes des phases les remplacent ; `annexes/outils/` ne garde que deux scripts de provenance des données |
+| `s9gm/POST-TRAITER.md` § 6 (dossier `results/fatigue_maison/`, `sys.path.insert`) | aligné sur la phase 3 : `s9gm copie fatigue`, copie sous `results/mon_s9gm/` |
 | (nouveau) | [`fiches/README.md`](fiches/README.md) : l'index de la théorie, par phase |
 
 Aucun contenu de consigne, de calcul ou de barème ne change. Si vous aviez ouvert l'ancien emplacement de l'atelier ou le pas-à-pas, `git pull` suffit : ils ne contenaient aucun fichier à vous.
