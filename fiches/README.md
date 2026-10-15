@@ -9,7 +9,7 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 |---|---|---|---|
 | F1 | Aérodynamique et régulation | publiée | [`F1_Aero-regulation.md`](F1_Aero-regulation.md) ; exercices gradués corrigés : [`F1_exercices_IEA15_corriges.md`](F1_exercices_IEA15_corriges.md) |
 | F2 | Houle linéaire, spectre, états de mer | publiée | [`F2_Houle-lineaire.md`](F2_Houle-lineaire.md) |
-| F3 | Hydrostatique | à venir | en attendant : voir la phase 0b ci-dessous |
+| F3 | Hydrostatique | publiée | [`F3_Hydrostatique.md`](F3_Hydrostatique.md) |
 | F4 | Morison | à venir | en attendant : voir les phases 0b et 2 ci-dessous |
 | F5 | Hydrodynamique potentielle | publiée | [`F5_Hydrodynamique-potentielle.md`](F5_Hydrodynamique-potentielle.md) |
 | F6 | Aérodynamique et amortissement négatif | à venir | en attendant : voir la phase 2 ci-dessous |
@@ -40,7 +40,7 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 | Éolienne sur monopieu | [séance 0b, 6.4](../seances/0b/README.md#64-éolienne-sur-monopieu-cas-lheea-04) |
 | Éolienne flottante | [séance 0b, 6.5](../seances/0b/README.md#65-éolienne-flottante-cas-lheea-05) |
 | Houle linéaire, états de mer | [F2](F2_Houle-lineaire.md) |
-| Hydrostatique du flotteur (F3, à venir) | en attendant : [séance 0b, étape 3.3](../seances/0b/README.md#33-raideurs-hydrostatiques-à-la-main-environ-30-min) ; [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) |
+| Hydrostatique du flotteur : raideurs, GM, ancrage à part | [F3](F3_Hydrostatique.md) ; l'exercice : [séance 0b, étape 3.3](../seances/0b/README.md#33-raideurs-hydrostatiques-à-la-main-environ-30-min) ; [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) |
 | Morison (F4, à venir) | en attendant : [`s9gm/hydro.py`](../s9gm/hydro.py) (régime de Morison, nombre de Keulegan-Carpenter) ; [Formulaire, phase 2](FORMULAIRE.md) |
 
 ## Phase 1
@@ -57,7 +57,7 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 |---|---|
 | Excitation, masse ajoutée, amortissement de rayonnement, RAO, périodes propres | [F5](F5_Hydrodynamique-potentielle.md) |
 | Aérodynamique et amortissement négatif (F6, à venir) | en attendant : la rubrique « Théorie à lire » de la [phase 2](../seances/phase2/README.md#6-théorie-à-lire) |
-| Hydrostatique et périodes propres | [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) ; [Formulaire, phase 2](FORMULAIRE.md) |
+| Hydrostatique et périodes propres | [F3](F3_Hydrostatique.md) ; [`s9gm/hydro.py`](../s9gm/hydro.py) (bloc Théorie du module) ; [Formulaire, phase 2](FORMULAIRE.md) |
 | Morison (F4, à venir) | en attendant : [Formulaire, phase 2](FORMULAIRE.md) |
 
 ## Phase 3

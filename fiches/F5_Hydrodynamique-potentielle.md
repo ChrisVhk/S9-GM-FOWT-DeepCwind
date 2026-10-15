@@ -7,7 +7,7 @@
 ## Pourquoi
 
 Le modèle de flotteur d'OpenFAST ne calcule pas lui-même la façon dont l'eau pousse sur la coque : il lit des
-**coefficients** produits par un code de diffraction-rayonnement (WAMIT, ou son équivalent libre NEMOH). Sans cette fiche,
+**coefficients** produits par un code de diffraction-rayonnement (WAMIT ; NEMOH est un autre code dont la sortie peut être convertie au format de WAMIT). Sans cette fiche,
 ces fichiers sont des colonnes de nombres. Avec elle, vous savez ce que chaque colonne représente, ce qu'une période
 propre mesurée dans un lâcher doit à ces coefficients, et ce que la théorie potentielle ne sait pas faire.
 
@@ -30,7 +30,7 @@ que l'on résout séparément pour une pulsation `ω` donnée :
 
 | Problème | Ce qu'il fournit | Forme |
 |---|---|---|
-| Incidente + diffraction | l'**excitation** `f_j(ω, β)` : l'effort de houle sur le corps fixe, par degré de liberté `j` et par cap `β` | complexe : module et phase |
+| Incidente + diffraction | l'**excitation** `f` : l'effort de houle sur le corps fixe, un par degré de liberté `j`, fonction de `ω` et du cap `β` (notation distincte de la RAO) | complexe : module et phase |
 | Rayonnement | la **masse ajoutée** `A_{jk}(ω)` et l'**amortissement de rayonnement** `B_{jk}(ω)` | réels, matrices `6 × 6` |
 
 L'excitation contient deux parts : l'effort **de Froude-Krylov** (la pression de la houle non perturbée, intégrée sur la coque)
@@ -54,7 +54,7 @@ celle de l'ancrage, le mouvement complexe `x` vérifie :
 
 C'est un oscillateur à six degrés de liberté couplés dont la masse et l'amortissement dépendent de la fréquence.
 **Le signe devant `iωB` dépend de la convention de temps** : `−` avec une dépendance en `e^{−iωt}`, `+` avec `e^{+iωt}`.
-Les fichiers de WAMIT sont en `e^{+iωt}` (le chapitre ne l'écrit pas : on le déduit du signe de leur terme d'amortissement) ; avant de combiner des
+Les fichiers de WAMIT sont en `e^{+iωt}` (le chapitre ne l'écrit pas : on le déduit du signe `+iωB` de leur équation du mouvement) ; avant de combiner des
 coefficients et des phases d'origines différentes, vérifiez la convention de chacun.
 
 ### La RAO
@@ -72,15 +72,15 @@ vagues (fiche F2) : le maximum sur une durée donnée s'exprime en quelques `σ`
 
 ### Périodes propres
 
-La pulsation propre d'un degré de liberté `j` annule le déterminant de l'équation précédente, au premier ordre `ω_j = √(raideur / inertie totale)`, c'est-à-dire :
+La pulsation propre d'un degré de liberté `j` annule le déterminant de `−ω²(M + A(ω)) + C + K_A` (l'équation précédente sans son terme d'amortissement) ; au premier ordre `ω_j = √(raideur / inertie totale)`, c'est-à-dire :
 
 ```math
 T_j = 2\pi\sqrt{\frac{M_{jj}+A_{jj}(\omega_j)}{C_{jj}+K_{jj}}} .
 ```
 
 La masse ajoutée dépend de `ω` : **la période propre doit être cherchée à la fréquence à laquelle on a pris `A`**
-(itération, ou intersection de deux courbes). Pour le pilonnement, `C₃₃ = ρ g S_f` (aire de flottaison `S_f`) ; pour le
-tangage, `C₅₅ = ρ g V · GM_L`. L'ancrage ajoute sa raideur `K_{jj}` : très faible en cavalement (les périodes propres
+(itération, ou intersection de deux courbes). Pour le pilonnement, `C₃₃ = ρ g S_WP` (aire de flottaison `S_WP`) ; pour le
+tangage d'un flotteur libre (`M = ρ V`), `C₅₅ = ρ g V · GM_L` (forme générale : fiche F3). L'ancrage ajoute sa raideur `K_{jj}` : très faible en cavalement (les périodes propres
 horizontales sont très au-dessus de la bande de houle).
 
 ### Lire une RAO comme un oscillateur
@@ -92,8 +92,7 @@ x=\frac{F_0}{K}\,\frac{1}{1-\omega^2/\omega_0^2-2i\zeta\,\omega/\omega_0}.
 ```
 
 Trois régimes : **raide** (`ω ≪ ω₀`) : `x ≃ F₀/K`, le flotteur suit l'effort ; **mou** (`ω ≫ ω₀`) : `|x| ≃ F₀/(Mω²)`, le
-flotteur ne bouge plus ; **résonance** : amplification `1/(2ζ)`. À amortissement faible, la résonance est étroite, et c'est
-l'amortissement qui borne le mouvement. Un lâcher libre donne la période propre amortie (`ω₀√(1−ζ²)`) et, par la
+flotteur ne bouge plus ; **résonance** : amplification `1/(2ζ)`. C'est l'amortissement qui borne le mouvement à la résonance. Un lâcher libre donne la pulsation propre amortie (`ω₀√(1−ζ²)`) et, par la
 décroissance par cycle `e^{−2πζ}`, l'amortissement : c'est ce que fait la phase 2.
 
 ### Du fréquentiel au temporel
@@ -137,14 +136,14 @@ période négative `ω = 0`.
 ## Ce que le modèle ne permet pas de conclure
 
 - **Tout est linéaire** : excitation et réponse proportionnelles à l'amplitude de houle, amortissement indépendant de l'amplitude. La
-  théorie potentielle n'inclut **ni la viscosité** (tourbillons autour des colonnes et entretoises, traînée) **ni les
+  théorie potentielle linéaire n'inclut **ni la viscosité** (tourbillons autour des colonnes et entretoises, traînée) **ni les
   efforts du second ordre** (dérive moyenne, dérive lente, QTF). Pour les éléments élancés, on utilise un modèle de Morison ; des modèles dits « duals »
   combinent diffraction-rayonnement et éléments de Morison.
-- Les **périodes propres horizontales** d'un flotteur amarré sont très longues : un lâcher court ne les mesure pas.
+- Les **périodes propres horizontales** d'un flotteur amarré sont très longues (plus de 100 s pour les concepts de plate-forme usuels, d'après DNV).
 - Un coefficient lu dans un fichier est celui **de la maille et de la plage de fréquences** du calcul d'origine. Un fichier
-  de coefficients ne dit pas comment il a été calculé (maillage, profondeur, cap).
+  de coefficients ne dit pas toujours comment il a été calculé (maillage, profondeur).
 - **Conventions** : convention de temps, signe de la phase, cap de la houle (0° ou 180°), sens des axes, unités des
-  fichiers adimensionnés. Une RAO ou une phase mal interprétée est l'erreur la plus fréquente.
+  fichiers adimensionnés : à relire dans le fichier ou dans sa documentation avant de comparer.
 - Les fichiers WAMIT sont lus par HydroDyn d'OpenFAST ; **la façon dont HydroDyn les traite** (interpolation en fréquence, extrapolation
   de `A(∞)`, calcul de la fonction de retard) n'est pas décrite dans le master ni dans cette fiche : voir la
   documentation de l'outil.

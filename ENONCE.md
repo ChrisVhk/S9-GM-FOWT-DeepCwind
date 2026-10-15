@@ -77,13 +77,13 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 
 **Le temps de calcul est une ressource d'ingénieur.** Une simulation de 600 s prend environ 25 min sur une machine de la salle, une simulation d'une heure plus de 2 h — ordre de grandeur pour un cas complet (flottant, houle, ancrage) ; les cas plus simples du tutoriel de prise en main sont nettement plus rapides (voir les temps mesurés dans `cas/README.md` et `seances/0b/README.md`). Une LCT mal construite coûte des heures de machine pour rien : c'est pour cela qu'elle est validée avant lancement.
 
-**Fiches « minimum vital ».** Huit fiches de deux pages donnent le socle théorique nécessaire à chaque étape du projet (`fiches/` de ce dépôt). Trois existent à ce jour (F1, F2 et F5) ; les suivantes seront publiées au fil du projet.
+**Fiches « minimum vital ».** Huit fiches de deux pages donnent le socle théorique nécessaire à chaque étape du projet (`fiches/` de ce dépôt). Quatre existent à ce jour (F1, F2, F3 et F5) ; les suivantes seront publiées au fil du projet.
 
 | Fiche | Sujet | Utile pour |
 |---|---|---|
 | F1 — Aéro-régulation | TSR, zones de régulation, poussée du rotor | Phase 0a |
 | [F2 — Houle linéaire](fiches/F2_Houle-lineaire.md) | Théorie d'Airy, spectre, Hs/Tp | Phase 0b, phase 1 |
-| F3 — Hydrostatique | Raideurs K33/K55, carène, GM | Phase 0b |
+| [F3 — Hydrostatique](fiches/F3_Hydrostatique.md) | Raideurs K33/K55, carène, GM | Phase 0b |
 | F4 — Morison | Coefficients Cd/Ca, efforts répartis sur un membre | Phase 0b, phase 5 |
 | [F5 — Hydrodynamique potentielle](fiches/F5_Hydrodynamique-potentielle.md) | Base de données WAMIT, radiation/diffraction | Phase 2 |
 | F6 — Aérodynamique et amortissement négatif | Amortissement aéro d'un flotteur en tangage | Phase 2 |

@@ -40,7 +40,8 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 | Relation | Unités | Domaine / piège |
 |---|---|---|
 | Dispersion `ω² = g k tanh(k h)` | rad/s, 1/m, m | eau profonde : `ω² = g k`, `λ_houle = g T² / (2π)` |
-| Raideur de heave `K₃₃ = ρ g A_wp` | N/m | `A_wp` : aire de flottaison |
+| Raideur de heave `C₃₃ = ρ g A_wp` (fiche F3 ; notée `K₃₃` chez Molin) | N/m | `A_wp` : aire de flottaison |
+| Raideurs de roulis et de tangage, poids écrit à part : `C₄₄ = ρ g (S₂₂ + V z_B) − M g z_G` (de même `C₅₅` avec `S₁₁`) (fiche F3) | N·m/rad | `S₁₁`, `S₂₂` : moments du second ordre de la flottaison ; coïncide avec `ρ g ∀ GB̄ + ρ g I` pour un flotteur libre ; un fichier de coefficients peut ne donner que la part de poussée |
 | `GM = KB + BM − KG`, `BM = I_wp / ∇` | m | `K₅₅ ≈ ρ g ∇ GM` (sans ancrage) |
 | Période propre `T_n = 2π √((M + A_ajoutée) / K)` | s | masse **ajoutée** comprise |
 | Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` | N/m | **valable si `D/λ_houle < 0,2`** ; forme du cylindre fixe — pour une structure mobile, vitesses relatives ; au-delà, théorie potentielle (WAMIT) |

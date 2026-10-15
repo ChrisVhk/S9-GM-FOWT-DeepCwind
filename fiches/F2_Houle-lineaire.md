@@ -1,16 +1,15 @@
 <!-- destinations: github -->
-<!-- master: Cours/OFFSHORE_Structures-Fondations/01_Houle-et-hydrodynamique-des-flotteurs.md ; nature : fiche, sélection du master (sections 1 et 3) -->
+<!-- master: Cours/OFFSHORE_Structures-Fondations/01_Houle-et-hydrodynamique-des-flotteurs.md ; nature : fiche, sélection du master (sections 0.4, 1, 2, 3 et 6.7) -->
 # Fiche F2 — Houle linéaire, spectre et états de mer
 
 **À lire avant** : phase 0b (classeur de prise en main) et phase 1 (de la table des états de mer à la liste de cas).
 
 ## Pourquoi
 
-La houle est la seconde cause de chargement d'un flotteur, et la phase 1 vous demande de la décrire par
+Un flotteur est chargé par la houle, et la phase 1 vous demande de la décrire par
 un petit nombre de nombres : une hauteur significative `Hs`, une période de pic `Tp`. Sans cette fiche,
 ces deux nombres sont des étiquettes de colonnes. Avec elle, vous savez ce qu'ils résument, ce qu'ils
-laissent de côté, et pourquoi un cas de la liste de cas (LCT) ne ressemble à aucun enregistrement réel
-tout en le représentant.
+laissent de côté, et pourquoi un spectre représente un état de mer sans décrire une réalisation en particulier.
 
 ## Minimum vital
 
@@ -35,7 +34,7 @@ La crête avance à la **vitesse de phase** `C_P = ω/k`. L'énergie, elle, avan
 ### Ce que fait la houle sous la surface
 
 Les vitesses de l'eau sont, en eau profonde, `u = Aω e^{kz} cos(kx − ωt)` et `w = Aω e^{kz} sin(kx − ωt)` ;
-la **pression dynamique** vaut `ρ g A e^{kz}` : tout décroît comme `e^{kz}` avec la profondeur (`z < 0`).
+la **pression dynamique** a pour amplitude `ρ g A e^{kz}` : tout décroît comme `e^{kz}` avec la profondeur (`z < 0`).
 Les trajectoires des particules sont des cercles en eau profonde, des ellipses aplaties ailleurs. Conséquence
 pour un flotteur : une houle longue se ressent plus profond qu'une houle courte, et un volume immergé profondément
 est peu excité au premier ordre.
@@ -47,14 +46,14 @@ Par unité de surface, l'énergie totale d'une houle régulière vaut `½ ρ g A
 
 ### Une mer irrégulière : la somme de houles d'Airy
 
-À une réalisation près, une mer est la somme d'un grand nombre de houles d'Airy de phases aléatoires :
+Au premier ordre, une mer est la somme d'un grand nombre de houles d'Airy de phases aléatoires :
 
 ```math
 \eta(t)=\sum_i A_i\cos(\omega_i t+\theta_i),\qquad A_i^2=2\,S(\omega_i)\,\Delta\omega_i ,
 ```
 
 avec `S(ω)` le **spectre de variance, simple face**, et les phases `θ_i` tirées uniformément sur `[0, 2π]`.
-Les **moments** `m_n = ∫₀^∞ ωⁿ S(ω) dω` suffisent à tout résumer :
+Les **moments** `m_n = ∫₀^∞ ωⁿ S(ω) dω` donnent les grandeurs du tableau ci-dessous, sauf `T_P`, qui vient de la pulsation du pic :
 
 | Grandeur | Définition | Remarque |
 |---|---|---|
@@ -68,8 +67,7 @@ Les **moments** `m_n = ∫₀^∞ ωⁿ S(ω) dω` suffisent à tout résumer :
 
 Deux formes de spectre de mer servent partout :
 
-- **Pierson-Moskowitz** : mer pleinement développée, un seul paramètre de forme ; pour une même variance,
-  `T_P ≈ 1,4 T_Z`.
+- **Pierson-Moskowitz** : mer pleinement développée (fetch infini) ; `T_P ≈ 1,4 T_Z`.
 - **JONSWAP** : même base, avec un **facteur de pic** `γ` : `γ = 1` redonne Pierson-Moskowitz ; plus `γ` est grand, plus
   le pic est haut et étroit. La valeur moyenne mesurée lors de la campagne qui lui a donné son nom est `γ = 3,3`.
   La norme DNV-RP-C205 propose une valeur par défaut qui dépend de `Tp/√Hs`.
@@ -79,8 +77,8 @@ Deux formes de spectre de mer servent partout :
 Si la mer est gaussienne et de bande étroite, la hauteur d'une vague suit la loi de Rayleigh :
 `P(H) = 1 − exp(−H²/8m₀)`. On en tire les deux résultats à retenir :
 
-- la plus grande vague d'un état de mer de quelques heures vaut **environ deux fois `Hs`** (la formule exacte se
-  trouve dans le master) ;
+- la plus grande vague d'un état de mer de quelques heures vaut **environ deux fois `Hs`** (le master donne l'espérance
+  asymptotique du maximum) ;
 - le maximum d'une **réponse linéaire** se calcule de la même façon, à partir du spectre de la réponse
   (`S_X = S·|RAO|²`, voir la fiche F5), et vaut quelques écarts-types : il ne faut pas confondre amplitude et hauteur
   crête-creux (un facteur 2).
@@ -98,7 +96,7 @@ garantit pas de la rencontrer au cours d'un siècle.
 - **Longueur d'onde en eau profonde** : `L ≈ 1,56 T²`. Donnez-vous une période, calculez `L`, puis comparez à la
   profondeur : `kh > π` ? Si oui, l'eau est profonde pour cette houle.
 - **Profondeur d'influence** : à la profondeur `|z| = L/2`, la cinématique est multipliée par `e^{−π} ≈ 0,04` :
-  au-delà d'une demi-longueur d'onde, la houle n'agite presque plus l'eau.
+  au-delà d'une demi-longueur d'onde, la houle n'agite presque plus l'eau au premier ordre (au second ordre, certains termes décroissent beaucoup plus lentement).
 - **Énergie** : elle est proportionnelle à `A²`, donc à `Hs²`. Comparer deux états de mer par leur énergie
   (rapport des `Hs²`), pas par leur `Hs`.
 - **Hauteur de la plus grande vague** : `≈ 2 Hs` sur un état de 3 h ; **amplitude de réponse maximale** : quelques `σ`
@@ -106,17 +104,15 @@ garantit pas de la rencontrer au cours d'un siècle.
 
 ## Ce que le modèle ne permet pas de conclure
 
-- La théorie d'Airy est **linéaire** : elle suppose une cambrure faible. Pour une mer très cambrée, ou en eau peu
-  profonde, ou au-dessus du niveau moyen, il faut des théories non linéaires (Stokes, ordres supérieurs) que cette
-  fiche ne développe pas.
+- La théorie d'Airy est **linéaire** : elle suppose une cambrure faible. Pour une mer très cambrée, en eau peu
+  profonde ou au-dessus du niveau moyen, d'autres théories sont nécessaires : Stokes d'ordre supérieur quand la cambrure est
+  modérée, théories d'eau peu profonde (Korteweg-de Vries, Boussinesq, ondes cnoïdales) quand le nombre d'Ursell est grand,
+  modèles d'étirement de la cinématique (Wheeler, *delta-stretching*) au-dessus du niveau moyen. Cette fiche ne les développe pas.
 - Un spectre résume **un état de mer**, pas une réalisation : deux réalisations du même `(Hs, Tp, γ)` ont des extrêmes
-  différents. Les phases `θ_i` sont tirées au hasard : une **graine** fixe la réalisation. Une durée courte ou une seule
-  graine ne donne pas la variabilité.
-- `Hs` et `Tp` ne disent rien de la **direction** ni de l'étalement directionnel. La houle des phases 1 et 2 est
-  supposée venir d'une seule direction.
-- Un diagramme de dispersion est une statistique d'états de 3 h : la **classe** d'une LCT remplace toute une case
-  du tableau par un seul état de mer représentatif. Le regroupement des cases en cas représentatifs relève de la
-  méthode de l'ingénieur ; aucune source de cette fiche ne le décrit.
+  différents (l'écart-type du maximum vaut une fraction de `Hs`). Les phases `θ_i` sont tirées au hasard : une **graine** fixe la réalisation.
+- `Hs` et `Tp` ne disent rien de la **direction** ni de l'étalement directionnel.
+- Un diagramme de dispersion est une statistique d'états de 3 h. Le regroupement de ses cases en un petit nombre de
+  cas représentatifs relève de la méthode de l'ingénieur ; aucune source de cette fiche ne le décrit.
 - **Piège de vocabulaire** : `Hs` est défini de deux façons selon les ouvrages (tiers supérieur, ou `4√m₀`). Les deux
   coïncident pour une mer de bande étroite ; ne les mélangez pas dans un même calcul sans le dire.
 - **Piège de spectre** : un spectre se donne en `ω` ou en `f`, en simple ou double face. Un spectre en `f` se

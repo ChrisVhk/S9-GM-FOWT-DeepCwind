@@ -224,7 +224,7 @@ différence entre le document et le fichier) : c'est l'objet de Q0.3.
 
 ### 3.3 Raideurs hydrostatiques, à la main (environ 30 min)
 
-*Théorie : fiche F3 (à venir (master)).*
+*Théorie : [fiche F3 (hydrostatique)](../../fiches/F3_Hydrostatique.md).*
 
 Éolienne flottante (DeepCwind) — d'abord **à la main** : raideur hydrostatique en pilonnement K33 = ρ·g·Awl et en
 tangage K55 = Δ·g·GM, à partir des dimensions fournies — **raideur totale = part de poussée + part de poids** : le
@@ -367,7 +367,7 @@ Le carnet de la section 3.6 ne répond à aucune question de ce rendu.
 
 Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
 
-Fiche F2 : [`../../fiches/F2_Houle-lineaire.md`](../../fiches/F2_Houle-lineaire.md). Fiches F3, F4 : *fiche à venir (master)*. Fiche F1 : [`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md).
+Fiche F2 : [`../../fiches/F2_Houle-lineaire.md`](../../fiches/F2_Houle-lineaire.md). Fiche F3 : [`../../fiches/F3_Hydrostatique.md`](../../fiches/F3_Hydrostatique.md). Fiche F4 : *fiche à venir (master)*. Fiche F1 : [`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md).
 Les blocs ci-dessous reprennent, pour les trois premiers, ceux des cas 03 à 05 du tutoriel LHEEA, que ce parcours ne
 lance plus (ils restent consultables dans [`../../annexes/lheea/`](../../annexes/lheea/README.md)).
 
