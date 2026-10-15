@@ -93,7 +93,7 @@ def test_corrections_du_controle_independant_du_15_10_f2_et_f5():
     plat2 = re.sub(r"\s+", " ", f2)
     plat5 = re.sub(r"\s+", " ", f5)
     assert "fonction de courant" in plat2 and "quand la cambrure est modérée" not in plat2
-    assert "Stokes d'ordre supérieur quand le nombre d'Ursell est modéré" in plat2
+    assert "Stokes d'ordre supérieur quand le nombre d'Ursell `U_R`" in plat2
     assert "approximation découplée" in plat5 and "au premier ordre `ω_j" not in plat5
     assert "ni le maillage ni la profondeur n'y figurent" in plat5
     assert "le master et Molin écrivent aussi la RAO `f_j" in plat5            # conflit de notation dit

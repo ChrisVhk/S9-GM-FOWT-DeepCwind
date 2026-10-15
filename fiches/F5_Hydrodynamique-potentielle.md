@@ -30,7 +30,7 @@ que l'on résout séparément pour une pulsation `ω` donnée :
 
 | Problème | Ce qu'il fournit | Forme |
 |---|---|---|
-| Incidente + diffraction | l'**excitation** `f` : l'effort de houle sur le corps fixe, un par degré de liberté `j`, fonction de `ω` et du cap `β` (notation distincte de la RAO) | complexe : module et phase |
+| Incidente + diffraction | l'**excitation** `f` : l'effort de houle sur le corps fixe, un par degré de liberté `j`, fonction de `ω` et du cap `β` (le master et Molin écrivent aussi la RAO `f_j(ω, β)` : ici l'excitation est notée `f` et la RAO `RAO_j`) | complexe : module et phase |
 | Rayonnement | la **masse ajoutée** `A_{jk}(ω)` et l'**amortissement de rayonnement** `B_{jk}(ω)` | réels, matrices `6 × 6` |
 
 L'excitation contient deux parts : l'effort **de Froude-Krylov** (la pression de la houle non perturbée, intégrée sur la coque)
@@ -72,7 +72,7 @@ vagues (fiche F2) : le maximum sur une durée donnée s'exprime en quelques `σ`
 
 ### Périodes propres
 
-La pulsation propre d'un degré de liberté `j` annule le déterminant de `−ω²(M + A(ω)) + C + K_A` (l'équation précédente sans son terme d'amortissement) ; au premier ordre `ω_j = √(raideur / inertie totale)`, c'est-à-dire :
+La pulsation propre d'un degré de liberté `j` annule le déterminant de `−ω²(M + A(ω)) + C + K_A` (l'équation précédente sans son terme d'amortissement) ; en négligeant les couplages entre degrés de liberté (approximation découplée, DNV), `ω_j = √(raideur / inertie totale)`, c'est-à-dire :
 
 ```math
 T_j = 2\pi\sqrt{\frac{M_{jj}+A_{jj}(\omega_j)}{C_{jj}+K_{jj}}} .
@@ -85,7 +85,7 @@ horizontales sont très au-dessus de la bande de houle).
 
 ### Lire une RAO comme un oscillateur
 
-Pour un seul degré de liberté, `M ẍ + B ẋ + K x = F`, avec `ω₀ = √(K/M)` et le taux d'amortissement `ζ = B/(2√(KM))` :
+Pour un seul degré de liberté, `M ẍ + B ẋ + K x = F` (`M` inclut la masse ajoutée), avec `ω₀ = √(K/M)` et le taux d'amortissement `ζ = B/(2√(KM))` :
 
 ```math
 x=\frac{F_0}{K}\,\frac{1}{1-\omega^2/\omega_0^2-2i\zeta\,\omega/\omega_0}.
@@ -117,7 +117,7 @@ et la qualité d'un calcul temporel dépend de la plage de fréquences fournie d
 | `.4` | idem pour les mouvements (RAO) |
 | `.hst` | matrice de raideur hydrostatique |
 
-Les grandeurs y sont **adimensionnées** (par `ρ`, `g`, une longueur de référence) : relire la définition avant de comparer à
+Les grandeurs y sont **adimensionnées** (par `ρ`, `g`, une longueur de référence ; l'amortissement est aussi divisé par `ω`, l'excitation et les mouvements par l'amplitude de houle) : relire la définition avant de comparer à
 un résultat en unités physiques. Les périodes y sont repérées par `2π/ω` ; une période nulle désigne `ω = ∞`, une
 période négative `ω = 0`.
 
@@ -140,8 +140,8 @@ période négative `ω = 0`.
   efforts du second ordre** (dérive moyenne, dérive lente, QTF). Pour les éléments élancés, on utilise un modèle de Morison ; des modèles dits « duals »
   combinent diffraction-rayonnement et éléments de Morison.
 - Les **périodes propres horizontales** d'un flotteur amarré sont très longues (plus de 100 s pour les concepts de plate-forme usuels, d'après DNV).
-- Un coefficient lu dans un fichier est celui **de la maille et de la plage de fréquences** du calcul d'origine. Un fichier
-  de coefficients ne dit pas toujours comment il a été calculé (maillage, profondeur).
+- Un coefficient lu dans un fichier est celui **de la maille et de la plage de fréquences** du calcul d'origine. Les fichiers `.1` à `.4` ne contiennent que
+  la période, le cap, les indices et des coefficients adimensionnés : ni le maillage ni la profondeur n'y figurent ; il faut les chercher dans le dossier du calcul.
 - **Conventions** : convention de temps, signe de la phase, cap de la houle (0° ou 180°), sens des axes, unités des
   fichiers adimensionnés : à relire dans le fichier ou dans sa documentation avant de comparer.
 - Les fichiers WAMIT sont lus par HydroDyn d'OpenFAST ; **la façon dont HydroDyn les traite** (interpolation en fréquence, extrapolation

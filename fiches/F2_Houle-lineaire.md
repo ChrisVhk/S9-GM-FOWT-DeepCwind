@@ -105,9 +105,9 @@ garantit pas de la rencontrer au cours d'un siècle.
 ## Ce que le modèle ne permet pas de conclure
 
 - La théorie d'Airy est **linéaire** : elle suppose une cambrure faible. Pour une mer très cambrée, en eau peu
-  profonde ou au-dessus du niveau moyen, d'autres théories sont nécessaires : Stokes d'ordre supérieur quand la cambrure est
-  modérée, théories d'eau peu profonde (Korteweg-de Vries, Boussinesq, ondes cnoïdales) quand le nombre d'Ursell est grand,
-  modèles d'étirement de la cinématique (Wheeler, *delta-stretching*) au-dessus du niveau moyen. Cette fiche ne les développe pas.
+  profonde ou au-dessus du niveau moyen, d'autres théories sont nécessaires : Stokes d'ordre supérieur quand le nombre d'Ursell `U_R` (qui combine la cambrure et la profondeur relative) est modéré, fonction de
+  courant près de la cambrure limite ou vers `U_R ≈ 30`, théories d'eau peu profonde (Korteweg-de Vries, Boussinesq, ondes cnoïdales)
+  quand `U_R` est grand, modèles d'étirement de la cinématique (Wheeler, *delta-stretching*) au-dessus du niveau moyen. Cette fiche ne les développe pas.
 - Un spectre résume **un état de mer**, pas une réalisation : deux réalisations du même `(Hs, Tp, γ)` ont des extrêmes
   différents (l'écart-type du maximum vaut une fraction de `Hs`). Les phases `θ_i` sont tirées au hasard : une **graine** fixe la réalisation.
 - `Hs` et `Tp` ne disent rien de la **direction** ni de l'étalement directionnel.
