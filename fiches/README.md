@@ -14,7 +14,9 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 | F5 | Hydrodynamique potentielle | publiée | [`F5_Hydrodynamique-potentielle.md`](F5_Hydrodynamique-potentielle.md) |
 | F6 | Aérodynamique et amortissement négatif | à venir | en attendant : voir la phase 2 ci-dessous |
 | F7 | Caténaire statique | à venir | en attendant : voir la phase 4 ci-dessous |
-| F8 | Ancrage dynamique et fatigue | à venir | en attendant : voir les phases 3 et 4 ci-dessous |
+| F8 | Ancrage dynamique | à venir | en attendant : voir la phase 4 ci-dessous |
+| F9 | Fatigue de structure | publiée | [`F9_Fatigue-de-structure.md`](F9_Fatigue-de-structure.md) |
+| F10 | Structures tubulaires | publiée | [`F10_Structures-tubulaires.md`](F10_Structures-tubulaires.md) |
 | Formulaire | Relations par phase (rappel, sans valeurs) | publié | [`FORMULAIRE.md`](FORMULAIRE.md) |
 
 ## Phase 0a
@@ -64,7 +66,7 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 
 | Notion | Où la lire |
 |---|---|
-| Fatigue : rainflow, courbe S-N, Miner, DEL court et long terme (F8, à venir) | en attendant : [`s9gm/fatigue.py`](../s9gm/fatigue.py) (blocs Théorie du module) ; [Formulaire, phase 3](FORMULAIRE.md) |
+| Fatigue : rainflow, courbe S-N, Miner, DEL court et long terme, DFF, effet d'épaisseur | [F9](F9_Fatigue-de-structure.md) ; [`s9gm/fatigue.py`](../s9gm/fatigue.py) (blocs Théorie du module) ; [Formulaire, phase 3](FORMULAIRE.md) |
 | Section tubulaire, DEL, courbe S-N, somme de DEL, Von Mises, dimensionnement | [guide du classeur de l'atelier, section 6](../annexes/atelier_tour/README.md#a-theorie) (une rubrique par étape du classeur) |
 | Post-traitement de la chaîne | [`s9gm/CHAINE.md`](../s9gm/CHAINE.md) ; [`s9gm/POST-TRAITER.md`](../s9gm/POST-TRAITER.md) |
 
@@ -73,13 +75,15 @@ Cet index **pointe, il n'explique pas** : chaque ligne dit où se trouve aujourd
 | Notion | Où la lire |
 |---|---|
 | Caténaire statique, raideur de ligne (F7, à venir) | en attendant : [`s9gm/ancrage.py`](../s9gm/ancrage.py) (bloc Théorie du module) ; [Formulaire, phase 4](FORMULAIRE.md) |
-| Ancrage dynamique, tension de chaumard, rainflow de `FAIRTEN` (F8, à venir) | en attendant : la rubrique « Théorie à lire » de la [phase 4](../seances/phase4/README.md#6-théorie-à-lire) ; [`s9gm/fatigue.py`](../s9gm/fatigue.py) |
+| Ancrage dynamique, tension de chaumard (F8, à venir) | en attendant : la rubrique « Théorie à lire » de la [phase 4](../seances/phase4/README.md#6-théorie-à-lire) |
+| Rainflow, Miner et DEL appliqués à la tension de chaumard `FAIRTEN` | [F9](F9_Fatigue-de-structure.md) ; [`s9gm/fatigue.py`](../s9gm/fatigue.py) |
 
 ## Phase 5
 
 | Notion | Où la lire |
 |---|---|
-| Section tubulaire, contraintes, Von Mises, facteurs de concentration de contrainte | [guide du classeur de l'atelier, section 6](../annexes/atelier_tour/README.md#a-theorie) ; [`s9gm/structure.py`](../s9gm/structure.py) (bloc Théorie du module) ; [Formulaire, phase 5](FORMULAIRE.md) |
+| Nœuds tubulaires, point chaud, facteurs de concentration de contrainte (SCF), domaine de validité | [F10](F10_Structures-tubulaires.md) ; [Formulaire, phase 5](FORMULAIRE.md) |
+| Section tubulaire, contraintes, Von Mises, dimensionnement de la tour | [guide du classeur de l'atelier, section 6](../annexes/atelier_tour/README.md#a-theorie) ; [`s9gm/structure.py`](../s9gm/structure.py) (bloc Théorie du module) ; [Formulaire, phase 5](FORMULAIRE.md) |
 | Fréquence de la tour et bandes 1P et 3P | [F1](F1_Aero-regulation.md) ; [guide de l'atelier, section 6.7](../annexes/atelier_tour/README.md#a-theorie-6-7) |
 | Morison (F4, à venir) | en attendant : [Formulaire, phase 2](FORMULAIRE.md) |
 

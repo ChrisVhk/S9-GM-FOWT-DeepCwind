@@ -77,7 +77,7 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 
 **Le temps de calcul est une ressource d'ingénieur.** Une simulation de 600 s prend environ 25 min sur une machine de la salle, une simulation d'une heure plus de 2 h — ordre de grandeur pour un cas complet (flottant, houle, ancrage) ; les cas plus simples du tutoriel de prise en main sont nettement plus rapides (voir les temps mesurés dans `cas/README.md` et `seances/0b/README.md`). Une LCT mal construite coûte des heures de machine pour rien : c'est pour cela qu'elle est validée avant lancement.
 
-**Fiches « minimum vital ».** Huit fiches de deux pages donnent le socle théorique nécessaire à chaque étape du projet (`fiches/` de ce dépôt). Quatre existent à ce jour (F1, F2, F3 et F5) ; les suivantes seront publiées au fil du projet.
+**Fiches « minimum vital ».** Dix fiches de deux pages donnent le socle théorique nécessaire à chaque étape du projet (`fiches/` de ce dépôt). Six existent à ce jour (F1, F2, F3, F5, F9 et F10) ; les suivantes seront publiées au fil du projet.
 
 | Fiche | Sujet | Utile pour |
 |---|---|---|
@@ -88,9 +88,11 @@ Au sein de chaque groupe, vous travaillez en **binômes**. Chaque binôme est re
 | [F5 — Hydrodynamique potentielle](fiches/F5_Hydrodynamique-potentielle.md) | Base de données WAMIT, radiation/diffraction | Phase 2 |
 | F6 — Aérodynamique et amortissement négatif | Amortissement aéro d'un flotteur en tangage | Phase 2 |
 | F7 — Caténaire statique | Équation de la chaîne, raideur de ligne | Phase 4 |
-| F8 — Ancrage dynamique et fatigue | MoorDyn vs quasi-statique, FAIRTEN et rainflow | Phase 3, phase 4 |
+| F8 — Ancrage dynamique | MoorDyn vs quasi-statique, tension de chaumard `FAIRTEN` | Phase 4 |
+| [F9 — Fatigue de structure](fiches/F9_Fatigue-de-structure.md) | Rainflow, courbe S-N, Miner, DEL, DFF, effet d'épaisseur | Phase 3, phase 4 (`FAIRTEN`) |
+| [F10 — Structures tubulaires](fiches/F10_Structures-tubulaires.md) | Nœuds tubulaires, SCF, point chaud, domaine de validité | Phase 5 |
 
-*Correspondance construite à partir du sujet de chaque fiche ; à confirmer phase par phase à mesure que les fiches F2-F8 sont rédigées et publiées.*
+*Correspondance construite à partir du sujet de chaque fiche ; à confirmer phase par phase à mesure que les fiches F2-F10 sont rédigées et publiées.*
 
 ### 4. Déroulé et heures du référentiel
 

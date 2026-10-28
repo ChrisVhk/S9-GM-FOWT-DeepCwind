@@ -56,11 +56,12 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 
 | Relation | Domaine / piège |
 |---|---|
-| Courbe S–N : `N = a · S⁻ᵐ` | `S` = **étendue** de contrainte, pas l'amplitude : `ΔS = 2 × amplitude` (piège de l'énoncé) |
-| Miner : `D = Σ nᵢ / Nᵢ` | linéaire, sans effet de séquence ; `D < 1/DFF` |
-| Court terme (DEL) : `S_e = (Σ nᵢ Sᵢᵐ / n_e)^(1/m)`, `n_e = f_e · T` | `m` de la courbe S–N ; `f_e` : fréquence équivalente choisie et annoncée |
+| Courbe S–N : `N = a · S⁻ᵐ` (fiche F9) | `S` = **étendue** de contrainte, pas l'amplitude : `ΔS = 2 × amplitude` (piège de l'énoncé) ; nommer l'édition de la norme |
+| Effet d'épaisseur : `log N = log ā − m log(Δσ (t/t_ref)^k)`, `t ≥ t_ref` (fiche F9) | `t_ref` et `k` se lisent dans la norme (pas d'une autre norme) ; pour `t < t_ref`, on prend `t = t_ref` |
+| Miner : `D = Σ nᵢ / Nᵢ` (fiche F9) | linéaire, sans effet de séquence ; `D ≤ 1/DFF` ; le DFF est un paramètre à justifier avec la norme |
+| Court terme (DEL) : `S_e = (Σ nᵢ Sᵢᵐ / n_e)^(1/m)`, `n_e = f_e · T` (fiche F9) | `m` de la courbe S–N ; `f_e` : fréquence équivalente choisie et annoncée |
 | Long terme : `S_e,LT = (Σⱼ O_j · S_e,j^m)^(1/m)` | pondération par les occurrences de la LCT (`O_j` en fraction, `Σ O_j = 1` ; même `n_e` pour tous les cas) |
-| Rainflow (ASTM E1049) | compte des cycles fermés ; résidu à traiter |
+| Rainflow (ASTM E1049) (fiche F9) | compte des cycles fermés ; résidu à traiter ; le principe est dans la fiche, l'algorithme détaillé est dans la norme |
 
 Test de bon sens : une sinusoïde d'étendue et de fréquence connues doit redonner le DEL calculé à la main.
 
@@ -79,7 +80,9 @@ Test de bon sens : une sinusoïde d'étendue et de fréquence connues doit redon
 | Contrainte de flexion composée : `σ = N/A + M/W` | Pa | signe de `N` (compression négative) |
 | Cisaillement maximal tube mince : `τ_max = 2V / A` | Pa | |
 | Von Mises (σ axial + τ) : `σ_VM = √(σ² + 3 τ²)` | Pa | comparer à la limite élastique avec coefficient |
-| Nœud tubulaire : `β = d / D` (d : diamètre de l'entretoise, D : du membre principal) | – | les formules paramétriques (Efthymiou) ont un **domaine de validité** ; hors domaine, refuser le calcul, ne pas extrapoler |
+| Nœud tubulaire : `β = d / D` (d : diamètre de l'entretoise, D : du membre principal) (fiche F10) | – | les formules paramétriques (Efthymiou) ont un **domaine de validité** ; hors domaine, refuser le calcul, ne pas extrapoler |
+| Paramètres d'un nœud : `γ = D/2T`, `τ = t/T`, `α = 2L/D`, `ζ = g/D`, angle `θ` (fiche F10) | – | calculer les six valeurs avant de choisir une formule ; la norme donne les bornes de chacune |
+| Contrainte de point chaud : `σ_hs = SCF · σ_nom` (fiche F10) | Pa | `σ_nom` : contrainte nominale de la bretelle ; l'entaille du cordon est dans la courbe S–N, pas dans le SCF ; côtés corde et bretelle séparés |
 
 <!-- DTU : emplacement réservé, invisible des étudiants — relations supplémentaires d'aéro-régulation et de charges du cours construit
      avec le DTU. Crédit à inscrire quand la matière entrera : « Technical University of Denmark (DTU) — https://www.dtu.dk/english ».
@@ -89,6 +92,6 @@ Test de bon sens : une sinusoïde d'étendue et de fréquence connues doit redon
 
 Relations usuelles de la mécanique, de l'hydrodynamique et de la résistance des matériaux ; constantes
 `g`, `ρ_air`, `ρ_eau` : fichier `main.fst` du tutoriel. Jonkman et al. 2009 (NREL/TP-500-38060) pour la machine ;
-fiche F1 pour la phase 0. Les relations de fatigue et de structure renvoient aux fiches de phase quand elles
-seront publiées : en attendant, toute valeur numérique (courbe S–N, paramètres de nœud) se relit à la source
+fiche F1 pour la phase 0. Les relations de fatigue et de structure renvoient aux fiches F9 (fatigue de structure) et F10
+(structures tubulaires) : toute valeur numérique (courbe S–N, paramètres de nœud) se relit à la source
 avant d'entrer dans un rendu.

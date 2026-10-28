@@ -109,7 +109,7 @@ PUBLIC_MD = [RACINE / "README.md", RACINE / "ENONCE.md", RACINE / "fiches" / "RE
 
 
 def test_f8_devient_ancrage_dynamique_partout_et_f9_f10_sont_publiees_a_l_index():
-    """E-222 (28/10) : F8 = « Ancrage dynamique » seulement ; la fatigue de structure est F9, les structures tubulaires F10."""
+    """Décision du 28/10 : F8 = « Ancrage dynamique » seulement ; la fatigue de structure est F9, les structures tubulaires F10."""
     for f in PUBLIC_MD:
         assert "Ancrage dynamique et fatigue" not in f.read_text(encoding="utf-8"), f.relative_to(RACINE)
     index = (RACINE / "fiches" / "README.md").read_text(encoding="utf-8")

@@ -21,7 +21,7 @@ Prérequis : l'environnement installé en [séance 0a](../0a/README.md) (`openfa
 
 **Ressource :** le [guide du classeur de l'atelier](../../annexes/atelier_tour/README.md#a-theorie) (théorie derrière chaque étape du classeur ; le classeur lui-même est distribué sur Vega) ; on l'ouvre à l'étape 0 de cette phase.
 
-**À lire avant la séance : F8 (Ancrage dynamique et fatigue)** — dès qu'elle est publiée.
+**À lire avant la séance : F9 (Fatigue de structure)** : [`fiches/F9_Fatigue-de-structure.md`](../../fiches/F9_Fatigue-de-structure.md).
 
 **Où vit ce que vous produisez** : sous `results/` et `rendus/` (ignorés par git) ; `cas/`, `modeles/` et `seances/` se lisent et se lancent sans être modifiés.
 
@@ -331,6 +331,6 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
 
-F8 (Ancrage dynamique et fatigue) : *fiche à venir (master)*.
+[F9 — Fatigue de structure](../../fiches/F9_Fatigue-de-structure.md).
 
 Le guide du classeur de l'atelier donne la théorie derrière chaque étape de calcul : [`annexes/atelier_tour/README.md`](../../annexes/atelier_tour/README.md).
