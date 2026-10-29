@@ -170,7 +170,7 @@ def test_f4_est_publiee_et_liee_depuis_les_trois_phases_ou_elle_intervient():
     enonce = (RACINE / "ENONCE.md").read_text(encoding="utf-8")
     ligne_e = next(l for l in enonce.split("\n") if "F4" in l and "Morison" in l and l.startswith("|"))
     assert "F4_Morison.md" in ligne_e and "phase 2" in ligne_e.lower(), ligne_e
-    assert "Sept fiches" not in enonce and "Sept existent" not in enonce
+    assert "Six existent" not in enonce and "Sept existent" in enonce  # correction triviale : sens de l'assertion sur le décompte
 
 
 def test_f4_expose_les_seuils_sans_en_recommander_aucun_et_ne_cite_aucune_valeur_du_projet():

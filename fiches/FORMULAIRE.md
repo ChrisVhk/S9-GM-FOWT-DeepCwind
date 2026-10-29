@@ -44,7 +44,7 @@ Constantes du modèle (lues dans `main.fst`) : `g = 9,80665 m/s²`, `ρ_air = 1,
 | Raideurs de roulis et de tangage, poids écrit à part : `C₄₄ = ρ g (S₂₂ + V z_B) − M g z_G` (de même `C₅₅` avec `S₁₁`) (fiche F3) | N·m/rad | `S₁₁`, `S₂₂` : moments du second ordre de la flottaison ; coïncide avec `ρ g ∀ GB̄ + ρ g I` pour un flotteur libre ; un fichier de coefficients peut ne donner que la part de poussée |
 | `GM = KB + BM − KG`, `BM = I_wp / ∇` | m | `K₅₅ ≈ ρ g ∇ GM` (sans ancrage) |
 | Période propre `T_n = 2π √((M + A_ajoutée) / K)` | s | masse **ajoutée** comprise |
-| Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` | N/m | **valable si `D/λ_houle < 0,2`** ; forme du cylindre fixe — pour une structure mobile, vitesses relatives ; au-delà, théorie potentielle (WAMIT) |
+| Morison (cylindre fin) : `f = ρ C_m (πD²/4) u̇ + ½ ρ C_d D · abs(u) · u`, `C_m = 1 + C_a` (fiche F4) | N/m | domaine de validité : voir la fiche F4 (les seuils `D/λ` des sources ne sont pas identiques, de 1/6 à 1/5) ; forme du cylindre fixe — pour une structure mobile, vitesses relatives ; au-delà, théorie potentielle (WAMIT) |
 | Équation du mouvement en fréquence : `[−ω²(M + A(ω)) − iωB(ω) + C + K_A] x = f` (fiche F5) | – | le signe devant `iωB` dépend de la convention de temps ; `A`, `B` à la fréquence de calcul |
 | RAO : `x_j = A · RAO_j(ω)` ; `S_X = S · abs(RAO)²` (fiche F5) | m/m ou rad/m | phase relative à la houle à l'origine du repère ; houle d'une seule direction |
 | Oscillateur : `ω₀ = √(K/M)`, `ζ = B/(2√(KM))`, amplification à la résonance `1/(2ζ)`, décroissance par cycle `e^{−2πζ}` (fiche F5) | – | `M` comprend la masse ajoutée |

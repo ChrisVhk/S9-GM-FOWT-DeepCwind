@@ -267,4 +267,5 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
 
 [F5 (Hydrodynamique potentielle)](../../fiches/F5_Hydrodynamique-potentielle.md) : excitation, masse ajoutée, amortissement, RAO, périodes propres.
+[F4 (Morison)](../../fiches/F4_Morison.md) : coefficients, domaine de validité, potentiel contre Morison.
 F6 (Aérodynamique et amortissement négatif) : *fiche à venir (master)*.

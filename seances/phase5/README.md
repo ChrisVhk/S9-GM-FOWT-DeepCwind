@@ -495,6 +495,6 @@ La démarche générale, du `.outb` aux statistiques, aux figures et au DEL, est
 
 Index de la théorie : [`fiches/README.md`](../../fiches/README.md).
 
-[F10 — Structures tubulaires](../../fiches/F10_Structures-tubulaires.md) ; F4 (Morison) : *fiche à venir (master)*.
+[F10 — Structures tubulaires](../../fiches/F10_Structures-tubulaires.md) ; [F4 — Morison](../../fiches/F4_Morison.md).
 
 Le guide du classeur de l'atelier donne la théorie derrière chaque étape de calcul : [`annexes/atelier_tour/README.md`](../../annexes/atelier_tour/README.md).

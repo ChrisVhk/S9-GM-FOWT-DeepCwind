@@ -17,9 +17,7 @@ hydrostatiques du flotteur ; lancer l'éolienne flottante (D00 à D05) ; compare
 
 **Premier geste, depuis n'importe quel dossier : `s9gm doctor`** (il vérifie votre poste et donne la commande exacte pour chaque point en défaut ; si `s9gm` est introuvable, activez l'environnement : `micromamba activate s9gm-fowt`). Un terminal ne vous est pas familier : [`annexes/TERMINAL.md`](../../annexes/TERMINAL.md), une page.
 
-**À lire avant la séance** : fiche F2 (Houle linéaire), fiche F3 (Hydrostatique), fiche F4 (Morison) — *fiches à venir
-(master)*. En leur absence, les renvois de cette page pointent vers le tutoriel LHEEA et la fiche F1 déjà disponibles
-([`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md)).
+**À lire avant la séance** : fiche F2 (Houle linéaire), fiche F3 (Hydrostatique), fiche F4 (Morison) : [`../../fiches/F2_Houle-lineaire.md`](../../fiches/F2_Houle-lineaire.md), [`../../fiches/F3_Hydrostatique.md`](../../fiches/F3_Hydrostatique.md), [`../../fiches/F4_Morison.md`](../../fiches/F4_Morison.md). Pour l'aérodynamique, la fiche F1 : [`../../fiches/F1_Aero-regulation.md`](../../fiches/F1_Aero-regulation.md).
 
 **Ce qui doit déjà marcher** (séance [0a](../0a/README.md)) : `openfast -v` affiche `OpenFAST-v5.0.0` ; le contrôleur
 est compilé (`bash scripts/build_discon.sh`) ; vous avez lancé F01 et F02 ; `turbsim` est dans le PATH
@@ -172,7 +170,7 @@ référence IEC est 600 s.
 
 ### 3.2 Architecture du modèle de flotteur, au tableur (environ 30 min)
 
-*Théorie : section 6.5 (flotteur) ; fiche F4 (à venir (master)).*
+*Théorie : section 6.5 (flotteur) ; [fiche F4 (Morison)](../../fiches/F4_Morison.md).*
 
 À partir de la géométrie de la DeepCwind (dimensions fournies), compléter votre copie (sous `results/`) du classeur `DeepCwind_ARCHITECTURE.xlsx` : **nœuds**
 (coordonnées dans le repère inertiel), **membres** (nœud 1 → nœud 2, jeu de propriétés, discrétisation), **jeux de propriétés**
